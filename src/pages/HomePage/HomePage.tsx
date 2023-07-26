@@ -1,5 +1,7 @@
+import { Map } from '../../components';
+
 const HomePage = () => {
-	return <h1>Home Page</h1>
+	return <Map />
 };
 
 export { HomePage };
