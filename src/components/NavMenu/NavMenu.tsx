@@ -34,7 +34,13 @@ const NavMenu = () => {
 					to={route.path}
 					key={route.path}
 				>
-					<Typography textAlign="center">{route.displayText}</Typography>
+					<Typography
+						variant="body2"
+						textAlign="center"
+						sx={{ color: '#eeeeee' }}
+					>
+						{route.displayText}
+					</Typography>
 				</MenuItem>
 			))}
 		</>

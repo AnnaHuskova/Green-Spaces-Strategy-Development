@@ -6,7 +6,7 @@ const Topbar = memo(() => {
 	return (
 		<AppBar
 			position="fixed"
-			color="default"
+			sx={{ bgcolor: '#233044'}}
 		>
 			<Toolbar sx={{ justifyContent: 'center' }}>
 				<NavMenu />
