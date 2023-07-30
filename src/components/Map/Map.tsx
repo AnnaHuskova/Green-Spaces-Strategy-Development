@@ -144,7 +144,7 @@ const Map = () => {
 				/>
 				<FormControlLabel
 					control={<Switch size="small" checked={showGreenAreas} onChange={(event) => setShowGreenAreas(event.target.checked)}/>}
-					label={<Typography variant="body2" sx={{ ml: 1 }}>Відобразити зелені зони</Typography>}
+					label={<Typography variant="body2" sx={{ ml: 1 }}>Відобразити ландшафтно-рекреаційні зони</Typography>}
 				/>
 			</Stack>
 		</>
