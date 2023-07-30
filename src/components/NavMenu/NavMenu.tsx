@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MenuItem, Typography } from '@mui/material';
+import { List, MenuItem, Typography } from '@mui/material';
 
 type RouteType = {
 	path: string;
@@ -27,7 +27,7 @@ const routes: RouteType[] = [
 
 const NavMenu = () => {
 	return (
-		<>
+		<List sx={{ display: 'flex' }}>
 			{routes.map(route => (
 				<MenuItem
 					component={Link}
@@ -43,7 +43,7 @@ const NavMenu = () => {
 					</Typography>
 				</MenuItem>
 			))}
-		</>
+		</List>
 	);
 };
 
