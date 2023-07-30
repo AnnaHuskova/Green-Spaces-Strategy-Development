@@ -1,22 +1,41 @@
 import { useState } from 'react';
+import { renderToString } from 'react-dom/server';
+import { useNavigate } from 'react-router-dom';
 import { FormControlLabel, Stack, Switch, Typography } from '@mui/material';
-import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from 'react-leaflet';
+import { Icon } from 'leaflet'
 import 'leaflet/dist/leaflet.css';
 import buildings from '../../assets/geo/Poligons_byHeritageBuildins.json';
 import buildingsAll from '../../assets/geo/Poligons_allBuildings.json';
+import memorials from '../../assets/geo/Memorials.json';
+import monuments from '../../assets/geo/Monuments.json';
+import greenAreas from '../../assets/geo/Green_Areas.json';
+import assets from '../../assets';
 
 const Map = () => {
-	const [viewAll, setViewAll] = useState(true);
-	const [vieHistorical, setViewHistorical] = useState(true);
+	const [showAll, setShowAll] = useState(true);
+	const [showHistorical, setShowHistorical] = useState(true);
+	const [showMemorials, setShowMemorials] = useState(true);
+	const [showMonuments, setShowMonuments] = useState(true);
+	const [showGreenAreas, setShowGreenAreas] = useState(true);
+
+	const navigate = useNavigate();
 
 	const onEachBuilding = (building: any, layer: any) => {
-		layer.bindPopup(`
-			<b>ID:</b> ${building?.properties?.fid}
-			<br/>
-			<b>Назва:</b> ${building?.properties?.name}
-			<br/>
-			<b>Тип:</b> ${building?.properties?.type}
-		`);
+		const popupContent = renderToString(
+			<div>
+				<b>ID:</b> {building?.properties?.fid}
+				<br/>
+				<b>Назва:</b> {building?.properties?.name}
+				<br/>
+				<b>Тип:</b> {building?.properties?.type}
+				<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+					<button className="btn-save" onClick={() => navigate('/save')}>Подати заявку</button>
+				</div>
+			</div>
+		);
+
+		layer.bindPopup(popupContent);
 	};
 	
 	const onEachBuildingAll = (building: any, layer: any) => {
@@ -34,17 +53,65 @@ const Map = () => {
 					attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				/>
-				{viewAll && (<GeoJSON
+				{showAll && (<GeoJSON
 					key='all'
 					data={{...buildingsAll, type: 'FeatureCollection'}}
 					onEachFeature={onEachBuildingAll}
 				/>)}
-				{vieHistorical && (<GeoJSON
+				{showHistorical && (<GeoJSON
 					key='heritage'
 					data={{...buildings, type: 'FeatureCollection'}}
 					onEachFeature={onEachBuilding}
 					style={{ color: 'red', fillColor: 'red', fillOpacity: 0.5 }}
 				/>)}
+				{showGreenAreas && (<GeoJSON
+					key='greenAreas'
+					data={{...greenAreas, type: 'FeatureCollection'}}
+					onEachFeature={onEachBuilding}
+					style={{ color: 'green', fillColor: 'green', fillOpacity: 0.5 }}
+				/>)}
+				{showMemorials && memorials.features.map(item => (
+					<Marker
+						key={item.properties.fid}
+						position={[item.geometry.coordinates[1], item.geometry.coordinates[0]]}
+						icon={new Icon({
+							iconUrl: assets.images.markerDefault,
+							shadowUrl: assets.images.shadowDefault,
+							iconSize: [25, 41],
+							iconAnchor: [12, 41]
+						})}
+					>
+						<Popup>
+							<b>ID:</b> {item?.properties?.fid}
+							<br/>
+							<b>Назва:</b> {item?.properties?.name}
+							<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+								<button className="btn-save" onClick={() => navigate('/save')}>Подати заявку</button>
+							</div>
+						</Popup>
+					</Marker>
+				))}
+				{showMonuments && monuments.features.map(item => (
+					<Marker
+						key={item.properties.fid}
+						position={[item.geometry.coordinates[1], item.geometry.coordinates[0]]}
+						icon={new Icon({
+							iconUrl: assets.images.markerMonument,
+							shadowUrl: assets.images.shadowDefault,
+							iconSize: [25, 41],
+							iconAnchor: [12, 41]
+						})}
+					>
+						<Popup>
+							<b>ID:</b> {item?.properties?.fid}
+							<br/>
+							<b>Назва:</b> {item?.properties?.name}
+							<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+								<button className="btn-save" onClick={() => navigate('/save')}>Подати заявку</button>
+							</div>
+						</Popup>
+					</Marker>
+				))}
 			</MapContainer>
 			<Stack
 				rowGap={1}
@@ -60,36 +127,24 @@ const Map = () => {
 				}}
 			>
 				<FormControlLabel
-					control={
-						<Switch
-							size="small"
-							checked={viewAll}
-							onChange={(event) => setViewAll(event.target.checked)}
-						/>}
-					label={
-						<Typography
-							variant="body2"
-							color="text.primary"
-							sx={{ ml: 1 }}
-						>
-							Відобразити всі
-						</Typography>}
+					control={<Switch size="small" checked={showAll} onChange={(event) => setShowAll(event.target.checked)} />}
+					label={<Typography variant="body2" sx={{ ml: 1 }}>Відобразити всі</Typography>}
 				/>
 				<FormControlLabel
-					control={
-						<Switch
-							size="small"
-							checked={vieHistorical}
-							onChange={(event) => setViewHistorical(event.target.checked)}
-						/>}
-					label={
-						<Typography
-							variant="body2"
-							color="text.primary"
-							sx={{ ml: 1 }}
-						>
-							Відобразити історичні будівлі
-						</Typography>}
+					control={<Switch size="small" checked={showHistorical} onChange={(event) => setShowHistorical(event.target.checked)}/>}
+					label={<Typography variant="body2" sx={{ ml: 1 }}>Відобразити історичні будівлі</Typography>}
+				/>
+				<FormControlLabel
+					control={<Switch size="small" checked={showMemorials} onChange={(event) => setShowMemorials(event.target.checked)}/>}
+					label={<Typography variant="body2" sx={{ ml: 1 }}>Відобразити мемореали</Typography>}
+				/>
+				<FormControlLabel
+					control={<Switch size="small" checked={showMonuments} onChange={(event) => setShowMonuments(event.target.checked)}/>}
+					label={<Typography variant="body2" sx={{ ml: 1 }}>Відобразити монументи</Typography>}
+				/>
+				<FormControlLabel
+					control={<Switch size="small" checked={showGreenAreas} onChange={(event) => setShowGreenAreas(event.target.checked)}/>}
+					label={<Typography variant="body2" sx={{ ml: 1 }}>Відобразити зелені зони</Typography>}
 				/>
 			</Stack>
 		</>
