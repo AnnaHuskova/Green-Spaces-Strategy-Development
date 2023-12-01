@@ -9,19 +9,19 @@ type RouteType = {
 const routes: RouteType[] = [
 	{
 		path: '/',
-		displayText: 'Головна'
+		displayText: 'Main'
 	},
 	{
 		path: '/about',
-		displayText: 'Про проект'
+		displayText: 'About'
 	},
 	{
 		path: '/save',
-		displayText: 'Як зберегти?'
+		displayText: 'How to protect?'
 	},
 	{
 		path: '/blog',
-		displayText: 'Блог'
+		displayText: 'Blog'
 	}
 ];
 

@@ -10,7 +10,7 @@ const Topbar = memo(() => {
 		>
 			<Toolbar sx={{ display: 'flex' }}>
 				<Typography variant='h6' sx={{ flex: 1 }}>
-					Historical Landscape Remembrance
+					{'<'}Green Spaces Strategy Development{'>'}
 				</Typography>
 				<NavMenu />
 				<Box sx={{ flex: 1 }} />
