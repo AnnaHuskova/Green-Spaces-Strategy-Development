@@ -31,7 +31,7 @@ const Map = () => {
 				<br/>
 				<b>Accessibility for target groups:</b> {Boolean(building?.properties['Accessibility for target groups']) ? 'Yes' : 'No'}
 				<br/>
-				<b>Accessibility for target groups:</b> {Boolean(building?.properties['Functions (mental and physical recuperation)']) ? 'Yes' : 'No'}
+				<b>Functions (mental and physical recuperation):</b> {Boolean(building?.properties['Functions (mental and physical recuperation)']) ? 'Yes' : 'No'}
 			</div>
 		);
 
