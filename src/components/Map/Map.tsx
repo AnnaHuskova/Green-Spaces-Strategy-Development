@@ -198,171 +198,191 @@ import { FeatureCollection } from 'geojson';
 // };
 
 const Map = () => {
-	const mapContainer = useRef(null);
-	const [style, setStyle] = useState('https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json');
+  const mapContainer = useRef(null);
+  const [style, setStyle] = useState('https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json');
+  const [showSupervised, toggleShowSupervised] = useState(true);
+  const [showUnsupervised, toggleShowSupervise] = useState(true);
+
+
 	
-	useEffect(() => {
-		const map = new maplibregl.Map({
-			container: mapContainer.current || '',
-			style: style,
-			// style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-			center: [35.0064, 48.4701],
-			zoom: 10,
-			maxBounds: new maplibregl.LngLatBounds([
-				[34.6064, 48.3301],
-				[35.4064, 48.6001],
-			]),
-			attributionControl: false,
-		});
+  useEffect(() => {
+    const map = new maplibregl.Map({
+      container: mapContainer.current || '',
+      style: style,
+      // style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+      center: [35.0064, 48.4701],
+      zoom: 10,
+      maxBounds: new maplibregl.LngLatBounds([
+        [34.6064, 48.3301],
+        [35.4064, 48.6001],
+      ]),
+      attributionControl: false,
+    });
 
-		map.on('load', () => {
-			map.addSource('boroughs', {
-				'type': 'geojson',
-				'data': boroughs as FeatureCollection
-			});
+    map.on('load', () => {
+      map.addSource('boroughs', {
+        'type': 'geojson',
+        'data': boroughs as FeatureCollection
+      });
 
-			map.addLayer({
-				'id': 'boroughs-outline',
-				'type': 'line',
-				'source': 'boroughs',
-				'layout': {},
-				'paint': {
-					'line-color': '#05668D',
-					'line-width': 2
-				}
-			});
+      map.addLayer({
+        'id': 'boroughs-outline',
+        'type': 'line',
+        'source': 'boroughs',
+        'layout': {},
+        'paint': {
+          'line-color': '#05668D',
+          'line-width': 2
+        }
+      });
 
-			map.addSource('areasDnipro', {
-				'type': 'geojson',
-				'data': areasDnipro as FeatureCollection
-			});
+      map.addSource('areasDnipro', {
+        'type': 'geojson',
+        'data': areasDnipro as FeatureCollection
+      });
 
-			map.addLayer({
-				'id': 'areasDnipro-on-budget',
-				'type': 'fill',
-				'source': 'areasDnipro',
-				'layout': {},
-				'paint': {
-					'fill-color': '#3ABEFF',
-					'fill-opacity': 0.5
-				},
-				'filter': ['==', ['get', 'On budget'], true]
-			});
+      map.addLayer({
+        'id': 'areasDnipro-on-budget',
+        'type': 'fill',
+        'source': 'areasDnipro',
+        'layout': {},
+        'paint': {
+          'fill-color': '#3ABEFF',
+          'fill-opacity': 0.5
+        },
+        'filter': ['==', ['get', 'On budget'], true]
+      });
 
-			map.addLayer({
-				'id': 'areasDnipro-off-budget',
-				'type': 'fill',
-				'source': 'areasDnipro',
-				'layout': {},
-				'paint': {
-					'fill-color': '#D84797',
-					'fill-opacity': 0.5
-				},
-				'filter': ['==', ['get', 'On budget'], false]
-			});
+      map.addLayer({
+        'id': 'areasDnipro-off-budget',
+        'type': 'fill',
+        'source': 'areasDnipro',
+        'layout': {},
+        'paint': {
+          'fill-color': '#D84797',
+          'fill-opacity': 0.5
+        },
+        'filter': ['==', ['get', 'On budget'], false]
+      });
 
-			map.addControl(new maplibregl.NavigationControl(), 'top-left');
-			map.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: true }), 'top-left');
-			map.addControl(new maplibregl.FullscreenControl(), 'top-left');
-			map.addControl(new maplibregl.ScaleControl({ maxWidth: 180, unit: 'metric' }));
-			map.addControl(new maplibregl.AttributionControl({
-				compact: false,
-				customAttribution: 'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_balnk>🇺🇦 Українська спільнота OpenStreetMap</a>'
-			}), 'bottom-right');
-		});
+      map.addControl(new maplibregl.NavigationControl(), 'top-left');
+      map.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: true }), 'top-left');
+      map.addControl(new maplibregl.FullscreenControl(), 'top-left');
+      map.addControl(new maplibregl.ScaleControl({ maxWidth: 180, unit: 'metric' }));
+      map.addControl(new maplibregl.AttributionControl({
+        compact: false,
+        customAttribution: 'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_balnk>🇺🇦 Українська спільнота OpenStreetMap</a>'
+      }), 'bottom-right');
+    });
 
-		let currentPopup: maplibregl.Popup | null = null;
+    let currentPopup: maplibregl.Popup | null = null;
 
-		['areasDnipro-on-budget', 'areasDnipro-off-budget'].forEach(layer => {
-			map.on('mouseenter', layer, () => {
-				map.getCanvas().style.cursor = 'pointer';
-			});
+    ['areasDnipro-on-budget', 'areasDnipro-off-budget'].forEach(layer => {
+      map.on('mouseenter', layer, () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
 		
-			map.on('mouseleave', layer, () => {
-				map.getCanvas().style.cursor = '';
-			});
+      map.on('mouseleave', layer, () => {
+        map.getCanvas().style.cursor = '';
+      });
 
-			map.on('click', layer, (e) => {
-				if (e.features?.length) {
-					const feature = e.features[0];
+      map.on('click', layer, (e) => {
+        if (e.features?.length) {
+          const feature = e.features[0];
 
-					if (currentPopup) {
-						currentPopup.remove();
-						currentPopup = null;
-					} else {
-						currentPopup = new maplibregl.Popup()
-						.setLngLat(e.lngLat)
-						.setHTML(`
+          if (currentPopup) {
+            currentPopup.remove();
+            currentPopup = null;
+          } else {
+            currentPopup = new maplibregl.Popup()
+              .setLngLat(e.lngLat)
+              .setHTML(`
 							<b>Номер:</b> ${feature.properties.ID}<br>
 							<b>Назва:</b> ${feature.properties.NAME}<br>
-							<b>Площа:</b> ${(feature.properties.площадь/10000).toFixed(2)} га<br>
+							<b>Площа:</b> ${(feature.properties.площадь / 10000).toFixed(2)} га<br>
 							<b>Доступність для цільових груп:</b> ${Boolean(feature.properties['Accessibility for target groups']) ? 'Так' : 'Ні'}<br>
 							<b>Функції (психологічне та фізичне відновлення):</b> ${Boolean(feature.properties['Functions (mental and physical recuperation)']) ? 'Так' : 'Ні'}<br>
 						`)
-						.addTo(map);
-					}
-				}
-			});
-		});
+              .addTo(map);
+          }
+        }
+      });
+    });
 
 
-		// Create a new HTML element for the legend
-		const legend = document.createElement('div');
-		legend.id = 'legend';
-		legend.style.position = 'absolute';
-		legend.style.top = '10px';
-		legend.style.right = '10px';
-		legend.style.backgroundColor = 'white';
-		legend.style.padding = '10px';
-		legend.style.borderRadius = '5px';
-		legend.style.boxShadow = '0px 0px 10px rgba(0, 0, 0, 0.5)';
+    // Create a new HTML element for the legend
+    const legend = document.createElement('div');
+    legend.id = 'legend';
+    legend.style.position = 'absolute';
+    legend.style.top = '10px';
+    legend.style.right = '10px';
+    legend.style.backgroundColor = 'white';
+    legend.style.padding = '10px';
+    legend.style.borderRadius = '5px';
+    legend.style.boxShadow = '0px 0px 10px rgba(0, 0, 0, 0.5)';
 
-		// Add content to the legend
-		let isOnBudgetVisible = true;
-		let isOffBudgetVisible = true;
+    // Add content to the legend
+    let isOnBudgetVisible = true;
+    let isOffBudgetVisible = true;
 
-		const onBudgetItem = document.createElement('div');
-		onBudgetItem.style.cursor = 'pointer';
-		onBudgetItem.addEventListener('click', () => {
-			if (isOnBudgetVisible) {
-				onBudgetItem.innerHTML = `<span style="background-color: #8CDDFB; opacity: 0.5; display: inline-block; width: 10px; height: 10px;"></span> Supervised`;
-				map.setLayoutProperty('areasDnipro-on-budget', 'visibility', 'none');
-			} else {
-				onBudgetItem.innerHTML = `<span style="background-color: #3ABEFF; opacity: 0.5; display: inline-block; width: 15px; height: 15px;"></span> Supervised`;
-				map.setLayoutProperty('areasDnipro-on-budget', 'visibility', 'visible');
-			}
-			isOnBudgetVisible = !isOnBudgetVisible;
-		});
+    const onBudgetItem = document.createElement('div');
+    onBudgetItem.style.cursor = 'pointer';
+    onBudgetItem.addEventListener('click', () => {
+      if (isOnBudgetVisible) {
+        onBudgetItem.innerHTML = `<span style="background-color: #8CDDFB; opacity: 0.5; display: inline-block; width: 10px; height: 10px;"></span> Supervised`;
+        map.setLayoutProperty('areasDnipro-on-budget', 'visibility', 'none');
+      } else {
+        onBudgetItem.innerHTML = `<span style="background-color: #3ABEFF; opacity: 0.5; display: inline-block; width: 15px; height: 15px;"></span> Supervised`;
+        map.setLayoutProperty('areasDnipro-on-budget', 'visibility', 'visible');
+      }
+      isOnBudgetVisible = !isOnBudgetVisible;
+    });
 
-		// Set initial state
-		onBudgetItem.innerHTML = `<span style="background-color: #3ABEFF; opacity: 0.5; display: inline-block; width: 15px; height: 15px;"></span> Supervised`;
+    // Set initial state
+    onBudgetItem.innerHTML = `<span style="background-color: #3ABEFF; opacity: 0.5; display: inline-block; width: 15px; height: 15px;"></span> Supervised`;
 
-		const offBudgetItem = document.createElement('div');
-		offBudgetItem.style.cursor = 'pointer';
-		offBudgetItem.addEventListener('click', () => {
-			if (isOffBudgetVisible) {
-				offBudgetItem.innerHTML = `<span style="background-color: #EBA2CA; opacity: 0.5; display: inline-block; width: 10px; height: 10px;"></span> Not Supervised`;
-				map.setLayoutProperty('areasDnipro-off-budget', 'visibility', 'none');
-			} else {
-				offBudgetItem.innerHTML = `<span style="background-color: #D84797; opacity: 0.5; display: inline-block; width: 15px; height: 15px;"></span> Not Supervised`;
-				map.setLayoutProperty('areasDnipro-off-budget', 'visibility', 'visible');
-			}
-			isOffBudgetVisible = !isOffBudgetVisible;
-		});
+    const offBudgetItem = document.createElement('div');
+    offBudgetItem.style.cursor = 'pointer';
+    offBudgetItem.addEventListener('click', () => {
+      if (isOffBudgetVisible) {
+        offBudgetItem.innerHTML = `<span style="background-color: #EBA2CA; opacity: 0.5; display: inline-block; width: 10px; height: 10px;"></span> Not Supervised`;
+        map.setLayoutProperty('areasDnipro-off-budget', 'visibility', 'none');
+      } else {
+        offBudgetItem.innerHTML = `<span style="background-color: #D84797; opacity: 0.5; display: inline-block; width: 15px; height: 15px;"></span> Not Supervised`;
+        map.setLayoutProperty('areasDnipro-off-budget', 'visibility', 'visible');
+      }
+      isOffBudgetVisible = !isOffBudgetVisible;
+    });
 
 		
-		offBudgetItem.innerHTML = `<span style="background-color: #D84797; opacity: 0.5; display: inline-block; width: 15px; height: 15px;"></span> Not Supervised`;
+    offBudgetItem.innerHTML = `<span style="background-color: #D84797; opacity: 0.5; display: inline-block; width: 15px; height: 15px;"></span> Not Supervised`;
 		
-		legend.appendChild(onBudgetItem);
-		legend.appendChild(offBudgetItem);
+    legend.appendChild(onBudgetItem);
+    legend.appendChild(offBudgetItem);
 		
-		// Append the legend to the map's container
-		map.getContainer().appendChild(legend);
+    // Append the legend to the map's container
+    map.getContainer().appendChild(legend);
 
-		return () => map.remove();
-	}, []);
+    return () => map.remove();
+  }, []);
+  
+  const legendStyle = {
+    //position: 'absolute',
+    top: '10px',
+    right: '10px',
+    backgroundColor: 'white',
+    padding: '10px',
+    borderRadius: '5px',
+    boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.5)',
+  }
 
-	return <div ref={mapContainer} style={{ height: 'calc(100% - 64px)', width: '100%' }} />
+  return <div ref={mapContainer} style={{ height: 'calc(100% - 64px)', width: '100%' }}>
+    <div id='legend' style={{ ...legendStyle, position: 
+      "absolute"
+    }} >
+      Test
+      </div>
+  </div>
 
 }
 
