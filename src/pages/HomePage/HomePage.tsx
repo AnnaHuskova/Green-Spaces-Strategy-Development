@@ -15,38 +15,32 @@ const contStyle = {
   height: "90%"
 }
 
-// const districts: FillLayer = {
-  
-// }
-
 function HomePage() {
   const CURSOR_TYPE = {
     AUTO: "auto",
-    POINTER: "pointer,"
-  }
+    POINTER: "pointer",
+  };
 
   const [style, setStyle] = useState('https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json');
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
   const [styleJson, setStyleJson] = useState(null);
   const [interactiveLayerIds, setInteractiveLayerIds] = useState<string[]>(['nonexist']);
-  const [showSupervised, toggleShowSupervised] = useState(true);
-  const [showUnsupervised, toggleShowSupervise] = useState(true);
-  const [showLayers, toggleShowLayers] = useState({
-    "Supervised": true,
-    "Unsupervised": true,
+  const [showInteractiveLayers, toggleShowInteractiveLayers] = useState({
+    Supervised: true,
+    Unsupervised: true,
   });
 
   useEffect(() => {
     const activeLayers: string[] = [];
-    if (showSupervised) {
+    if (showInteractiveLayers.Supervised) {
       activeLayers.push('areas-supervised');
     }
-    if (showUnsupervised) {
+    if (showInteractiveLayers.Unsupervised) {
       activeLayers.push('areas-unsupervised');
     }
 
     setInteractiveLayerIds(activeLayers);
-  }, [showSupervised, showUnsupervised]
+  }, [showInteractiveLayers]
   );
 
 	useEffect(() => {
@@ -58,25 +52,15 @@ function HomePage() {
 
 		fetchStyle();
   }, [style]);
-  
-  const onEnterPointable = useCallback(() => {
-    setCursorType(CURSOR_TYPE.POINTER);
-  }, []);
-  const onLeavePointable = useCallback(() => {
-    setCursorType(CURSOR_TYPE.AUTO);
-  }, []);
 
-  const onMouseEnter = useCallback(() => setCursorType('pointer'), []);
-  const onMouseLeave = useCallback(() => setCursorType('auto'), []);
-
-  const currentLayers = showLayers;
+  const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
+  const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
 
   const toggleLayer: React.MouseEventHandler = (event) => {
-    console.log(event.currentTarget.id);
     const layerName: "Supervised"|"Unsupervised" = event.currentTarget.id === "Supervised"? "Supervised" : "Unsupervised";
-    const newLayers = showLayers;
+    const newLayers = showInteractiveLayers;
     newLayers[layerName] = !newLayers[layerName];
-    toggleShowLayers({ ...newLayers });
+    toggleShowInteractiveLayers({ ...newLayers });
   }
 
 	return <div style={contStyle}>
@@ -90,8 +74,8 @@ function HomePage() {
       }}
       interactive={true}
       interactiveLayerIds={interactiveLayerIds}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onMouseEnter={onEnterPointable}
+      onMouseLeave={onLeavePointable}
       //style={contStyle}
       cursor={cursorType}
       maxBounds={[
@@ -116,7 +100,7 @@ function HomePage() {
       <Source
         type='geojson'
         data={areasDnipro as FeatureCollection}>
-        {showLayers.Supervised && <Layer
+        {showInteractiveLayers.Supervised && <Layer
           id='areas-supervised'
           key='areas-supervised'
           type='fill'
@@ -126,7 +110,7 @@ function HomePage() {
           }}
           filter={['==', ['get', 'On budget'], true]}
         />}
-        {showLayers.Unsupervised && <Layer
+        {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
           key='areas-unsupervised'
           type='fill'
@@ -151,34 +135,23 @@ function HomePage() {
         customAttribution={'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'}
         position="bottom-right"
       />
-      {/* <span style={{position: "absolute", top:"10px", right:"10px"}}>Boo!</span> */}
       <MapLegend>
         <MapLegendItem
-          active={showLayers.Supervised}
+          active={showInteractiveLayers.Supervised}
           label="Supervised"
           //color='#3ABEFF'
           onToggleActive={toggleLayer}
         />
         <MapLegendItem
-          active={showLayers.Unsupervised}
+          active={showInteractiveLayers.Unsupervised}
           label="Unsupervised"
           //color='#D84797'
           onToggleActive={toggleLayer}
         />
       </MapLegend>
-    //   ('div');
-    // legend.id = 'legend';
-    // legend.style.position = 'absolute';
-    // legend.style.top = '10px';
-    // legend.style.right = '10px';
-    // legend.style.backgroundColor = 'white';
-    // legend.style.padding = '10px';
-    // legend.style.borderRadius = '5px';
-    // legend.style.boxShadow = '0px 0px 10px rgba(0, 0, 0, 0.5)'
-      </GlMap>
-			:"Loading"}
+    </GlMap> : "Loading"}
     
-		</div>
+	</div>
 };
 
 export { HomePage };

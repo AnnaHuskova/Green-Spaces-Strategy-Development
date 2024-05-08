@@ -11,7 +11,7 @@ interface MapLegendItemProps {
   children?: React.ReactNode,
 }
 
-export function MapLegendItem({ active, onToggleActive, color, label, ...props }: MapLegendItemProps) {
+export function MapLegendItem({ active, onToggleActive, color, label }: MapLegendItemProps) {
   
   return <li id={label} onClick={onToggleActive}>
     <Button variant={active ? 'contained' : 'outlined'} size={active?"large" : "small"} >

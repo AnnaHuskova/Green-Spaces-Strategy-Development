@@ -1,5 +1,5 @@
 import { List } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 const legendStyle:React.CSSProperties = {
   //id: "legend",
@@ -15,10 +15,6 @@ const legendStyle:React.CSSProperties = {
 }
 
 interface MapLegendProps {
-  //active: boolean,
-  //onToggleActive: Function,
-  color?: `#${string}`,
-  //label: string,
   children?: React.ReactNode,
 }
 
