@@ -1,5 +1,5 @@
 import { Map } from '../../components';
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useCallback} from 'react';
 import GlMap, {Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl,AttributionControl} from 'react-map-gl/maplibre';
 //data imports
 import areasDnipro from '../../assets/geo/All_Green_Areas_Dnipro_withAtributes.json';
@@ -17,12 +17,31 @@ const contStyle = {
   
 // }
 
-
 function HomePage() {
-	const [style, setStyle] = useState('https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json');
+  const CURSOR_TYPE = {
+    AUTO: "auto",
+    POINTER: "pointer,"
+  }
+
+  const [style, setStyle] = useState('https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json');
+  const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
   const [styleJson, setStyleJson] = useState(null);
+  const [interactiveLayerIds, setInteractiveLayerIds] = useState<string[]>(['nonexist']);
   const [showSupervised, toggleShowSupervised] = useState(true);
   const [showUnsupervised, toggleShowSupervise] = useState(true);
+
+  useEffect(() => {
+    const activeLayers: string[] = [];
+    if (showSupervised) {
+      activeLayers.push('areas-supervised');
+    }
+    if (showUnsupervised) {
+      activeLayers.push('areas-unsupervised');
+    }
+
+    setInteractiveLayerIds(activeLayers);
+  }, [showSupervised, showUnsupervised]
+  );
 
 	useEffect(() => {
 		async function fetchStyle() {
@@ -32,7 +51,17 @@ function HomePage() {
 		};
 
 		fetchStyle();
-	}, [style]);
+  }, [style]);
+  
+  const onEnterPointable = useCallback(() => {
+    setCursorType(CURSOR_TYPE.POINTER);
+  }, []);
+  const onLeavePointable = useCallback(() => {
+    setCursorType(CURSOR_TYPE.AUTO);
+  }, []);
+
+  const onMouseEnter = useCallback(() => setCursorType('pointer'), []);
+  const onMouseLeave = useCallback(() => setCursorType('auto'), []);
 
 	return <div style={contStyle}>
 			<Map />
@@ -44,7 +73,11 @@ function HomePage() {
         zoom: 10
       }}
       interactive={true}
+      interactiveLayerIds={interactiveLayerIds}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       //style={contStyle}
+      cursor={cursorType}
       maxBounds={[
         [34.6064, 48.3301],
         [35.4064, 48.6001],
@@ -69,6 +102,7 @@ function HomePage() {
         data={areasDnipro as FeatureCollection}>
         {showSupervised && <Layer
           id='areas-supervised'
+          key='areas-supervised'
           type='fill'
           paint={{
             'fill-color': '#3ABEFF',
@@ -78,6 +112,7 @@ function HomePage() {
         />}
         {showUnsupervised && <Layer
           id='areas-unsupervised'
+          key='areas-unsupervised'
           type='fill'
           paint={{
             'fill-color': '#D84797',
