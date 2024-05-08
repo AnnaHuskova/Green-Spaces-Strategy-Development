@@ -5,17 +5,17 @@ type ColorHex = `#${string}`;
 
 interface MapLegendItemProps {
   active: boolean,
-  onToggleActive: Function,
+  onToggleActive: React.MouseEventHandler,
   color?: ColorHex,
   label: string,
   children?: React.ReactNode,
 }
 
-function MapLegendItem({ active, onToggleActive, color, label, ...props }: MapLegendItemProps) {
+export function MapLegendItem({ active, onToggleActive, color, label, ...props }: MapLegendItemProps) {
   
-  return <li onClick={() => onToggleActive}>
-    <Button variant={active ? 'contained' : 'outlined'} size={active?"large" : "small"}>
-      ${label}
+  return <li id={label} onClick={onToggleActive}>
+    <Button variant={active ? 'contained' : 'outlined'} size={active?"large" : "small"} >
+      {label}
     </Button>
   </li>;
 }

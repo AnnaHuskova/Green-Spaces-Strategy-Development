@@ -1,11 +1,13 @@
 import { Map } from '../../components';
 import {useEffect, useState, useCallback} from 'react';
-import GlMap, {Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl,AttributionControl} from 'react-map-gl/maplibre';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl } from 'react-map-gl/maplibre';
+
 //data imports
 import areasDnipro from '../../assets/geo/All_Green_Areas_Dnipro_withAtributes.json';
 import districtsDnipro from '../../assets/geo/Boroughs.json';
 import { FeatureCollection } from 'geojson';
-import type { FillLayer } from 'react-map-gl/maplibre';
+import MapLegend from "../../components/MapLegend";
+import MapLegendItem from '../../components/MapLegendItem';
 
 const contStyle = {
 	display: "flex",
@@ -29,6 +31,10 @@ function HomePage() {
   const [interactiveLayerIds, setInteractiveLayerIds] = useState<string[]>(['nonexist']);
   const [showSupervised, toggleShowSupervised] = useState(true);
   const [showUnsupervised, toggleShowSupervise] = useState(true);
+  const [showLayers, toggleShowLayers] = useState({
+    "Supervised": true,
+    "Unsupervised": true,
+  });
 
   useEffect(() => {
     const activeLayers: string[] = [];
@@ -62,6 +68,16 @@ function HomePage() {
 
   const onMouseEnter = useCallback(() => setCursorType('pointer'), []);
   const onMouseLeave = useCallback(() => setCursorType('auto'), []);
+
+  const currentLayers = showLayers;
+
+  const toggleLayer: React.MouseEventHandler = (event) => {
+    console.log(event.currentTarget.id);
+    const layerName: "Supervised"|"Unsupervised" = event.currentTarget.id === "Supervised"? "Supervised" : "Unsupervised";
+    const newLayers = showLayers;
+    newLayers[layerName] = !newLayers[layerName];
+    toggleShowLayers({ ...newLayers });
+  }
 
 	return <div style={contStyle}>
 			<Map />
@@ -100,7 +116,7 @@ function HomePage() {
       <Source
         type='geojson'
         data={areasDnipro as FeatureCollection}>
-        {showSupervised && <Layer
+        {showLayers.Supervised && <Layer
           id='areas-supervised'
           key='areas-supervised'
           type='fill'
@@ -110,7 +126,7 @@ function HomePage() {
           }}
           filter={['==', ['get', 'On budget'], true]}
         />}
-        {showUnsupervised && <Layer
+        {showLayers.Unsupervised && <Layer
           id='areas-unsupervised'
           key='areas-unsupervised'
           type='fill'
@@ -135,7 +151,21 @@ function HomePage() {
         customAttribution={'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'}
         position="bottom-right"
       />
-      <span style={{position: "absolute", top:"10px", right:"10px"}}>Boo!</span>
+      {/* <span style={{position: "absolute", top:"10px", right:"10px"}}>Boo!</span> */}
+      <MapLegend>
+        <MapLegendItem
+          active={showLayers.Supervised}
+          label="Supervised"
+          //color='#3ABEFF'
+          onToggleActive={toggleLayer}
+        />
+        <MapLegendItem
+          active={showLayers.Unsupervised}
+          label="Unsupervised"
+          //color='#D84797'
+          onToggleActive={toggleLayer}
+        />
+      </MapLegend>
     //   ('div');
     // legend.id = 'legend';
     // legend.style.position = 'absolute';

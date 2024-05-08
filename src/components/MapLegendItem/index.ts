@@ -1,1 +1,2 @@
-export * from './MapLegendItem';
+import { MapLegendItem } from "./MapLegendItem";
+export default MapLegendItem;
