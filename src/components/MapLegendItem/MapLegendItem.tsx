@@ -1,13 +1,11 @@
 import React from 'react';
-// import Button from "@mui/material/Button";
 import { FormControlLabel, ListItem, Switch } from '@mui/material';
-import clsx from "clsx"
 
 type ColorHex = `#${string}`;
 
 interface MapLegendItemProps {
   active: boolean,
-  onToggleActive: React.MouseEventHandler,
+  onToggleActive: React.ChangeEventHandler,
   color?: ColorHex,
   layerType: string,
   label: string,
@@ -15,10 +13,14 @@ interface MapLegendItemProps {
 }
 
 export function MapLegendItem({ active, onToggleActive, color, layerType, label }: MapLegendItemProps) {
+  const labelStyle: React.CSSProperties = {
+    color: color,
+    // fontWeight: 700,
+  }
   
-  return <ListItem id={layerType} onClick={onToggleActive}    >
-    <FormControlLabel value={layerType} label={label} labelPlacement="end" control={
-      <Switch checked={active} name={`${layerType}Switch`} />
+  return <ListItem>
+    <FormControlLabel value={layerType} label={label} labelPlacement="end" style={labelStyle} control={
+      <Switch checked={active} name={`${layerType}Switch`} id={layerType} onChange={onToggleActive} />
     }/>
   </ListItem>;
 }

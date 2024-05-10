@@ -1,6 +1,6 @@
 import { Map } from '../../components';
-import {useEffect, useState, useCallback} from 'react';
-import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl } from 'react-map-gl/maplibre';
+import React, {useEffect, useState, useCallback} from 'react';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature } from 'react-map-gl/maplibre';
 
 //data imports
 import areasDnipro from '../../assets/geo/All_Green_Areas_Dnipro_withAtributes.json';
@@ -8,6 +8,7 @@ import districtsDnipro from '../../assets/geo/Boroughs.json';
 import { FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
 import MapLegendItem from '../../components/MapLegendItem';
+import AreaInfo from '../../components/AreaInfo';
 
 const contStyle = {
 	display: "flex",
@@ -21,6 +22,12 @@ function HomePage() {
     POINTER: "pointer",
   };
 
+  type AreaInfo = {
+    lat: number, 
+    lng: number,
+    data: MapGeoJSONFeature | null,
+  };
+
   const [style, setStyle] = useState('https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json');
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
   const [styleJson, setStyleJson] = useState(null);
@@ -28,6 +35,11 @@ function HomePage() {
   const [showInteractiveLayers, toggleShowInteractiveLayers] = useState({
     Supervised: true,
     Unsupervised: true,
+  });
+  const [areaInfo, setAreaInfo] = useState<AreaInfo>({
+    lat: 0,
+    lng: 0,
+    data: null,
   });
 
   useEffect(() => {
@@ -56,7 +68,26 @@ function HomePage() {
   const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
   const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
 
-  const toggleLayer: React.MouseEventHandler = (event) => {
+  function onAreaClick(event: MapLayerMouseEvent):void {
+    if (event.features && event.features.length > 0) {
+      if (areaInfo.data) { //If popup is open - close it
+        setAreaInfo({
+          lat: 0, lng: 0, data: null,
+        });
+        return;
+      }
+      const feature: MapGeoJSONFeature = event.features[0];
+      setAreaInfo({
+        lat: event.lngLat.lat,
+        lng: event.lngLat.lng,
+        data: feature,
+      });
+      // console.log("clicked interactive layer!")
+      // console.log(feature);
+    }
+  }
+
+  const toggleLayer: React.ChangeEventHandler = (event) => {
     const layerName: "Supervised"|"Unsupervised" = event.currentTarget.id === "Supervised"? "Supervised" : "Unsupervised";
     const newLayers = showInteractiveLayers;
     newLayers[layerName] = !newLayers[layerName];
@@ -64,7 +95,7 @@ function HomePage() {
   }
 
 	return <div style={contStyle}>
-			<Map />
+		<Map />
 			
     {styleJson ? <GlMap
       initialViewState={{
@@ -77,6 +108,7 @@ function HomePage() {
       onMouseEnter={onEnterPointable}
       onMouseLeave={onLeavePointable}
       //style={contStyle}
+      onClick={onAreaClick}
       cursor={cursorType}
       maxBounds={[
         [34.6064, 48.3301],
@@ -140,17 +172,19 @@ function HomePage() {
           active={showInteractiveLayers.Supervised}
           layerType="Supervised"
           label="Supervised"
-          //color='#3ABEFF'
+          color='#3ABEFF'
           onToggleActive={toggleLayer}
         />
         <MapLegendItem
           active={showInteractiveLayers.Unsupervised}
           layerType="Unsupervised"
           label="Not supervised"
-          //color='#D84797'
+          color='#D84797'
           onToggleActive={toggleLayer}
         />
       </MapLegend>
+      {areaInfo.data &&
+        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data} />}
     </GlMap> : "Loading"}
 	</div>
 };
