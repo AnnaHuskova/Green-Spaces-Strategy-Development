@@ -1,6 +1,6 @@
 import { Map } from '../../components';
 import React, {useEffect, useState, useCallback} from 'react';
-import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature } from 'react-map-gl/maplibre';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent } from 'react-map-gl/maplibre';
 
 //data imports
 import areasDnipro from '../../assets/geo/All_Green_Areas_Dnipro_withAtributes.json';
@@ -70,12 +70,12 @@ function HomePage() {
 
   function onAreaClick(event: MapLayerMouseEvent):void {
     if (event.features && event.features.length > 0) {
-      if (areaInfo.data) { //If popup is open - close it
-        setAreaInfo({
-          lat: 0, lng: 0, data: null,
-        });
-        return;
-      }
+      // if (areaInfo.data) { //If popup is open - close it
+      //   setAreaInfo({
+      //     lat: 0, lng: 0, data: null,
+      //   });
+      //   return;
+      // }
       const feature: MapGeoJSONFeature = event.features[0];
       setAreaInfo({
         lat: event.lngLat.lat,
@@ -87,6 +87,12 @@ function HomePage() {
     }
   }
 
+  function onAreaPopupClose(event: PopupEvent) {
+    setAreaInfo({
+          lat: 0, lng: 0, data: null,
+        });
+  }
+
   const toggleLayer: React.ChangeEventHandler = (event) => {
     const layerName: "Supervised"|"Unsupervised" = event.currentTarget.id === "Supervised"? "Supervised" : "Unsupervised";
     const newLayers = showInteractiveLayers;
@@ -95,8 +101,7 @@ function HomePage() {
   }
 
 	return <div style={contStyle}>
-		<Map />
-			
+		{/* <Map /> */}
     {styleJson ? <GlMap
       initialViewState={{
         longitude: 35.0064,
@@ -184,7 +189,7 @@ function HomePage() {
         />
       </MapLegend>
       {areaInfo.data &&
-        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data} />}
+        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} onClose={onAreaPopupClose} data={areaInfo.data} />}
     </GlMap> : "Loading"}
 	</div>
 };

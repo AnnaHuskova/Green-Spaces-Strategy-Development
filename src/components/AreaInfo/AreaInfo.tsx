@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapGeoJSONFeature, Popup } from 'react-map-gl/maplibre';
+import { MapGeoJSONFeature, Popup, PopupEvent } from 'react-map-gl/maplibre';
 
 const areaInfoStyle:React.CSSProperties = {
   //id: "legend",
@@ -18,6 +18,7 @@ interface AreaInfoProps {
   latitude: number,
   longtitude: number,
   data: MapGeoJSONFeature,
+  onClose: (event: PopupEvent) => void,
   children?: React.ReactNode,
 }
 
@@ -37,10 +38,11 @@ const labelStyle: React.CSSProperties = {
   
 }
 
-export function AreaInfo({ latitude, longtitude, data, children }: AreaInfoProps) {
+export function AreaInfo({ latitude, longtitude, data, onClose, children }: AreaInfoProps) {
   return <Popup
     latitude={latitude}
     longitude={longtitude}
+    onClose={onClose}
   >
     <header style={headerStyle}>Дані зони</header>
     <div style={dataContainer}>
