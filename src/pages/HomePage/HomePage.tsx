@@ -138,19 +138,20 @@ function HomePage() {
       <MapLegend>
         <MapLegendItem
           active={showInteractiveLayers.Supervised}
+          layerType="Supervised"
           label="Supervised"
           //color='#3ABEFF'
           onToggleActive={toggleLayer}
         />
         <MapLegendItem
           active={showInteractiveLayers.Unsupervised}
-          label="Unsupervised"
+          layerType="Unsupervised"
+          label="Not supervised"
           //color='#D84797'
           onToggleActive={toggleLayer}
         />
       </MapLegend>
     </GlMap> : "Loading"}
-    
 	</div>
 };
 

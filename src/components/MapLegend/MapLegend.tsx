@@ -1,4 +1,4 @@
-import { List } from '@mui/material';
+import { FormGroup, FormLabel, List } from '@mui/material';
 import React from 'react';
 
 const legendStyle:React.CSSProperties = {
@@ -19,9 +19,10 @@ interface MapLegendProps {
 }
 
 export function MapLegend({children}: MapLegendProps) {
-  return <div style={legendStyle}>
-    <List>
-      {children && children}
-    </List>
-    </div>;
+  return <FormGroup aria-label='Green area types' style={legendStyle}>
+      <FormLabel>Area types</FormLabel>
+      <List>
+        {children && children}
+      </List>
+    </FormGroup>;
 }
