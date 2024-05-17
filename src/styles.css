@@ -1,0 +1,210 @@
+.main {
+	display: flex;
+}
+
+._container {
+	max-width: 1200px;
+	min-height: 100%;
+	margin: 0px auto;
+	padding: 0px 15px;
+	display: flex;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+}
+
+/* MAIN MENU */
+
+.header {
+	/* position: fixed; */
+	background: rgb(34, 34, 34);
+	/* top: 0; */
+	/* z-index: 10; */
+	width: 100%;
+	height: 90px;
+	grid-area: menu;
+}
+
+.header-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.nav_logo {
+	color: antiquewhite;
+	text-decoration: none;
+	font-size: 21px;
+}
+
+.navbar {
+	display: flex;
+	list-style: none;
+	gap: 90px;
+}
+
+.nav_item {
+	text-decoration: none;
+	color: antiquewhite;
+	transition: 0.3s;
+}
+
+.nav_item:hover {
+	color: rgb(0, 255, 157);
+}
+
+.burger-bar {
+	display: none;
+	cursor: pointer;
+}
+
+/* SIDEBAR */
+
+.nav {
+	display: flex;
+	/* position: fixed; */
+	background: rgb(53, 58, 57);
+	width: 70px;
+	height: 100%;
+	z-index: 10;
+	align-items: center;
+	justify-content: center;
+	grid-area: submenu;
+}
+
+.sidebar {
+	display: flex;
+	position: relative;
+	gap: 36px;
+	align-items: center;
+	flex-direction: column;
+	width: 90%;
+	height: 100%;
+}
+
+.bar_btn {
+	width: 36px;
+	height: 36px;
+	background: rgb(228, 221, 211);
+	border-style: none;
+	border-radius: 30%;
+}
+
+/* MAP FIELD */
+
+.map {
+	position: relative;
+	/* margin-top: 90px; */
+	/* margin-left: 70px; */
+	z-index: 5;
+	grid-area: map;
+}
+
+/* ------------------HERO------------------ */
+
+.hero {
+	position: relative;
+	display: flex;
+	margin-top: 108px;
+	height: w;
+	font-size: 18px;
+}
+
+.hero-cards {
+	position: relative;
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+}
+
+.massadge {
+	position: relative;
+	margin-top: 24px;
+	color: rgba(47, 47, 47, 0.5);
+	font-size: 24px;
+}
+
+/* -----------------VIDEO_SECTION------------------- */
+
+.video {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 24px;
+}
+
+.video-link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 36px;
+	width: 1200px;
+	height: 72px;
+	border-radius: 21px;
+	box-shadow: 0 7px 12px rgba(73, 94, 93, 0.37);
+	background: #ffffff;
+	margin: 12px 0;
+}
+
+.video-name {
+	margin: 0 36px; 
+	font-size: 24px;
+	color: rgb(65, 65, 65);
+}
+
+.btn-video { 
+	align-items: center;
+	justify-content: center;
+	display: flex;
+	border-radius: 12px;
+	height: 54px;
+	width: 120px;
+	background: #315092;
+	margin: 0 12px;
+	color: #fff;
+	font-size: 18px;
+	box-shadow: 0 3px 9px rgba(47, 61, 61, 0.37);
+	transition: 0.3s;
+	font-size: 21px;
+ }
+
+ .btn-video:hover {
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.37);
+ }
+
+ .video-description {
+	display: flex;
+	margin: 42px 54px;
+}
+
+ .text {
+	font-size: 21px;
+	font-weight: lighter;
+	color: rgb(44, 44, 44);
+ }
+
+p, li {
+	margin-top: 12px;
+}
+
+.pray {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 24px;
+}
+
+.pray-num {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 18px;
+	margin-top: 7px;
+	color: #00d6d3;
+	font-weight: bold;
+	text-align: justify;
+}

@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"name": "Монументи",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "fid": 1, "osm_id": "1909044279", "code": 2723, "fclass": "monument", "name": "Місце падіння Ту-134 СССР-65735 (Пахтакор)", "numparts": 1, "vertex_index": 0, "vertex_part": 0, "vertex_part_index": 0, "distance": 0.0, "angle": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 34.656079, 48.5884106 ] } },
+{ "type": "Feature", "properties": { "fid": 2, "osm_id": "3080793223", "code": 2723, "fclass": "monument", "name": "памятник Тарасу Шевченко", "numparts": 1, "vertex_index": 0, "vertex_part": 0, "vertex_part_index": 0, "distance": 0.0, "angle": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 34.6120484, 48.5233319 ] } },
+{ "type": "Feature", "properties": { "fid": 3, "osm_id": "4467079389", "code": 2723, "fclass": "monument", "name": null, "numparts": 1, "vertex_index": 0, "vertex_part": 0, "vertex_part_index": 0, "distance": 0.0, "angle": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 34.5219621, 48.4059267 ] } },
+{ "type": "Feature", "properties": { "fid": 4, "osm_id": "8759245616", "code": 2723, "fclass": "monument", "name": "Голгофа", "numparts": 1, "vertex_index": 0, "vertex_part": 0, "vertex_part_index": 0, "distance": 0.0, "angle": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 34.6128277, 48.5243155 ] } }
+]
+}
