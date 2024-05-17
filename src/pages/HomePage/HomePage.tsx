@@ -9,6 +9,9 @@ import { FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
 import MapLegendItem from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
+import MapSourceSwitch from '../../components/MapSourceSwitch';
+import {  SelectChangeEvent } from '@mui/material';
+
 
 const contStyle = {
 	display: "flex",
@@ -121,6 +124,10 @@ function HomePage() {
     toggleShowInteractiveLayers({ ...newLayers });
   }
 
+  function onSetMapSource(event: React.ChangeEvent) {
+    
+  }
+
 	return <div style={contStyle}>
 		{/* <Map /> */}
     {styleJson ? <GlMap
@@ -208,6 +215,7 @@ function HomePage() {
           color='#D84797'
           onToggleActive={toggleLayer}
         />
+        <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={onSetMapSource} />
       </MapLegend>
       {areaInfo.data &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} onClose={onAreaPopupClose} data={areaInfo.data} />}
