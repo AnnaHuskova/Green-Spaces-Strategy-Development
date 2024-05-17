@@ -16,6 +16,25 @@ const contStyle = {
   height: "90%"
 }
 
+interface MapStyle {
+  name: string,
+  url: URL,
+  customAttribution?: string,
+};
+
+//first style is the default one
+const mapStyles: MapStyle[] = [
+  {
+    name: "OSM-ua Positron",
+    url: new URL(`https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json`),
+    customAttribution: `Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>`,
+  },
+  {
+    name: "CartoCDN Positron",
+    url: new URL(`https://basemaps.cartocdn.com/gl/positron-gl-style/style.json`),
+  },
+];
+
 function HomePage() {
   const CURSOR_TYPE = {
     AUTO: "auto",
@@ -28,7 +47,8 @@ function HomePage() {
     data: MapGeoJSONFeature | null,
   };
 
-  const [style, setStyle] = useState('https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json');
+  const [availableStyles, setAvailableStyles] = useState<MapStyle[]>(mapStyles);
+  const [style, setStyle] = useState(0);
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
   const [styleJson, setStyleJson] = useState(null);
   const [interactiveLayerIds, setInteractiveLayerIds] = useState<string[]>(['nonexist']);
@@ -42,6 +62,17 @@ function HomePage() {
     data: null,
   });
 
+  //fetch default style for first render
+  useEffect(() => {
+      async function fetchStyle() {
+        const response = await fetch(availableStyles[style].url);
+          const jsonData = await response.json();
+        setStyleJson(jsonData);
+      };
+
+      fetchStyle();
+    }, [style, availableStyles]);
+
   useEffect(() => {
     const activeLayers: string[] = [];
     if (showInteractiveLayers.Supervised) {
@@ -54,16 +85,6 @@ function HomePage() {
     setInteractiveLayerIds(activeLayers);
   }, [showInteractiveLayers]
   );
-
-	useEffect(() => {
-		async function fetchStyle() {
-			const response = await fetch(style);
-    		const jsonData = await response.json();
-			setStyleJson(jsonData);
-		};
-
-		fetchStyle();
-  }, [style]);
 
   const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
   const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
@@ -169,7 +190,7 @@ function HomePage() {
       <ScaleControl maxWidth={180} unit="metric" />
       <AttributionControl
         compact={false}
-        customAttribution={'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'}
+        customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
       <MapLegend>
@@ -194,4 +215,9 @@ function HomePage() {
 	</div>
 };
 
-export { HomePage };
+export {
+  HomePage,
+};
+export type {
+  MapStyle as MapStyleType,
+}
