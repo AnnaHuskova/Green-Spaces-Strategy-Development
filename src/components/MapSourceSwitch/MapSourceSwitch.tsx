@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { Button, Menu, MenuItem, InputLabel, Select, SelectChangeEvent } from '@mui/material';
+import React from 'react';
+import { MenuItem, InputLabel, Select, SelectChangeEvent } from '@mui/material';
 import {MapStyleType} from "../../pages/HomePage";
 
 // type ColorHex = `#${string}`;
@@ -7,7 +7,7 @@ import {MapStyleType} from "../../pages/HomePage";
 interface MapSourceSwitchProps {
   sources: MapStyleType[],
   selectedSource: number,
-  onSetSource: SelectChangeEvent,
+  onSetSource: (index:number) => void,
 }
 
 export function MapSourceSwitch({ sources, selectedSource, onSetSource }: MapSourceSwitchProps) {
@@ -20,6 +20,9 @@ export function MapSourceSwitch({ sources, selectedSource, onSetSource }: MapSou
   //   onSetSource(event);
   //   setAnchorElem(null);
   // };
+  function onSelect(event: SelectChangeEvent) {
+    onSetSource(parseInt(event.target.value));
+  }
 
   const labelStyle: React.CSSProperties = {
     color: "black",
@@ -38,11 +41,11 @@ export function MapSourceSwitch({ sources, selectedSource, onSetSource }: MapSou
     </Button> */}
     <InputLabel id="mapsource-helper-label">Map background source</InputLabel>
     <Select
-          labelId="mapsource-helper-label"
-          id="mapsource-menu"
-          value={selectedSource}
-          label="Age"
-          onChange={onSetSource}
+      labelId="mapsource-helper-label"
+      id="mapsource-menu"
+      value={selectedSource.toString()}
+      label="Map source"
+      onChange={onSelect}
     >
       {sources.map((source) => {
         return <MenuItem value={sources.indexOf(source)} key={sources.indexOf(source)}>{source.name}</MenuItem>;
