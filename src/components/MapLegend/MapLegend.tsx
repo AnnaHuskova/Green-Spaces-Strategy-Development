@@ -22,7 +22,22 @@ export function MapLegend({children}: MapLegendProps) {
   return <FormGroup aria-label='Green area types' style={legendStyle}>
       <FormLabel>Area types</FormLabel>
       <List>
-        {children && children}
+      {children && React.Children.toArray(children).filter((child, i) => {
+        const tempchild = child as React.ReactElement<any>;
+        if (typeof tempchild.type !== "string") {
+          if (tempchild.type.name.includes("LegendItem")) {
+            return child;
+          }
+        }
+      })}
       </List>
+      {children && React.Children.toArray(children).filter((child, i) => {
+          const tempchild = child as React.ReactElement<any>;
+          if (typeof tempchild.type !== "string") {
+            if (!tempchild.type.name.includes("LegendItem")) {
+              return child;
+            }
+          }
+        })}
     </FormGroup>;
 }

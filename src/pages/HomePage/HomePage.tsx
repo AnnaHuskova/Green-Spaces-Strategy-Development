@@ -1,4 +1,3 @@
-// import { Map } from '../../components';
 import React, {useEffect, useState, useCallback} from 'react';
 import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent } from 'react-map-gl/maplibre';
 
@@ -126,14 +125,7 @@ function HomePage() {
     toggleShowInteractiveLayers({ ...newLayers });
   }
 
-  // function onSetMapSource(event: React.MouseEvent) {
-  //   // console.log(event.target as {value});
-  //   const {value} = event.target as unknown;
-  //   console.log(target.value);
-  // }
-
 	return <div style={contStyle}>
-		{/* <Map /> */}
     {styleJson ? <GlMap
       initialViewState={{
         longitude: 35.0064,
@@ -144,7 +136,6 @@ function HomePage() {
       interactiveLayerIds={interactiveLayerIds}
       onMouseEnter={onEnterPointable}
       onMouseLeave={onLeavePointable}
-      //style={contStyle}
       onClick={onAreaClick}
       cursor={cursorType}
       maxBounds={[
