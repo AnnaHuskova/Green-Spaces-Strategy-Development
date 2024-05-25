@@ -9,6 +9,8 @@ import MapLegend from "../../components/MapLegend";
 import MapLegendItem from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
+import MapAreaStats from '../../components/MapAreaStats';
+import { AreaInfoAttr } from "../../components/MapAreaStats/MapAreaStats";
 
 const contStyle = {
 	display: "flex",
@@ -210,6 +212,7 @@ function HomePage() {
           color='#D84797'
           onToggleActive={toggleLayer}
         />
+        <MapAreaStats areas={(areasDnipro as FeatureCollection).features as AreaInfoAttr[]} />
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>
       {areaInfo.data &&
