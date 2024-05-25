@@ -73,6 +73,12 @@ export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
     surface: Math.round(surfaceUnsupTotal),
   })
 
+  areaStats.push({
+    categoryName: "Total",
+    quantity: areas.length,
+    surface: Math.round(surfaceSupTotal + surfaceUnsupTotal),
+  })
+
   return <Table aria-label='Green area statistic' style={areaStatsStyle} size="small" >
     <TableHead>
       <TableRow>
