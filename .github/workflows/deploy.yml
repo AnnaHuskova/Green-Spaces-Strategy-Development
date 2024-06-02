@@ -5,6 +5,8 @@ on:
     branches: 
       - main
   pull_request:
+    types:
+      - closed
     branches: 
       - main
   workflow_dispatch:
@@ -37,6 +39,7 @@ jobs:
           path: build
 
   deploy:
+    if: github.event.pull_request.merged == true
     needs: build
 
     permissions:
