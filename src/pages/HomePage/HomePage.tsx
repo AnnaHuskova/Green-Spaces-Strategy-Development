@@ -1,4 +1,3 @@
-import { Map } from '../../components';
 import React, {useEffect, useState, useCallback} from 'react';
 import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent } from 'react-map-gl/maplibre';
 
@@ -9,12 +8,38 @@ import { FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
 import MapLegendItem from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
+import MapSourceSwitch from '../../components/MapSourceSwitch';
+import MapAreaStats from '../../components/MapAreaStats';
+import { AreaInfoAttr } from "../../components/MapAreaStats/MapAreaStats";
 
 const contStyle = {
 	display: "flex",
 	width: "calc(100%)",
   height: "90%"
 }
+
+interface MapStyle {
+  name: string,
+  url: URL,
+  customAttribution?: string,
+};
+
+//first style is the default one
+const mapStyles: MapStyle[] = [
+  {
+    name: "OSM-UA Positron",
+    url: new URL(`https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json`),
+    customAttribution: `Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>`,
+  },
+  {
+    name: "CartoCDN Positron",
+    url: new URL(`https://basemaps.cartocdn.com/gl/positron-gl-style/style.json`),
+  },
+  {
+    name: "CartoCDN Dark Matter",
+    url: new URL(`https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json`),
+  },
+];
 
 function HomePage() {
   const CURSOR_TYPE = {
@@ -28,7 +53,8 @@ function HomePage() {
     data: MapGeoJSONFeature | null,
   };
 
-  const [style, setStyle] = useState('https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json');
+  const [availableStyles, setAvailableStyles] = useState<MapStyle[]>(mapStyles);
+  const [style, setStyle] = useState(0);
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
   const [styleJson, setStyleJson] = useState(null);
   const [interactiveLayerIds, setInteractiveLayerIds] = useState<string[]>(['nonexist']);
@@ -42,6 +68,17 @@ function HomePage() {
     data: null,
   });
 
+  //fetch default style for first render
+  useEffect(() => {
+      async function fetchStyle() {
+        const response = await fetch(availableStyles[style].url);
+          const jsonData = await response.json();
+        setStyleJson(jsonData);
+      };
+
+      fetchStyle();
+    }, [style, availableStyles]);
+
   useEffect(() => {
     const activeLayers: string[] = [];
     if (showInteractiveLayers.Supervised) {
@@ -54,16 +91,6 @@ function HomePage() {
     setInteractiveLayerIds(activeLayers);
   }, [showInteractiveLayers]
   );
-
-	useEffect(() => {
-		async function fetchStyle() {
-			const response = await fetch(style);
-    		const jsonData = await response.json();
-			setStyleJson(jsonData);
-		};
-
-		fetchStyle();
-  }, [style]);
 
   const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
   const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
@@ -101,7 +128,6 @@ function HomePage() {
   }
 
 	return <div style={contStyle}>
-		{/* <Map /> */}
     {styleJson ? <GlMap
       initialViewState={{
         longitude: 35.0064,
@@ -112,7 +138,6 @@ function HomePage() {
       interactiveLayerIds={interactiveLayerIds}
       onMouseEnter={onEnterPointable}
       onMouseLeave={onLeavePointable}
-      //style={contStyle}
       onClick={onAreaClick}
       cursor={cursorType}
       maxBounds={[
@@ -169,7 +194,7 @@ function HomePage() {
       <ScaleControl maxWidth={180} unit="metric" />
       <AttributionControl
         compact={false}
-        customAttribution={'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'}
+        customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
       <MapLegend>
@@ -187,6 +212,8 @@ function HomePage() {
           color='#D84797'
           onToggleActive={toggleLayer}
         />
+        <MapAreaStats areas={(areasDnipro as FeatureCollection).features as AreaInfoAttr[]} />
+        <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>
       {areaInfo.data &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} onClose={onAreaPopupClose} data={areaInfo.data} />}
@@ -194,4 +221,9 @@ function HomePage() {
 	</div>
 };
 
-export { HomePage };
+export {
+  HomePage,
+};
+export type {
+  MapStyle as MapStyleType,
+}
