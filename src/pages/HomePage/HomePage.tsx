@@ -1,5 +1,7 @@
 import React, {useEffect, useState, useCallback} from 'react';
 import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent } from 'react-map-gl/maplibre';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 //data imports
 import areasDnipro from '../../assets/geo/All_Green_Areas_Dnipro_withAtributes.json';
@@ -53,6 +55,20 @@ function HomePage() {
     data: MapGeoJSONFeature | null,
   };
 
+  const showSourceError = (message:string):void => {
+    toast.error(`${message}`, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
+  }
+
   const [availableStyles, setAvailableStyles] = useState<MapStyle[]>(mapStyles);
   const [style, setStyle] = useState(0);
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
@@ -71,12 +87,37 @@ function HomePage() {
   //fetch default style for first render
   useEffect(() => {
       async function fetchStyle() {
-        const response = await fetch(availableStyles[style].url);
+        let response:Response|undefined = undefined;
+        try {
+          response = await fetch(availableStyles[style].url);
+        }
+        catch(error) {
+          const typedError = error as TypeError;
+          if(typedError.name === "TypeError" && typedError.message.includes("NetworkError")) {
+            showSourceError(`Unable to load background style ${availableStyles[style].name}`);
+          }
+          else {
+            console.log(error);
+          }
+        }
+        finally {
+          if(response === undefined) {
+            if(style +1 < availableStyles.length) {
+              setStyle(style+1); //switch to next map source
+              return;
+            }
+            else {
+              showSourceError("Cannot resolve background source");
+              return;
+            }
+          }
           const jsonData = await response.json();
-        setStyleJson(jsonData);
+          setStyleJson(jsonData);
+        }
+        
       };
 
-      fetchStyle();
+      fetchStyle();    
     }, [style, availableStyles]);
 
   useEffect(() => {
@@ -92,8 +133,8 @@ function HomePage() {
   }, [showInteractiveLayers]
   );
 
-  const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
-  const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
+  const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), [CURSOR_TYPE.POINTER]);
+  const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), [CURSOR_TYPE.AUTO]);
 
   function onAreaClick(event: MapLayerMouseEvent):void {
     if (event.features && event.features.length > 0) {
@@ -218,6 +259,7 @@ function HomePage() {
       {areaInfo.data &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} onClose={onAreaPopupClose} data={areaInfo.data} />}
     </GlMap> : "Loading"}
+    <ToastContainer />
 	</div>
 };
 
