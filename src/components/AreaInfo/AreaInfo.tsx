@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapGeoJSONFeature, Popup, PopupEvent } from 'react-map-gl/maplibre';
 
+/*
 const areaInfoStyle:React.CSSProperties = {
   //id: "legend",
   position: "absolute",
@@ -13,6 +14,7 @@ const areaInfoStyle:React.CSSProperties = {
   borderRadius: '5px',
   boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.5)',
 }
+*/
 
 interface AreaInfoProps {
   latitude: number,
@@ -22,48 +24,36 @@ interface AreaInfoProps {
   children?: React.ReactNode,
 }
 
-const headerStyle: React.CSSProperties = {
-  fontWeight: 700,
-  textAlign: "center",
-}
-
-const dataContainer: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-}
-
-const labelStyle: React.CSSProperties = {
-  fontWeight: 700,
-  
-}
-
 export function AreaInfo({ latitude, longtitude, data, onClose, children }: AreaInfoProps) {
+  const twDataContainerStyle = 'mb-5'; //flex flex-column justify-between
+  const twDataLabelStyle = `font-bold`;
+
   return <Popup
     latitude={latitude}
     longitude={longtitude}
     onClose={onClose}
+    className="p-5 min-w-80 rounded-xl bg-white font-light text-base leading-5"
   >
-    <header style={headerStyle}>Дані зони</header>
-    <div style={dataContainer}>
-      <span style={labelStyle}>Номер:</span>
-      <span> {data.properties.ID}</span> 
+    <header className='font-light text-center mb-2.5'>Дані зони</header>
+    <div className={twDataContainerStyle}>
+      <label className={twDataLabelStyle}>Номер:</label>
+      <div> {data.properties.ID}</div> 
     </div>
-    <div style={dataContainer}>
-      <span className='font-bold'>Назва:</span>
-      <span> {data.properties.NAME}</span>  
+    <div className={twDataContainerStyle}>
+      <label className={twDataLabelStyle}>Назва:</label>
+      <div> {data.properties.NAME}</div>  
     </div>
-    <div style={dataContainer}>
-      <span className='font-bold'>Площа:</span>
-      <span> {(data.properties["площадь"]/10000).toFixed(2)} га</span>  
+    <div className={twDataContainerStyle}>
+      <label className={twDataLabelStyle}>Площа:</label>
+      <div> {(data.properties["площадь"]/10000).toFixed(2)} га</div>  
     </div>
-    <div style={dataContainer}>
-      <span style={labelStyle}>Доступність для цільових груп:</span>
-      <span> {Boolean(data.properties['Accessibility for target groups']) ? 'Так' : 'Ні'}</span>  
+    <div className={twDataContainerStyle}>
+      <label className={twDataLabelStyle}>Доступність для цільових груп:</label>
+      <div> {Boolean(data.properties['Accessibility for target groups']) ? 'Так' : 'Ні'}</div>  
     </div>
-    <div style={dataContainer}>
-      <span style={labelStyle}>Функції (психологічне та фізичне відновлення):</span>
-      <span> {Boolean(data.properties['Functions (mental and physical recuperation)']) ? 'Так' : 'Ні'}</span>  
+    <div className={twDataContainerStyle}>
+      <label className={twDataLabelStyle}>Функції (психологічне та фізичне відновлення):</label>
+      <div> {Boolean(data.properties['Functions (mental and physical recuperation)']) ? 'Так' : 'Ні'}</div>  
     </div>
     {children}
   </Popup>;
