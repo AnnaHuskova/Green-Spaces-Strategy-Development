@@ -50,11 +50,11 @@ export function AreaInfo({ latitude, longtitude, data, onClose, children }: Area
       <span> {data.properties.ID}</span> 
     </div>
     <div style={dataContainer}>
-      <span style={labelStyle}>Назва:</span>
+      <span className='font-bold'>Назва:</span>
       <span> {data.properties.NAME}</span>  
     </div>
     <div style={dataContainer}>
-      <span style={labelStyle}>Площа:</span>
+      <span className='font-bold'>Площа:</span>
       <span> {(data.properties["площадь"]/10000).toFixed(2)} га</span>  
     </div>
     <div style={dataContainer}>
