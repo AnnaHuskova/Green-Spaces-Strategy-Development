@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapGeoJSONFeature, Popup, PopupEvent } from 'react-map-gl/maplibre';
+import { Button } from '@mui/material';
 
 /*
 const areaInfoStyle:React.CSSProperties = {
@@ -33,28 +34,46 @@ export function AreaInfo({ latitude, longtitude, data, onClose, children }: Area
     longitude={longtitude}
     onClose={onClose}
     className="p-5 min-w-80 rounded-xl bg-white font-light text-base leading-5"
+    maxWidth="none"
   >
-    <header className='font-light text-center mb-2.5'>Дані зони</header>
-    <div className={twDataContainerStyle}>
-      <label className={twDataLabelStyle}>Номер:</label>
-      <div> {data.properties.ID}</div> 
+    <div className='max-w-80'>
+      <header className='font-light text-center mb-2.5'>Дані зони</header>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Номер:</label>
+        <div> {data.properties.ID}</div> 
+      </div>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Назва:</label>
+        <div> {data.properties.NAME}</div>  
+      </div>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Площа:</label>
+        <div> {(data.properties["площадь"]/10000).toFixed(2)} га</div>  
+      </div>
+      {/* <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Доступність для цільових груп:</label>
+        <div> {Boolean(data.properties['Accessibility for target groups']) ? 'Так' : 'Ні'}</div>  
+      </div>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Функції (психологічне та фізичне відновлення):</label>
+        <div> {Boolean(data.properties['Functions (mental and physical recuperation)']) ? 'Так' : 'Ні'}</div>  
+      </div> */}
+      <div className='flex flex-row justify-between text-lg text-center'>
+        <Button /*className='px-3 py-2'*/ sx={{
+          px: "1.5rem",
+          fontSize: "inherit",
+          textTransform: "none",
+          textWrap: "nowrap"
+          }} variant='outlined'>Як зберегти?</Button>
+        <Button className='ml-5' sx={{
+          px: "1.5rem",
+          ml: "1.25rem",
+          fontSize: "inherit",
+          textTransform: "none",
+          textWrap: "nowrap"
+          }} variant='outlined'>Детальніше</Button>
+      </div>
+      {children}
     </div>
-    <div className={twDataContainerStyle}>
-      <label className={twDataLabelStyle}>Назва:</label>
-      <div> {data.properties.NAME}</div>  
-    </div>
-    <div className={twDataContainerStyle}>
-      <label className={twDataLabelStyle}>Площа:</label>
-      <div> {(data.properties["площадь"]/10000).toFixed(2)} га</div>  
-    </div>
-    <div className={twDataContainerStyle}>
-      <label className={twDataLabelStyle}>Доступність для цільових груп:</label>
-      <div> {Boolean(data.properties['Accessibility for target groups']) ? 'Так' : 'Ні'}</div>  
-    </div>
-    <div className={twDataContainerStyle}>
-      <label className={twDataLabelStyle}>Функції (психологічне та фізичне відновлення):</label>
-      <div> {Boolean(data.properties['Functions (mental and physical recuperation)']) ? 'Так' : 'Ні'}</div>  
-    </div>
-    {children}
   </Popup>;
 }
