@@ -1,9 +1,6 @@
 import React, {useEffect, useState, useCallback} from 'react';
 import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent } from 'react-map-gl/maplibre';
 
-//data imports
-import areasDnipro from '../../assets/geo/All_Green_Areas_Dnipro_withAtributes.json';
-import districtsDnipro from '../../assets/geo/Boroughs.json';
 import { FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
 import MapLegendItem from '../../components/MapLegendItem';
@@ -16,6 +13,11 @@ const contStyle = {
 	display: "flex",
 	width: "calc(100%)",
   height: "90%"
+}
+
+interface HomePageProps {
+  greenAreas: FeatureCollection,
+  districts: FeatureCollection,
 }
 
 interface MapStyle {
@@ -41,7 +43,7 @@ const mapStyles: MapStyle[] = [
   },
 ];
 
-function HomePage() {
+function HomePage({greenAreas, districts}: HomePageProps) {
   const CURSOR_TYPE = {
     AUTO: "auto",
     POINTER: "pointer",
@@ -97,20 +99,12 @@ function HomePage() {
 
   function onAreaClick(event: MapLayerMouseEvent):void {
     if (event.features && event.features.length > 0) {
-      // if (areaInfo.data) { //If popup is open - close it
-      //   setAreaInfo({
-      //     lat: 0, lng: 0, data: null,
-      //   });
-      //   return;
-      // }
       const feature: MapGeoJSONFeature = event.features[0];
       setAreaInfo({
         lat: event.lngLat.lat,
         lng: event.lngLat.lng,
         data: feature,
       });
-      // console.log("clicked interactive layer!")
-      // console.log(feature);
     }
   }
 
@@ -148,7 +142,7 @@ function HomePage() {
       mapStyle={styleJson}>
       <Source
         type='geojson'
-        data={districtsDnipro as FeatureCollection}>
+        data={districts}>
         <Layer
           id='districts-outline'
           type='line'
@@ -161,7 +155,7 @@ function HomePage() {
           
       <Source
         type='geojson'
-        data={areasDnipro as FeatureCollection}>
+        data={greenAreas}>
         {showInteractiveLayers.Supervised && <Layer
           id='areas-supervised'
           key='areas-supervised'
@@ -212,7 +206,7 @@ function HomePage() {
           color='#D84797'
           onToggleActive={toggleLayer}
         />
-        <MapAreaStats areas={(areasDnipro as FeatureCollection).features as AreaInfoAttr[]} />
+        <MapAreaStats areas={greenAreas.features as AreaInfoAttr[]} />
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>
       {areaInfo.data &&
@@ -226,4 +220,5 @@ export {
 };
 export type {
   MapStyle as MapStyleType,
+  HomePageProps,
 }
