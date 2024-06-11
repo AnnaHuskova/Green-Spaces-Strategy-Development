@@ -3,9 +3,6 @@ import React from 'react';
 import { FeatureCollection, Feature } from 'geojson';
 import {area as getArea } from "@turf/turf";
 
-const areaStatsStyle:React.CSSProperties = {
-}
-
 interface MapAreaStatsProps {
   areas: AreaInfoAttr[];
   children?: React.ReactNode,
@@ -79,7 +76,7 @@ export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
     surface: Math.round(surfaceSupTotal + surfaceUnsupTotal),
   })
 
-  return <Table aria-label='Green area statistic' style={areaStatsStyle} size="small" >
+  return <Table aria-label='Green area statistic' className="" size="small" >
     <TableHead>
       <TableRow>
         <TableCell>Area type</TableCell>
