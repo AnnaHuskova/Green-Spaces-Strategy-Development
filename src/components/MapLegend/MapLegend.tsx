@@ -28,18 +28,20 @@ export function MapLegend({children}: MapLegendProps) {
         const tempchild = child as React.ReactElement<any>;
         if (typeof tempchild.type !== "string") {
           if (tempchild.type.name.includes("LegendItem")) {
-            return child;
+            return true;
           }
         }
+        return false;
       })}
       </List>
       {children && React.Children.toArray(children).filter((child, i) => {
           const tempchild = child as React.ReactElement<any>;
           if (typeof tempchild.type !== "string") {
             if (!tempchild.type.name.includes("LegendItem")) {
-              return child;
+              return true;
             }
           }
+          return false;
         })}
     </FormGroup>;
 }

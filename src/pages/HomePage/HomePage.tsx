@@ -1,13 +1,13 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent } from 'react-map-gl/maplibre';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent, Popup as MaplibrePopup } from 'react-map-gl/maplibre';
 
-import { FeatureCollection } from 'geojson';
+import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
 import MapLegendItem from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
-import { AreaInfoAttr } from "../../components/MapAreaStats/MapAreaStats";
+import { featureCollection } from '@turf/turf';
 
 const contStyle = {
 	display: "flex",
@@ -15,9 +15,25 @@ const contStyle = {
   height: "90%"
 }
 
+interface GreenArea extends Feature {
+  properties: {
+    id: string, //ідентифікатор об'єкта (за даним міськради)
+    name: string, //назва зеленої зони (назва парку, скверу або інший топонім, що має статус обʼєкта благоустрою)
+    description: string, //опис зеленої зони (за рішеннями міськради)
+    status: boolean, //чи є об'єктом благоустрою
+    maintained: boolean, //чи утримується з бюджету міста
+    owner?: string, //балансоутримувач (назва комунального підприємства, що опікується обʼєктом)
+    //area: string, //площа об'єкта в м² (в майбутньому площа має обчислюватись за наявної геометрії на льоту)
+    adm4?: string, //адміністративний район, в межах якого зона
+    "Accessibility for target groups"?: boolean,
+    "Functions (mental and physical recuperation)"?: boolean,
+
+  }
+}
+
 interface HomePageProps {
-  greenAreas: FeatureCollection,
-  districts: FeatureCollection,
+  greenAreas: GreenArea[],
+  districts: Feature[],
 }
 
 interface MapStyle {
@@ -43,11 +59,12 @@ const mapStyles: MapStyle[] = [
   },
 ];
 
+const CURSOR_TYPE = {
+  AUTO: "auto",
+  POINTER: "pointer",
+};
+
 function HomePage({greenAreas, districts}: HomePageProps) {
-  const CURSOR_TYPE = {
-    AUTO: "auto",
-    POINTER: "pointer",
-  };
 
   type AreaInfo = {
     lat: number, 
@@ -55,7 +72,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     data: MapGeoJSONFeature | null,
   };
 
-  const [availableStyles, setAvailableStyles] = useState<MapStyle[]>(mapStyles);
+  const [availableStyles, _] = useState<MapStyle[]>(mapStyles); //setAvailableStyles is not used so far, but can be added here
   const [style, setStyle] = useState(0);
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
   const [styleJson, setStyleJson] = useState(null);
@@ -97,21 +114,23 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
   const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
 
-  function onAreaClick(event: MapLayerMouseEvent):void {
-    if (event.features && event.features.length > 0) {
-      const feature: MapGeoJSONFeature = event.features[0];
+  function onAreaClick(event: MapMouseEvent):void {
+    const layerEvent = event as MapLayerMouseEvent;
+    if (layerEvent.features && layerEvent.features.length > 0) {
+      const feature: MapGeoJSONFeature = layerEvent.features[0];
       setAreaInfo({
         lat: event.lngLat.lat,
         lng: event.lngLat.lng,
         data: feature,
       });
     }
-  }
-
-  function onAreaPopupClose(event: PopupEvent) {
-    setAreaInfo({
-          lat: 0, lng: 0, data: null,
-        });
+    else {
+      setAreaInfo({
+        lat: 0,
+        lng: 0,
+        data: null,
+      });
+    }
   }
 
   const toggleLayer: React.ChangeEventHandler = (event) => {
@@ -142,7 +161,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       mapStyle={styleJson}>
       <Source
         type='geojson'
-        data={districts}>
+        data={featureCollection(districts)}>
         <Layer
           id='districts-outline'
           type='line'
@@ -155,7 +174,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           
       <Source
         type='geojson'
-        data={greenAreas}>
+        data={featureCollection(greenAreas) as FeatureCollection}>
         {showInteractiveLayers.Supervised && <Layer
           id='areas-supervised'
           key='areas-supervised'
@@ -164,7 +183,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#3ABEFF',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'On budget'], true]}
+          filter={['==', ['get', 'status'], true]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -174,7 +193,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#D84797',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'On budget'], false]}
+          filter={['==', ['get', 'status'], false]}
         />}
       </Source>
           
@@ -206,11 +225,11 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           color='#D84797'
           onToggleActive={toggleLayer}
         />
-        <MapAreaStats areas={greenAreas.features as AreaInfoAttr[]} />
+        <MapAreaStats areas={greenAreas} />
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>
       {areaInfo.data &&
-        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} onClose={onAreaPopupClose} data={areaInfo.data} />}
+        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
     </GlMap> : "Loading"}
 	</div>
 };
@@ -221,4 +240,5 @@ export {
 export type {
   MapStyle as MapStyleType,
   HomePageProps,
+  GreenArea,
 }

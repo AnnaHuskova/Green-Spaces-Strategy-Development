@@ -1,12 +1,12 @@
 import { Route, Routes, Navigate } from 'react-router-dom';
 import {useEffect, useState} from 'react';
 import { MainLayout } from './layouts';
-import { HomePage, AboutPage, SavePage, BlogPage } from './pages';
+import { HomePage, AboutPage, SavePage, BlogPage, GreenArea } from './pages';
 import { HomePageProps } from './pages';
 
-import areasDnipro from './assets/geo/All_Green_Areas_Dnipro_withAtributes.json';
+import areasDnipro from './assets/green_areas.json';
 import districtsDnipro from './assets/geo/Boroughs.json';
-import { FeatureCollection } from 'geojson';
+import { Feature } from 'geojson';
 
 function App() {
   const[city, setCity] = useState<string>("Dnipro");
@@ -15,8 +15,8 @@ function App() {
   useEffect(() => {
     //TODO data fetch from backend here!
     setCityData({
-      greenAreas: areasDnipro as FeatureCollection,
-      districts: districtsDnipro as FeatureCollection,
+      greenAreas: areasDnipro.features as GreenArea[],
+      districts: districtsDnipro.features as Feature[],
     })
   }, [city]);
 

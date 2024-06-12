@@ -1,6 +1,9 @@
 import React from 'react';
-import { MapGeoJSONFeature, Popup, PopupEvent } from 'react-map-gl/maplibre';
+import { Popup, PopupEvent } from 'react-map-gl/maplibre';
 import { Button } from '@mui/material';
+import {area as getArea } from "@turf/turf";
+
+import { GreenArea } from '../../pages';
 
 /*
 const areaInfoStyle:React.CSSProperties = {
@@ -20,35 +23,35 @@ const areaInfoStyle:React.CSSProperties = {
 interface AreaInfoProps {
   latitude: number,
   longtitude: number,
-  data: MapGeoJSONFeature,
-  onClose: (event: PopupEvent) => void,
+  data: GreenArea,
+  //onClose: (event: PopupEvent) => void,
   children?: React.ReactNode,
 }
 
-export function AreaInfo({ latitude, longtitude, data, onClose, children }: AreaInfoProps) {
+export function AreaInfo({ latitude, longtitude, data, children }: AreaInfoProps) {
   const twDataContainerStyle = 'mb-5'; //flex flex-column justify-between
   const twDataLabelStyle = `font-bold`;
 
   return <Popup
+    key = {latitude+longtitude}
     latitude={latitude}
     longitude={longtitude}
-    onClose={onClose}
     className="p-5 min-w-80 rounded-xl bg-white font-light text-base leading-5"
-    maxWidth="none"
+    maxWidth="none" 
   >
     <div className='max-w-80'>
       <header className='font-light text-center mb-2.5'>Дані зони</header>
       <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Номер:</label>
-        <div> {data.properties.ID}</div> 
+        <div> {data.properties.id}</div> 
       </div>
       <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Назва:</label>
-        <div> {data.properties.NAME}</div>  
+        <div> {data.properties.name || "Не має назви"}</div>  
       </div>
       <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Площа:</label>
-        <div> {(data.properties["площадь"]/10000).toFixed(2)} га</div>  
+        <div> {(getArea(data)/10000).toFixed(2)} га</div>  
       </div>
       {/* <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Доступність для цільових груп:</label>
