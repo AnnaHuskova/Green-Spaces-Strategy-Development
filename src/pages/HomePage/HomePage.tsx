@@ -8,6 +8,7 @@ import AreaInfo from '../../components/AreaInfo';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
 import { featureCollection } from '@turf/turf';
+import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre-gl';
 
 const contStyle = {
 	display: "flex",
@@ -65,9 +66,9 @@ const CURSOR_TYPE = {
 };
 
 interface AddFilter {
-  balance: {
-    maintained: boolean,
-    unmaintained: boolean,
+  maintained: {
+    true: boolean,
+    false: boolean,
   }
   /*
   zoneType: {
@@ -104,14 +105,32 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   const [showMapLegend, toggleShowMapLegend] = useState(true); //change to false later
 
   const [additionalFilter, setAdditionalFilter] = useState<AddFilter>({
-    balance: {
-      maintained: true,
-      unmaintained: true,
+    maintained: {
+      true: true,
+      false: true,
     }
   });
 
-  function getAdditionalFilter() {
-    return [];
+  function constructAdditionalFilter() {
+    const filterArray:(boolean|ExpressionSpecification)[] = []
+    for(const filteredGroup in additionalFilter) {
+      const filterCategory:ExpressionFilterSpecification = ["any"]
+      for(const filteredValue in (additionalFilter as Record<string, any>)[filteredGroup]) {
+        if (((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
+          let typedValue; 
+          if(filteredValue === "true" || filteredValue === "false") {
+            typedValue = filteredValue === "true"? true : false;
+          }
+          else {
+            typedValue = filteredValue;
+          }
+          filterCategory.push(['==', ['get', filteredGroup], typedValue])
+        }
+      }
+      filterArray.push(filterCategory);
+    }
+    console.log(filterArray)
+    return filterArray;
   }
 
   //fetch default style for first render
@@ -173,7 +192,6 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     try {
       const currentValue:boolean = ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty];
       ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty] = !currentValue;
-      console.log(currentFilter)
       setAdditionalFilter(currentFilter);
     }
     catch(error) {
@@ -224,7 +242,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#3ABEFF',
             'fill-opacity': 0.5
           }}
-          filter={['all', ['==', ['get', 'status'], true], ...getAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'status'], true], ...constructAdditionalFilter()]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -234,7 +252,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#D84797',
             'fill-opacity': 0.5
           }}
-          filter={['all', ['==', ['get', 'status'], false], ...getAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'status'], false], ...constructAdditionalFilter()]}
         />}
       </Source>
           
@@ -267,15 +285,15 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           onToggleActive={toggleLayer}
         />
         <MapLegendSwitch
-          active={additionalFilter.balance.maintained}  
-          controls="balance-maintained"
+          active={additionalFilter.maintained.true}  
+          controls="maintained-true"
           label="На балансі"
           // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
         />
         <MapLegendSwitch
-          active={additionalFilter.balance.unmaintained}
-          controls="balance-unmaintained"
+          active={additionalFilter.maintained.false}
+          controls="maintained-false"
           label="Не утримується"
           // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
