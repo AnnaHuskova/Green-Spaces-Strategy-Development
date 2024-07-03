@@ -1,9 +1,9 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature,  /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
 
 import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
-import MapLegendItem from '../../components/MapLegendItem';
+import MapLegendSwitch from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
@@ -64,6 +64,21 @@ const CURSOR_TYPE = {
   POINTER: "pointer",
 };
 
+interface AddFilter {
+  balance: {
+    maintained: boolean,
+    unmaintained: boolean,
+  }
+  /*
+  zoneType: {
+    park: boolean,
+    square: boolean,
+    allee: boolean,
+    forestPark: boolean
+  }
+  */
+}
+
 function HomePage({greenAreas, districts}: HomePageProps) {
 
   type AreaInfo = {
@@ -85,6 +100,14 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     lat: 0,
     lng: 0,
     data: null,
+  });
+  const [showMapLegend, toggleShowMapLegend] = useState(true); //change to false later
+
+  const [additionalFilter, setAdditionalFilter] = useState<AddFilter>({
+    balance: {
+      maintained: true,
+      unmaintained: true,
+    }
   });
 
   //fetch default style for first render
@@ -140,6 +163,18 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     toggleShowInteractiveLayers({ ...newLayers });
   }
 
+  const toggleLayerProperty:React.ChangeEventHandler = (event) => {
+    const[filteredGroup, filteredProperty] = event.currentTarget.id.split('-');
+    const currentFilter = additionalFilter;
+    try {
+      const currentValue:boolean = ((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty];
+      ((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty] = !currentValue
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
+
 	return <div style={contStyle}>
     {styleJson ? <GlMap
       initialViewState={{
@@ -183,7 +218,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#3ABEFF',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'status'], true]}
+          filter={['all', ['==', ['get', 'status'], true], ...Object.values(additionalFilter)]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -193,7 +228,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#D84797',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'status'], false]}
+          filter={['all', ['==', ['get', 'status'], false], ...Object.values(additionalFilter)]}
         />}
       </Source>
           
@@ -210,24 +245,38 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
-      <MapLegend>
-        <MapLegendItem
+      {showMapLegend && <MapLegend>
+        <MapLegendSwitch
           active={showInteractiveLayers.Supervised}
-          layerType="Supervised"
+          controls="Supervised"
           label="Supervised"
           color='#3ABEFF'
           onToggleActive={toggleLayer}
         />
-        <MapLegendItem
+        <MapLegendSwitch
           active={showInteractiveLayers.Unsupervised}
-          layerType="Unsupervised"
+          controls="Unsupervised"
           label="Not supervised"
           color='#D84797'
           onToggleActive={toggleLayer}
         />
+        <MapLegendSwitch
+          active={additionalFilter.balance.maintained}
+          controls="balance-maintained"
+          label="На балансі"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.balance.unmaintained}
+          controls="balance-unmaintained"
+          label="Не утримується"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
         <MapAreaStats areas={greenAreas} />
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
-      </MapLegend>
+      </MapLegend>}
       {areaInfo.data &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
     </GlMap> : "Loading"}
