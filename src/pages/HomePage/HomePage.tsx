@@ -110,6 +110,10 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   });
 
+  function getAdditionalFilter() {
+    return [];
+  }
+
   //fetch default style for first render
   useEffect(() => {
       async function fetchStyle() {
@@ -165,10 +169,12 @@ function HomePage({greenAreas, districts}: HomePageProps) {
 
   const toggleLayerProperty:React.ChangeEventHandler = (event) => {
     const[filteredGroup, filteredProperty] = event.currentTarget.id.split('-');
-    const currentFilter = additionalFilter;
+    const currentFilter = {...additionalFilter};
     try {
-      const currentValue:boolean = ((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty];
-      ((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty] = !currentValue
+      const currentValue:boolean = ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty];
+      ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty] = !currentValue;
+      console.log(currentFilter)
+      setAdditionalFilter(currentFilter);
     }
     catch(error) {
       console.error(error);
@@ -218,7 +224,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#3ABEFF',
             'fill-opacity': 0.5
           }}
-          filter={['all', ['==', ['get', 'status'], true], ...Object.values(additionalFilter)]}
+          filter={['all', ['==', ['get', 'status'], true], ...getAdditionalFilter()]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -228,7 +234,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#D84797',
             'fill-opacity': 0.5
           }}
-          filter={['all', ['==', ['get', 'status'], false], ...Object.values(additionalFilter)]}
+          filter={['all', ['==', ['get', 'status'], false], ...getAdditionalFilter()]}
         />}
       </Source>
           
@@ -261,7 +267,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           onToggleActive={toggleLayer}
         />
         <MapLegendSwitch
-          active={additionalFilter.balance.maintained}
+          active={additionalFilter.balance.maintained}  
           controls="balance-maintained"
           label="На балансі"
           // color='#3ABEFF'
