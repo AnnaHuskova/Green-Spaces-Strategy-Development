@@ -1,13 +1,10 @@
-import { Table, TableHead, TableBody, TableCell, TableContainer, TableRow, Paper } from '@mui/material';
+import { Table, TableHead, TableBody, TableCell, TableRow } from '@mui/material';
 import React from 'react';
-import { FeatureCollection, Feature } from 'geojson';
+import { GreenArea } from '../../pages';
 import {area as getArea } from "@turf/turf";
 
-const areaStatsStyle:React.CSSProperties = {
-}
-
 interface MapAreaStatsProps {
-  areas: AreaInfoAttr[];
+  areas: GreenArea[];
   children?: React.ReactNode,
 }
 
@@ -17,48 +14,20 @@ type AreaStats = {
   surface: number,
 }
 
-export interface AreaInfoAttr extends Feature  {
-  properties: {
-    ID: string,
-    NAME: string,
-    "площадь"?: number|null,
-    "Status of facility object": boolean,
-    "Functions (mental and physical recuperation)": boolean,
-    "Administrative region"?: string,
-    "On budget": boolean,
-    "Accessibility for target groups": boolean|null
-  }
-}
-
-interface AreaInfo extends Feature {
-  properties: {
-    fid: number,
-    osm_id: number,
-    code: number,
-    fclass: "park", //park
-    name: string,
-    "Культурна цінність": string,
-    "Перелік": boolean|null,
-    "Статус ОКС": boolean,
-    area?: number,
-    perimeter?: number,
-  }
-}
-
 export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
   const areaStats: AreaStats[] = [];
   const areasSup = areas.filter((areaFeature) => {
-    return areaFeature.properties['On budget'] === true;
+    return areaFeature.properties.status === true;
   });
   const areasUnsup = areas.filter((areaFeature) => {
-    return areaFeature.properties['On budget'] === false;
+    return areaFeature.properties.status === false;
   });
   let surfaceSupTotal:number = 0;
   for (const areaFeature of areasSup) {
     surfaceSupTotal = surfaceSupTotal + getArea(areaFeature);
   }
   areaStats.push({
-    categoryName: "Supervised",
+    categoryName: "Registered",
     quantity: areasSup.length,
     surface: Math.round(surfaceSupTotal),
   })
@@ -68,7 +37,7 @@ export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
     surfaceUnsupTotal = surfaceUnsupTotal + getArea(areaFeature);
   }
   areaStats.push({
-    categoryName: "Unsupervised",
+    categoryName: "Not registered",
     quantity: areasUnsup.length,
     surface: Math.round(surfaceUnsupTotal),
   })
@@ -79,7 +48,7 @@ export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
     surface: Math.round(surfaceSupTotal + surfaceUnsupTotal),
   })
 
-  return <Table aria-label='Green area statistic' style={areaStatsStyle} size="small" >
+  return <Table aria-label='Green area statistic' className="" size="small" >
     <TableHead>
       <TableRow>
         <TableCell>Area type</TableCell>

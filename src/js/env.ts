@@ -1,0 +1,16 @@
+//
+
+//dotenv.config();
+
+const {
+  REACT_APP_BACKEND_URL,
+  REACT_APP_DISTRICTS_ENDPOINT,
+  REACT_APP_AREAS_ENDPOINT,
+} = process.env;
+
+
+export default {
+  REACT_APP_BACKEND_URL,
+  REACT_APP_DISTRICTS_ENDPOINT,
+  REACT_APP_AREAS_ENDPOINT,
+};

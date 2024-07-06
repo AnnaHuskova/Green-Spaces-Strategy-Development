@@ -1,6 +1,11 @@
 import React from 'react';
-import { MapGeoJSONFeature, Popup, PopupEvent } from 'react-map-gl/maplibre';
+import { Popup, /*PopupEvent*/ } from 'react-map-gl/maplibre';
+import { Button } from '@mui/material';
+import {area as getArea } from "@turf/turf";
 
+import { GreenArea } from '../../pages';
+
+/*
 const areaInfoStyle:React.CSSProperties = {
   //id: "legend",
   position: "absolute",
@@ -13,58 +18,65 @@ const areaInfoStyle:React.CSSProperties = {
   borderRadius: '5px',
   boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.5)',
 }
+*/
 
 interface AreaInfoProps {
   latitude: number,
   longtitude: number,
-  data: MapGeoJSONFeature,
-  onClose: (event: PopupEvent) => void,
+  data: GreenArea,
+  //onClose: (event: PopupEvent) => void,
   children?: React.ReactNode,
 }
 
-const headerStyle: React.CSSProperties = {
-  fontWeight: 700,
-  textAlign: "center",
-}
+export function AreaInfo({ latitude, longtitude, data, children }: AreaInfoProps) {
+  const twDataContainerStyle = 'mb-5'; //flex flex-column justify-between
+  const twDataLabelStyle = `font-bold`;
 
-const dataContainer: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-}
-
-const labelStyle: React.CSSProperties = {
-  fontWeight: 700,
-  
-}
-
-export function AreaInfo({ latitude, longtitude, data, onClose, children }: AreaInfoProps) {
   return <Popup
+    key = {latitude+longtitude}
     latitude={latitude}
     longitude={longtitude}
-    onClose={onClose}
+    className="p-5 min-w-80 rounded-xl bg-white font-light text-base leading-5"
+    maxWidth="none" 
   >
-    <header style={headerStyle}>Дані зони</header>
-    <div style={dataContainer}>
-      <span style={labelStyle}>Номер:</span>
-      <span> {data.properties.ID}</span> 
+    <div className='max-w-80'>
+      <header className='font-light text-center mb-2.5'>Дані зони</header>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Номер:</label>
+        <div> {data.properties.id}</div> 
+      </div>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Назва:</label>
+        <div> {data.properties.name || "Не має назви"}</div>  
+      </div>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Площа:</label>
+        <div> {(getArea(data)/10000).toFixed(2)} га</div>  
+      </div>
+      {/* <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Доступність для цільових груп:</label>
+        <div> {Boolean(data.properties['Accessibility for target groups']) ? 'Так' : 'Ні'}</div>  
+      </div>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Функції (психологічне та фізичне відновлення):</label>
+        <div> {Boolean(data.properties['Functions (mental and physical recuperation)']) ? 'Так' : 'Ні'}</div>  
+      </div> */}
+      <div className='flex flex-row justify-between text-lg text-center'>
+        <Button /*className='px-3 py-2'*/ sx={{
+          px: "1.5rem",
+          fontSize: "inherit",
+          textTransform: "none",
+          textWrap: "nowrap"
+          }} variant='outlined'>Як зберегти?</Button>
+        <Button className='ml-5' sx={{
+          px: "1.5rem",
+          ml: "1.25rem",
+          fontSize: "inherit",
+          textTransform: "none",
+          textWrap: "nowrap"
+          }} variant='outlined'>Детальніше</Button>
+      </div>
+      {children}
     </div>
-    <div style={dataContainer}>
-      <span style={labelStyle}>Назва:</span>
-      <span> {data.properties.NAME}</span>  
-    </div>
-    <div style={dataContainer}>
-      <span style={labelStyle}>Площа:</span>
-      <span> {(data.properties["площадь"]/10000).toFixed(2)} га</span>  
-    </div>
-    <div style={dataContainer}>
-      <span style={labelStyle}>Доступність для цільових груп:</span>
-      <span> {Boolean(data.properties['Accessibility for target groups']) ? 'Так' : 'Ні'}</span>  
-    </div>
-    <div style={dataContainer}>
-      <span style={labelStyle}>Функції (психологічне та фізичне відновлення):</span>
-      <span> {Boolean(data.properties['Functions (mental and physical recuperation)']) ? 'Так' : 'Ні'}</span>  
-    </div>
-    {children}
   </Popup>;
 }

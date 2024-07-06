@@ -1,23 +1,41 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent } from 'react-map-gl/maplibre';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-//data imports
-import areasDnipro from '../../assets/geo/All_Green_Areas_Dnipro_withAtributes.json';
-import districtsDnipro from '../../assets/geo/Boroughs.json';
-import { FeatureCollection } from 'geojson';
+import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
 import MapLegendItem from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
-import { AreaInfoAttr } from "../../components/MapAreaStats/MapAreaStats";
+import { featureCollection } from '@turf/turf';
 
 const contStyle = {
 	display: "flex",
 	width: "calc(100%)",
   height: "90%"
+}
+
+interface GreenArea extends Feature {
+  properties: {
+    id: string, //ідентифікатор об'єкта (за даним міськради)
+    name: string, //назва зеленої зони (назва парку, скверу або інший топонім, що має статус обʼєкта благоустрою)
+    description: string, //опис зеленої зони (за рішеннями міськради)
+    status: boolean, //чи є об'єктом благоустрою
+    maintained: boolean, //чи утримується з бюджету міста
+    owner?: string, //балансоутримувач (назва комунального підприємства, що опікується обʼєктом)
+    //area: string, //площа об'єкта в м² (в майбутньому площа має обчислюватись за наявної геометрії на льоту)
+    adm4?: string, //адміністративний район, в межах якого зона
+    "Accessibility for target groups"?: boolean,
+    "Functions (mental and physical recuperation)"?: boolean,
+
+  }
+}
+
+interface HomePageProps {
+  greenAreas: GreenArea[],
+  districts: Feature[],
 }
 
 interface MapStyle {
@@ -43,11 +61,12 @@ const mapStyles: MapStyle[] = [
   },
 ];
 
-function HomePage() {
-  const CURSOR_TYPE = {
-    AUTO: "auto",
-    POINTER: "pointer",
-  };
+const CURSOR_TYPE = {
+  AUTO: "auto",
+  POINTER: "pointer",
+};
+
+function HomePage({greenAreas, districts}: HomePageProps) {
 
   type AreaInfo = {
     lat: number, 
@@ -136,29 +155,23 @@ function HomePage() {
   const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), [CURSOR_TYPE.POINTER]);
   const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), [CURSOR_TYPE.AUTO]);
 
-  function onAreaClick(event: MapLayerMouseEvent):void {
-    if (event.features && event.features.length > 0) {
-      // if (areaInfo.data) { //If popup is open - close it
-      //   setAreaInfo({
-      //     lat: 0, lng: 0, data: null,
-      //   });
-      //   return;
-      // }
-      const feature: MapGeoJSONFeature = event.features[0];
+  function onAreaClick(event: MapMouseEvent):void {
+    const layerEvent = event as MapLayerMouseEvent;
+    if (layerEvent.features && layerEvent.features.length > 0) {
+      const feature: MapGeoJSONFeature = layerEvent.features[0];
       setAreaInfo({
         lat: event.lngLat.lat,
         lng: event.lngLat.lng,
         data: feature,
       });
-      // console.log("clicked interactive layer!")
-      // console.log(feature);
     }
-  }
-
-  function onAreaPopupClose(event: PopupEvent) {
-    setAreaInfo({
-          lat: 0, lng: 0, data: null,
-        });
+    else {
+      setAreaInfo({
+        lat: 0,
+        lng: 0,
+        data: null,
+      });
+    }
   }
 
   const toggleLayer: React.ChangeEventHandler = (event) => {
@@ -189,7 +202,7 @@ function HomePage() {
       mapStyle={styleJson}>
       <Source
         type='geojson'
-        data={districtsDnipro as FeatureCollection}>
+        data={featureCollection(districts)}>
         <Layer
           id='districts-outline'
           type='line'
@@ -202,7 +215,7 @@ function HomePage() {
           
       <Source
         type='geojson'
-        data={areasDnipro as FeatureCollection}>
+        data={featureCollection(greenAreas) as FeatureCollection}>
         {showInteractiveLayers.Supervised && <Layer
           id='areas-supervised'
           key='areas-supervised'
@@ -211,7 +224,7 @@ function HomePage() {
             'fill-color': '#3ABEFF',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'On budget'], true]}
+          filter={['==', ['get', 'status'], true]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -221,7 +234,7 @@ function HomePage() {
             'fill-color': '#D84797',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'On budget'], false]}
+          filter={['==', ['get', 'status'], false]}
         />}
       </Source>
           
@@ -253,11 +266,11 @@ function HomePage() {
           color='#D84797'
           onToggleActive={toggleLayer}
         />
-        <MapAreaStats areas={(areasDnipro as FeatureCollection).features as AreaInfoAttr[]} />
+        <MapAreaStats areas={greenAreas} />
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>
       {areaInfo.data &&
-        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} onClose={onAreaPopupClose} data={areaInfo.data} />}
+        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
     </GlMap> : "Loading"}
     <ToastContainer />
 	</div>
@@ -268,4 +281,6 @@ export {
 };
 export type {
   MapStyle as MapStyleType,
+  HomePageProps,
+  GreenArea,
 }
