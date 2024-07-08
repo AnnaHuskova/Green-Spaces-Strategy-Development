@@ -1,5 +1,7 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent, Popup as MaplibrePopup } from 'react-map-gl/maplibre';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
@@ -72,7 +74,21 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     data: MapGeoJSONFeature | null,
   };
 
-  const [availableStyles, _] = useState<MapStyle[]>(mapStyles); //setAvailableStyles is not used so far, but can be added here
+  const showSourceError = (message:string):void => {
+    toast.error(`${message}`, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
+  }
+
+  const [availableStyles, setAvailableStyles] = useState<MapStyle[]>(mapStyles);
   const [style, setStyle] = useState(0);
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
   const [styleJson, setStyleJson] = useState(null);
@@ -90,12 +106,37 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   //fetch default style for first render
   useEffect(() => {
       async function fetchStyle() {
-        const response = await fetch(availableStyles[style].url);
+        let response:Response|undefined = undefined;
+        try {
+          response = await fetch(availableStyles[style].url);
+        }
+        catch(error) {
+          const typedError = error as TypeError;
+          if(typedError.name === "TypeError" && typedError.message.includes("NetworkError")) {
+            showSourceError(`Unable to load background style ${availableStyles[style].name}`);
+          }
+          else {
+            console.log(error);
+          }
+        }
+        finally {
+          if(response === undefined) {
+            if(style +1 < availableStyles.length) {
+              setStyle(style+1); //switch to next map source
+              return;
+            }
+            else {
+              showSourceError("Cannot resolve background source");
+              return;
+            }
+          }
           const jsonData = await response.json();
-        setStyleJson(jsonData);
+          setStyleJson(jsonData);
+        }
+        
       };
 
-      fetchStyle();
+      fetchStyle();    
     }, [style, availableStyles]);
 
   useEffect(() => {
@@ -111,8 +152,8 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   }, [showInteractiveLayers]
   );
 
-  const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
-  const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
+  const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), [CURSOR_TYPE.POINTER]);
+  const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), [CURSOR_TYPE.AUTO]);
 
   function onAreaClick(event: MapMouseEvent):void {
     const layerEvent = event as MapLayerMouseEvent;
@@ -231,6 +272,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       {areaInfo.data &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
     </GlMap> : "Loading"}
+    <ToastContainer />
 	</div>
 };
 

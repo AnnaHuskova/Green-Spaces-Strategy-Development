@@ -1,5 +1,5 @@
 import React from 'react';
-import { Popup, PopupEvent } from 'react-map-gl/maplibre';
+import { Popup, /*PopupEvent*/ } from 'react-map-gl/maplibre';
 import { Button } from '@mui/material';
 import {area as getArea } from "@turf/turf";
 
