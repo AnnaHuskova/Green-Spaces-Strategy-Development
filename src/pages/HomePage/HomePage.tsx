@@ -176,12 +176,12 @@ function HomePage({greenAreas, districts}: HomePageProps) {
 
   const toggleLayer: React.ChangeEventHandler = (event) => {
     const layerName: "Supervised"|"Unsupervised" = event.currentTarget.id === "Supervised"? "Supervised" : "Unsupervised";
-    const newLayers = showInteractiveLayers;
+    const newLayers = showInteractiveLayers;  
     newLayers[layerName] = !newLayers[layerName];
     toggleShowInteractiveLayers({ ...newLayers });
   }
 
-	return <div style={contStyle}>
+	return <div className="relative w-full h-[80vh]">
     {styleJson ? <GlMap
       initialViewState={{
         longitude: 35.0064,
@@ -271,8 +271,8 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       </MapLegend>
       {areaInfo.data &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
+      <ToastContainer />
     </GlMap> : "Loading"}
-    <ToastContainer />
 	</div>
 };
 
