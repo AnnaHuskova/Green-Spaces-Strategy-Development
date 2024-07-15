@@ -8,7 +8,7 @@ function MainLayout() {
 		<div > 
 			<Topbar />
 			<main className='w-full'>
-				<Toolbar />
+				{/* <Toolbar /> */}
 				<Outlet />
 			</main>
       <Footer />
