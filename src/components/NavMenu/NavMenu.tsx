@@ -30,11 +30,10 @@ const NavMenu = () => {
 		// <List sx={{ display: 'flex' }}>
     <nav className='text-navlink flex flex-row'>
 			{routes.map(route => {
-        const activeStyles = "text-navlinkActive";
-        // console.log(useLocation())
-				return <NavLink end to={route.path} key={route.path} className={({ isActive }) => {return (`block h-full px-8 py-4 mx-13 text-center`+" "+ (isActive? activeStyles: ""))}}
+        const activeStyles = "relative text-navlinkActive after:content-[''] after:absolute after:left-0 after:top-[calc(100%-4px)] after:block after:w-full after:h-1 after:bg-accent";
+				return <NavLink end to={route.path} key={route.path} className={({ isActive }) => {return (`block h-full pt-4 mx-13 text-center`+" "+ (isActive? activeStyles: ""))}}
         // {{({isActive}) => {return (`w-30 h-full mr-2 `+ isActive? activeStyles: "")}}}
-        >{route.displayText}</NavLink>
+        ><span className='px-8 text-center'>{route.displayText}</span></NavLink>
 				// 	component={Link}
 				// 	to={route.path}
 				// 	key={route.path}
