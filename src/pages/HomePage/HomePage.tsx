@@ -266,9 +266,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           color='#D84797'
           onToggleActive={toggleLayer}
         />
-        <MapAreaStats areas={greenAreas} />
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>
+      <MapAreaStats areas={greenAreas}></MapAreaStats>
       {areaInfo.data &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
       <ToastContainer />
