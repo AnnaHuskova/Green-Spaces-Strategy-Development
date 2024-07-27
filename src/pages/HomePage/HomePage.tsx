@@ -69,15 +69,22 @@ interface AddFilter {
   maintained: {
     true: boolean,
     false: boolean,
-  }
-  /*
+  },
   zoneType: {
+    forestPark: boolean,
     park: boolean,
     square: boolean,
     allee: boolean,
-    forestPark: boolean
+    boulevard: boolean
   }
-  */
+}
+
+const zoneTypeFilters = {
+  forestPark: [],
+  park: [],
+  square: [],
+  allee: [],
+  boulevard: []
 }
 
 function HomePage({greenAreas, districts}: HomePageProps) {
@@ -108,6 +115,13 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     maintained: {
       true: true,
       false: true,
+    },
+    zoneType: {
+      forestPark: true,
+      park: true,
+      square: true,
+      allee: true,
+      boulevard: true
     }
   });
 
@@ -116,15 +130,20 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     for(const filteredGroup in additionalFilter) {
       const filterCategory:ExpressionFilterSpecification = ["any"]
       for(const filteredValue in (additionalFilter as Record<string, any>)[filteredGroup]) {
-        if (((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
-          let typedValue; 
-          if(filteredValue === "true" || filteredValue === "false") {
-            typedValue = filteredValue === "true"? true : false;
+        if(filteredGroup !== "zoneType") {
+          if (((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
+            let typedValue; 
+            if(filteredValue === "true" || filteredValue === "false") {
+              typedValue = filteredValue === "true"? true : false;
+            }
+            else {
+              typedValue = filteredValue;
+            }
+            filterCategory.push(['==', ['get', filteredGroup], typedValue])
           }
-          else {
-            typedValue = filteredValue;
-          }
-          filterCategory.push(['==', ['get', filteredGroup], typedValue])
+        }
+        else {
+          filterCategory.push(true); //FIXME
         }
       }
       filterArray.push(filterCategory);
@@ -295,6 +314,41 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           active={additionalFilter.maintained.false}
           controls="maintained-false"
           label="Не утримується"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.forestPark}
+          controls="zoneType-forestPark"
+          label="Лісопарк"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.park}
+          controls="zoneType-park"
+          label="Парк"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.square}
+          controls="zoneType-square"
+          label="Сквер"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.allee}
+          controls="zoneType-allee"
+          label="Алея"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.boulevard}
+          controls="zoneType-boulevard"
+          label="Бульвар"
           // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
         />
