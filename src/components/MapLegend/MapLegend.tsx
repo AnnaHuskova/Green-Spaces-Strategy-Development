@@ -17,14 +17,16 @@ const legendStyle:React.CSSProperties = {
 */
 
 interface MapLegendProps {
+  style: string,
   children?: React.ReactNode,
 }
 
-export function MapLegend({children}: MapLegendProps) {
-  return <FormGroup aria-label='Green area types' className="absolute top-48 left-0 min-h-14 min-w-14 bg-black bg-opacity-10 py-6 px-4 rounded-xl shadow-sm">
-      <FormLabel>Area types</FormLabel>
-      <List>
-      {children && React.Children.toArray(children).filter((child, i) => {
+export function MapLegend({style, children}: MapLegendProps) {
+  return <div aria-label='Green area types' className={style}>
+      {/* <FormLabel>Area types</FormLabel> */}
+      {/* <List> */}
+      {children}
+      {/* {children && React.Children.toArray(children).filter((child, i) => {
         const tempchild = child as React.ReactElement<any>;
         if (typeof tempchild.type !== "string") {
           if (tempchild.type.name.includes("LegendItem")) {
@@ -32,9 +34,9 @@ export function MapLegend({children}: MapLegendProps) {
           }
         }
         return false;
-      })}
-      </List>
-      {children && React.Children.toArray(children).filter((child, i) => {
+      })} */}
+      {/* </List> */}
+      {/* {children && React.Children.toArray(children).filter((child, i) => {
           const tempchild = child as React.ReactElement<any>;
           if (typeof tempchild.type !== "string") {
             if (!tempchild.type.name.includes("LegendItem")) {
@@ -42,6 +44,6 @@ export function MapLegend({children}: MapLegendProps) {
             }
           }
           return false;
-        })}
-    </FormGroup>;
+        })} */}
+    </div>;
 }
