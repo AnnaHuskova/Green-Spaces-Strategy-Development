@@ -10,15 +10,30 @@ interface AreaFilterOptionProps {
 }
 
 function AreaFilterOption({value, hint, selected, groupName, onClick}: AreaFilterOptionProps) {
-  const classSelected = selected === value? "fill-accent" : "";
-  return <label aria-label={hint}>
+  const classSelected = selected === value? "fill-accent" : "fill-navlink";
+  return <label aria-label={hint} className="block">
       <input type="radio" name={groupName} id={`${groupName}_${value}`} value={value} onClick={onClick} className="appearance-none inline-block"/>
-      <svg viewBox='0 0 30 30' className={`inline-block w-8 h-8 fill-navlink hover:fill-navlinkActive ${classSelected}`}>
+      <svg viewBox='0 0 30 30' className={`inline-block w-8 h-8 hover:fill-navlinkActive ${classSelected}`}>
         {hint && <title>{hint}</title>}
         <use href={icons + `#${value}`}></use>
       </svg>
     </label>
 }
+
+const areaFilterOptions = [
+  {
+    value: "areaStatus",
+    hint: "Статус зони"
+  },
+  {
+    value: "areaMaintained",
+    hint: "Балансоутримувач"
+  },
+  {
+    value: "areaType",
+    hint: "За типом зони"
+  }
+]
 
 interface AreaFilterRadioProps {
   onClick: React.MouseEventHandler<HTMLInputElement>,
@@ -27,16 +42,15 @@ interface AreaFilterRadioProps {
 }
 
 export function AreaFilterRadio({ onClick, selected, children }: AreaFilterRadioProps) {
-  return <>
-  <AreaFilterOption
-    value='areaStatus'
-    selected={selected}
-    hint="Статус зони"
-    groupName='areaFilters'
-    onClick={onClick}
-  />
-    {/* <svg viewBox='0 0 30 30' className=' w-3 h-3 fill-[#000000]'>
-      <use href={icons + "#areaStatus"}></use>
-    </svg> */}
-  </> 
+  return <div className='space-y-8'>
+  {areaFilterOptions.map((option) => {
+    return <AreaFilterOption
+      value={option.value}
+      selected={selected}
+      hint={option.hint}
+      groupName='areaFilters'
+      onClick={onClick}
+    />
+  })}
+  </div> 
 }
