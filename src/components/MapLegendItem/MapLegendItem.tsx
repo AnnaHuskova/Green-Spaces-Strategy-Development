@@ -1,12 +1,12 @@
 import React from 'react';
 import { FormControlLabel, ListItem, Switch } from '@mui/material';
 
-type ColorHex = `#${string}`;
+// type ColorHex = `#${string}`;
 
 interface MapLegendItemProps {
   active: boolean,
   onToggleActive: React.ChangeEventHandler,
-  color?: ColorHex,
+  color?: string, //ColorHex,
   layerType: string,
   label: string,
   children?: React.ReactNode,

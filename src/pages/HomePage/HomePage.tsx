@@ -13,6 +13,10 @@ import MapAreaStats from '../../components/MapAreaStats';
 import AreaFilterRadio from '../../components/AreaFilterRadio';
 import { featureCollection } from '@turf/turf';
 
+import resolveConfig from "tailwindcss/resolveConfig";
+import tailwindConfigRaw from "../../tailwind.config.js";
+const twConfig = resolveConfig(tailwindConfigRaw); //for access to palette directly from TS
+
 const contStyle = {
 	display: "flex",
 	width: "calc(100%)",
@@ -236,7 +240,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           key='areas-supervised'
           type='fill'
           paint={{
-            'fill-color': '#3ABEFF',
+            'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"],//'#3ABEFF',
             'fill-opacity': 0.5
           }}
           filter={['==', ['get', 'status'], true]}
@@ -246,7 +250,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           key='areas-unsupervised'
           type='fill'
           paint={{
-            'fill-color': '#D84797',
+            'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"],//'#D84797',
             'fill-opacity': 0.5
           }}
           filter={['==', ['get', 'status'], false]}
@@ -266,7 +270,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
-      <MapLegend style="absolute top-20 left-0 min-h-14 min-w-14 bg-black bg-opacity-10 py-6 px-4 rounded-xl shadow-sm">
+      <MapLegend style="absolute top-28 left-0 min-h-14 min-w-14 bg-white  bg-opacity-75   py-6 px-4 rounded-xl shadow-sm">
         <div className='flex flex-row'>
           <AreaFilterRadio
             onClick={onFilterClick}
@@ -281,14 +285,14 @@ function HomePage({greenAreas, districts}: HomePageProps) {
               active={showInteractiveLayers.Supervised}
               layerType="Supervised"
               label="Supervised"
-              color='#3ABEFF'
+              color={(twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"]}
               onToggleActive={toggleLayer}
             />
             <MapLegendItem
               active={showInteractiveLayers.Unsupervised}
               layerType="Unsupervised"
               label="Not supervised"
-              color='#D84797'
+              color={(twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"]}
               onToggleActive={toggleLayer}
             />
             <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
