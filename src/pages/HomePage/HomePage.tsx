@@ -19,6 +19,15 @@ const contStyle = {
   height: "90%"
 }
 
+enum LANDTYPES {
+  none = "",
+  forestPark = "forestPark",
+  park = "park",
+  square = "square",
+  // allee = "allee",
+  // boulevard = "boulevard"
+}
+
 interface GreenArea extends Feature {
   properties: {
     id: string, //ідентифікатор об'єкта (за даним міськради)
@@ -26,12 +35,12 @@ interface GreenArea extends Feature {
     description: string, //опис зеленої зони (за рішеннями міськради)
     status: boolean, //чи є об'єктом благоустрою
     maintained: boolean, //чи утримується з бюджету міста
+    landType: typeof LANDTYPES, //тип зони - сквер, парк тощо
     owner?: string, //балансоутримувач (назва комунального підприємства, що опікується обʼєктом)
     //area: string, //площа об'єкта в м² (в майбутньому площа має обчислюватись за наявної геометрії на льоту)
     adm4?: string, //адміністративний район, в межах якого зона
     "Accessibility for target groups"?: boolean,
     "Functions (mental and physical recuperation)"?: boolean,
-
   }
 }
 
@@ -67,6 +76,28 @@ const CURSOR_TYPE = {
   AUTO: "auto",
   POINTER: "pointer",
 };
+
+interface AddFilter {
+  maintained: {
+    true: boolean,
+    false: boolean,
+  },
+  zoneType: {
+    forestPark: boolean,
+    park: boolean,
+    square: boolean,
+    allee: boolean,
+    boulevard: boolean
+  }
+}
+
+const zoneTypeFilters = {
+  forestPark: [],
+  park: [],
+  square: [],
+  allee: [],
+  boulevard: []
+}
 
 function HomePage({greenAreas, districts}: HomePageProps) {
 
@@ -106,33 +137,51 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   });
   const [filterSelected, setFilterSelected] = useState("");
 
+  const [additionalFilter, setAdditionalFilter] = useState<AddFilter>({
+    maintained: {
+      true: true,
+      false: true,
+    },
+    zoneType: {
+      forestPark: true,
+      park: true,
+      square: true,
+      allee: true,
+      boulevard: true
+    }
+  });
+
+  function constructAdditionalFilter() {
+    const filterArray:(boolean|ExpressionSpecification)[] = []
+    for(const filteredGroup in additionalFilter) {
+      const filterCategory:ExpressionFilterSpecification = ["any"]
+      for(const filteredValue in (additionalFilter as Record<string, any>)[filteredGroup]) {
+        if(filteredGroup !== "zoneType") {
+          if (((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
+            let typedValue; 
+            if(filteredValue === "true" || filteredValue === "false") {
+              typedValue = filteredValue === "true"? true : false;
+            }
+            else {
+              typedValue = filteredValue;
+            }
+            filterCategory.push(['==', ['get', filteredGroup], typedValue])
+          }
+        }
+        else {
+          filterCategory.push(true); //FIXME
+        }
+      }
+      filterArray.push(filterCategory);
+    }
+    console.log(filterArray)
+    return filterArray;
+  }
+
   //fetch default style for first render
   useEffect(() => {
       async function fetchStyle() {
-        let response:Response|undefined = undefined;
-        try {
-          response = await fetch(availableStyles[style].url);
-        }
-        catch(error) {
-          const typedError = error as TypeError;
-          if(typedError.name === "TypeError" && typedError.message.includes("NetworkError")) {
-            showSourceError(`Unable to load background style ${availableStyles[style].name}`);
-          }
-          else {
-            console.log(error);
-          }
-        }
-        finally {
-          if(response === undefined) {
-            if(style +1 < availableStyles.length) {
-              setStyle(style+1); //switch to next map source
-              return;
-            }
-            else {
-              showSourceError("Cannot resolve background source");
-              return;
-            }
-          }
+        const response = await fetch(availableStyles[style].url);
           const jsonData = await response.json();
           setStyleJson(jsonData);
         }
@@ -266,38 +315,73 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
-      <MapLegend style="absolute top-20 left-0 min-h-14 min-w-14 bg-black bg-opacity-10 py-6 px-4 rounded-xl shadow-sm">
-        <div className='flex flex-row'>
-          <AreaFilterRadio
-            onClick={onFilterClick}
-            selected = {filterSelected}
-          >
-          </AreaFilterRadio>
-
-          {filterSelected !== "" && 
-          <FormGroup aria-label='Green area types' className='ml-5' >
-            <FormLabel>Area types</FormLabel>
-            <MapLegendItem
-              active={showInteractiveLayers.Supervised}
-              layerType="Supervised"
-              label="Supervised"
-              color='#3ABEFF'
-              onToggleActive={toggleLayer}
-            />
-            <MapLegendItem
-              active={showInteractiveLayers.Unsupervised}
-              layerType="Unsupervised"
-              label="Not supervised"
-              color='#D84797'
-              onToggleActive={toggleLayer}
-            />
-            <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
-          </FormGroup>
-          }
-        </div>
-        
-      </MapLegend>
-      <MapAreaStats areas={greenAreas}></MapAreaStats>
+      {showMapLegend && <MapLegend>
+        <MapLegendSwitch
+          active={showInteractiveLayers.Supervised}
+          controls="Supervised"
+          label="Supervised"
+          color='#3ABEFF'
+          onToggleActive={toggleLayer}
+        />
+        <MapLegendSwitch
+          active={showInteractiveLayers.Unsupervised}
+          controls="Unsupervised"
+          label="Not supervised"
+          color='#D84797'
+          onToggleActive={toggleLayer}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.maintained.true}  
+          controls="maintained-true"
+          label="На балансі"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.maintained.false}
+          controls="maintained-false"
+          label="Не утримується"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.forestPark}
+          controls="zoneType-forestPark"
+          label="Лісопарк"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.park}
+          controls="zoneType-park"
+          label="Парк"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.square}
+          controls="zoneType-square"
+          label="Сквер"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.allee}
+          controls="zoneType-allee"
+          label="Алея"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.zoneType.boulevard}
+          controls="zoneType-boulevard"
+          label="Бульвар"
+          // color='#3ABEFF'
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapAreaStats areas={greenAreas} />
+        <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
+      </MapLegend>}
       {areaInfo.data &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
       <ToastContainer />
