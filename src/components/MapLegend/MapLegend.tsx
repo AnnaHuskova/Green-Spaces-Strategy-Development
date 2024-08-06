@@ -21,7 +21,7 @@ interface MapLegendProps {
 }
 
 export function MapLegend({children}: MapLegendProps) {
-  return <FormGroup aria-label='Green area types' className="absolute top-48 left-0 min-h-14 min-w-14 bg-slate-200/75 py-6 px-4 rounded-xl shadow-sm">
+  return <FormGroup aria-label='Green area types' className="absolute top-48 left-0 min-h-14 min-w-14 bg-black bg-opacity-10 py-6 px-4 rounded-xl shadow-sm">
       <FormLabel>Area types</FormLabel>
       <List>
       {children && React.Children.toArray(children).filter((child, i) => {
