@@ -12,18 +12,22 @@ import MapAreaStats from '../../components/MapAreaStats';
 import { featureCollection } from '@turf/turf';
 import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre-gl';
 
-const contStyle = {
-	display: "flex",
-	width: "calc(100%)",
-  height: "90%"
-}
+enum LANDTYPES {
+  forestPark = "Лісопарк",
+  park = "Парк",
+  square = "Сквер",
+  allee = "Алея",
+  boulevard = "Бульвар",
+  unknown = "не визначено"
+};
 
 interface GreenArea extends Feature {
   properties: {
     id: string, //ідентифікатор об'єкта (за даним міськради)
     name: string, //назва зеленої зони (назва парку, скверу або інший топонім, що має статус обʼєкта благоустрою)
     description: string, //опис зеленої зони (за рішеннями міськради)
-    status: boolean, //чи є об'єктом благоустрою
+    landStatus: boolean, //чи є об'єктом благоустрою
+    landType: typeof LANDTYPES, //тип зеленої зони
     maintained: boolean, //чи утримується з бюджету міста
     owner?: string, //балансоутримувач (назва комунального підприємства, що опікується обʼєктом)
     //area: string, //площа об'єкта в м² (в майбутньому площа має обчислюватись за наявної геометрії на льоту)
@@ -71,21 +75,14 @@ interface AddFilter {
     true: boolean,
     false: boolean,
   },
-  zoneType: {
-    forestPark: boolean,
-    park: boolean,
-    square: boolean,
-    allee: boolean,
-    boulevard: boolean
+  landType: { [key in keyof typeof LANDTYPES]: boolean
+    // forestPark: boolean,
+    // park: boolean,
+    // square: boolean,
+    // allee: boolean,
+    // boulevard: boolean,
+    // undefined: boolean
   }
-}
-
-const zoneTypeFilters = {
-  forestPark: [],
-  park: [],
-  square: [],
-  allee: [],
-  boulevard: []
 }
 
 function HomePage({greenAreas, districts}: HomePageProps) {
@@ -131,12 +128,13 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       true: true,
       false: true,
     },
-    zoneType: {
+    landType: {
       forestPark: true,
       park: true,
       square: true,
       allee: true,
-      boulevard: true
+      boulevard: true,
+      unknown: true
     }
   });
 
@@ -145,20 +143,20 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     for(const filteredGroup in additionalFilter) {
       const filterCategory:ExpressionFilterSpecification = ["any"]
       for(const filteredValue in (additionalFilter as Record<string, any>)[filteredGroup]) {
-        if(filteredGroup !== "zoneType") {
-          if (((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
-            let typedValue; 
-            if(filteredValue === "true" || filteredValue === "false") {
-              typedValue = filteredValue === "true"? true : false;
+        if (((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
+          let typedValue; 
+          if(filteredValue === "true" || filteredValue === "false") {
+            typedValue = filteredValue === "true"? true : false;
+          }
+          else {
+            if(filteredGroup === "landType") {
+              typedValue = LANDTYPES[filteredValue as keyof typeof LANDTYPES];
             }
             else {
               typedValue = filteredValue;
-            }
-            filterCategory.push(['==', ['get', filteredGroup], typedValue])
+            } 
           }
-        }
-        else {
-          filterCategory.push(true); //FIXME
+          filterCategory.push(['==', ['get', filteredGroup], typedValue])
         }
       }
       filterArray.push(filterCategory);
@@ -216,8 +214,8 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   }, [showInteractiveLayers]
   );
 
-  const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), [CURSOR_TYPE.POINTER]);
-  const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), [CURSOR_TYPE.AUTO]);
+  const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
+  const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
 
   function onAreaClick(event: MapMouseEvent):void {
     const layerEvent = event as MapLayerMouseEvent;
@@ -301,7 +299,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#3ABEFF',
             'fill-opacity': 0.5
           }}
-          filter={['all', ['==', ['get', 'status'], true], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'landStatus'], true], ...constructAdditionalFilter()]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -311,7 +309,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#D84797',
             'fill-opacity': 0.5
           }}
-          filter={['all', ['==', ['get', 'status'], false], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'landStatus'], false], ...constructAdditionalFilter()]}
         />}
       </Source>
           
@@ -347,51 +345,64 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           active={additionalFilter.maintained.true}  
           controls="maintained-true"
           label="На балансі"
-          // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
         />
         <MapLegendSwitch
           active={additionalFilter.maintained.false}
           controls="maintained-false"
           label="Не утримується"
-          // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
         />
-        <MapLegendSwitch
-          active={additionalFilter.zoneType.forestPark}
-          controls="zoneType-forestPark"
+        {Object.keys(additionalFilter.landType).map( (type) => {
+          return <MapLegendSwitch
+            active={additionalFilter.landType[type as unknown as keyof typeof LANDTYPES]}
+            controls={`landType-${type}`}
+            label={LANDTYPES[type as unknown as keyof typeof LANDTYPES]}
+            onToggleActive={toggleLayerProperty}
+          />
+        })}
+        {/* <MapLegendSwitch
+          active={additionalFilter.landType.forestPark}
+          controls="landType-forestPark"
           label="Лісопарк"
-          // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
         />
         <MapLegendSwitch
-          active={additionalFilter.zoneType.park}
-          controls="zoneType-park"
+          active={additionalFilter.landType.park}
+          controls="landType-park"
           label="Парк"
-          // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
         />
         <MapLegendSwitch
-          active={additionalFilter.zoneType.square}
-          controls="zoneType-square"
+          active={additionalFilter.landType.square}
+          controls="landType-square"
           label="Сквер"
-          // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
         />
         <MapLegendSwitch
-          active={additionalFilter.zoneType.allee}
-          controls="zoneType-allee"
+          active={additionalFilter.landType.allee}
+          controls="landType-allee"
           label="Алея"
-          // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
         />
         <MapLegendSwitch
-          active={additionalFilter.zoneType.boulevard}
-          controls="zoneType-boulevard"
+          active={additionalFilter.landType.boulevard}
+          controls="landType-boulevard"
           label="Бульвар"
-          // color='#3ABEFF'
           onToggleActive={toggleLayerProperty}
         />
+        <MapLegendSwitch
+          active={additionalFilter.landType.boulevard}
+          controls="landType-boulevard"
+          label="Бульвар"
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.landType.unknown}
+          controls="landType-unknown"
+          label="не визначено"
+          onToggleActive={toggleLayerProperty}
+        /> */}
         <MapAreaStats areas={greenAreas} />
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>}
