@@ -2,7 +2,7 @@
 import React from 'react';
 import { GreenArea } from '../../pages';
 import {area as getArea } from "@turf/turf";
-import icon from "../../assets/images/icon-info.svg"
+import icons from "../../assets/images/icons.svg"
 
 interface MapAreaStatsProps {
   areas: GreenArea[];
@@ -50,7 +50,7 @@ export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
     surface: Math.round(surfaceUnsupTotal),
   })
 
-  console.log(icon)
+  // console.log(icons)
   
   return <div className="relative flex flex-row max-w-3xl h-13 mx-auto mt-11 justify-between font-sans" >
     {areaStats.map((areaCategory) => (
@@ -63,7 +63,7 @@ export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
           <label className='text-xs'>{areaCategory.categoryName}</label>
           <svg viewBox='0 0 7 7' className=' w-3 h-3 fill-[#94A3B8]'>
             <title>Help!</title>
-              <use href={icon + "#info"}></use>
+              <use href={icons + "#info"}></use>
             </svg>
         </div> 
       </div>

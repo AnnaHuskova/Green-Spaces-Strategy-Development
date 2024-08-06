@@ -2,6 +2,7 @@ import React, {useEffect, useState, useCallback} from 'react';
 import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FormGroup, FormLabel } from '@mui/material';
 
 import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
@@ -9,7 +10,12 @@ import MapLegendItem from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
+import AreaFilterRadio from '../../components/AreaFilterRadio';
 import { featureCollection } from '@turf/turf';
+
+import resolveConfig from "tailwindcss/resolveConfig";
+import tailwindConfigRaw from "../../tailwind.config.js";
+const twConfig = resolveConfig(tailwindConfigRaw); //for access to palette directly from TS
 
 const contStyle = {
 	display: "flex",
@@ -102,6 +108,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     lng: 0,
     data: null,
   });
+  const [filterSelected, setFilterSelected] = useState("");
 
   //fetch default style for first render
   useEffect(() => {
@@ -174,6 +181,18 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   }
 
+  function onFilterClick(event: React.MouseEvent<HTMLInputElement, MouseEvent>):void {
+    const radioClicked = event.currentTarget.value;
+    if(filterSelected === radioClicked) {
+      setFilterSelected("");
+    }
+    else {
+      setFilterSelected(radioClicked);
+    }
+    
+    // console.log("boop")
+  }
+
   const toggleLayer: React.ChangeEventHandler = (event) => {
     const layerName: "Supervised"|"Unsupervised" = event.currentTarget.id === "Supervised"? "Supervised" : "Unsupervised";
     const newLayers = showInteractiveLayers;  
@@ -221,7 +240,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           key='areas-supervised'
           type='fill'
           paint={{
-            'fill-color': '#3ABEFF',
+            'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"],//'#3ABEFF',
             'fill-opacity': 0.5
           }}
           filter={['==', ['get', 'status'], true]}
@@ -231,42 +250,56 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           key='areas-unsupervised'
           type='fill'
           paint={{
-            'fill-color': '#D84797',
+            'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"],//'#D84797',
             'fill-opacity': 0.5
           }}
           filter={['==', ['get', 'status'], false]}
         />}
       </Source>
           
-      <NavigationControl position='top-left' />
+      <NavigationControl position='top-right' />
       <GeolocateControl
         positionOptions={{ enableHighAccuracy: true }}
         trackUserLocation={true}
-        position='top-left'
+        position='top-right'
       />
-      <FullscreenControl position='top-left' />
+      <FullscreenControl position='top-right' />
       <ScaleControl maxWidth={180} unit="metric" />
       <AttributionControl
         compact={false}
         customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
-      <MapLegend>
-        <MapLegendItem
-          active={showInteractiveLayers.Supervised}
-          layerType="Supervised"
-          label="Supervised"
-          color='#3ABEFF'
-          onToggleActive={toggleLayer}
-        />
-        <MapLegendItem
-          active={showInteractiveLayers.Unsupervised}
-          layerType="Unsupervised"
-          label="Not supervised"
-          color='#D84797'
-          onToggleActive={toggleLayer}
-        />
-        <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
+      <MapLegend style="absolute top-28 left-0 min-h-14 min-w-14 bg-white  bg-opacity-75   py-6 px-4 rounded-xl shadow-sm">
+        <div className='flex flex-row'>
+          <AreaFilterRadio
+            onClick={onFilterClick}
+            selected = {filterSelected}
+          >
+          </AreaFilterRadio>
+
+          {filterSelected !== "" && 
+          <FormGroup aria-label='Green area types' className='ml-5' >
+            <FormLabel>Area types</FormLabel>
+            <MapLegendItem
+              active={showInteractiveLayers.Supervised}
+              layerType="Supervised"
+              label="Supervised"
+              color={(twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"]}
+              onToggleActive={toggleLayer}
+            />
+            <MapLegendItem
+              active={showInteractiveLayers.Unsupervised}
+              layerType="Unsupervised"
+              label="Not supervised"
+              color={(twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"]}
+              onToggleActive={toggleLayer}
+            />
+            <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
+          </FormGroup>
+          }
+        </div>
+        
       </MapLegend>
       <MapAreaStats areas={greenAreas}></MapAreaStats>
       {areaInfo.data &&
