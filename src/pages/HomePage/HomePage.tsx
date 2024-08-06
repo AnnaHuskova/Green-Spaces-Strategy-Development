@@ -5,31 +5,35 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
-import MapLegendItem from '../../components/MapLegendItem';
+import MapLegendSwitch from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
 import { featureCollection } from '@turf/turf';
+import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre-gl';
 
-const contStyle = {
-	display: "flex",
-	width: "calc(100%)",
-  height: "90%"
-}
+enum LANDTYPES {
+  forestPark = "Лісопарк",
+  park = "Парк",
+  square = "Сквер",
+  allee = "Алея",
+  boulevard = "Бульвар",
+  unknown = "не визначено"
+};
 
 interface GreenArea extends Feature {
   properties: {
     id: string, //ідентифікатор об'єкта (за даним міськради)
     name: string, //назва зеленої зони (назва парку, скверу або інший топонім, що має статус обʼєкта благоустрою)
     description: string, //опис зеленої зони (за рішеннями міськради)
-    status: boolean, //чи є об'єктом благоустрою
+    landStatus: boolean, //чи є об'єктом благоустрою
+    landType: typeof LANDTYPES, //тип зеленої зони
     maintained: boolean, //чи утримується з бюджету міста
     owner?: string, //балансоутримувач (назва комунального підприємства, що опікується обʼєктом)
     //area: string, //площа об'єкта в м² (в майбутньому площа має обчислюватись за наявної геометрії на льоту)
     adm4?: string, //адміністративний район, в межах якого зона
     "Accessibility for target groups"?: boolean,
     "Functions (mental and physical recuperation)"?: boolean,
-
   }
 }
 
@@ -65,6 +69,21 @@ const CURSOR_TYPE = {
   AUTO: "auto",
   POINTER: "pointer",
 };
+
+interface AddFilter {
+  maintained: {
+    true: boolean,
+    false: boolean,
+  },
+  landType: { [key in keyof typeof LANDTYPES]: boolean
+    // forestPark: boolean,
+    // park: boolean,
+    // square: boolean,
+    // allee: boolean,
+    // boulevard: boolean,
+    // undefined: boolean
+  }
+}
 
 function HomePage({greenAreas, districts}: HomePageProps) {
 
@@ -102,6 +121,49 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     lng: 0,
     data: null,
   });
+  const [showMapLegend, toggleShowMapLegend] = useState(true); //change to false later
+
+  const [additionalFilter, setAdditionalFilter] = useState<AddFilter>({
+    maintained: {
+      true: true,
+      false: true,
+    },
+    landType: {
+      forestPark: true,
+      park: true,
+      square: true,
+      allee: true,
+      boulevard: true,
+      unknown: true
+    }
+  });
+
+  function constructAdditionalFilter() {
+    const filterArray:(boolean|ExpressionSpecification)[] = []
+    for(const filteredGroup in additionalFilter) {
+      const filterCategory:ExpressionFilterSpecification = ["any"]
+      for(const filteredValue in (additionalFilter as Record<string, any>)[filteredGroup]) {
+        if (((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
+          let typedValue; 
+          if(filteredValue === "true" || filteredValue === "false") {
+            typedValue = filteredValue === "true"? true : false;
+          }
+          else {
+            if(filteredGroup === "landType") {
+              typedValue = LANDTYPES[filteredValue as keyof typeof LANDTYPES];
+            }
+            else {
+              typedValue = filteredValue;
+            } 
+          }
+          filterCategory.push(['==', ['get', filteredGroup], typedValue])
+        }
+      }
+      filterArray.push(filterCategory);
+    }
+    console.log(filterArray)
+    return filterArray;
+  }
 
   //fetch default style for first render
   useEffect(() => {
@@ -152,8 +214,8 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   }, [showInteractiveLayers]
   );
 
-  const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), [CURSOR_TYPE.POINTER]);
-  const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), [CURSOR_TYPE.AUTO]);
+  const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
+  const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
 
   function onAreaClick(event: MapMouseEvent):void {
     const layerEvent = event as MapLayerMouseEvent;
@@ -179,6 +241,19 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     const newLayers = showInteractiveLayers;  
     newLayers[layerName] = !newLayers[layerName];
     toggleShowInteractiveLayers({ ...newLayers });
+  }
+
+  const toggleLayerProperty:React.ChangeEventHandler = (event) => {
+    const[filteredGroup, filteredProperty] = event.currentTarget.id.split('-');
+    const currentFilter = {...additionalFilter};
+    try {
+      const currentValue:boolean = ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty];
+      ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty] = !currentValue;
+      setAdditionalFilter(currentFilter);
+    }
+    catch(error) {
+      console.error(error);
+    }
   }
 
 	return <div className="relative w-full h-[80vh]">
@@ -224,7 +299,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#3ABEFF',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'status'], true]}
+          filter={['all', ['==', ['get', 'landStatus'], true], ...constructAdditionalFilter()]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -234,7 +309,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             'fill-color': '#D84797',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'status'], false]}
+          filter={['all', ['==', ['get', 'landStatus'], false], ...constructAdditionalFilter()]}
         />}
       </Source>
           
@@ -251,24 +326,86 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
-      <MapLegend>
-        <MapLegendItem
+      {showMapLegend && <MapLegend>
+        <MapLegendSwitch
           active={showInteractiveLayers.Supervised}
-          layerType="Supervised"
+          controls="Supervised"
           label="Supervised"
           color='#3ABEFF'
           onToggleActive={toggleLayer}
         />
-        <MapLegendItem
+        <MapLegendSwitch
           active={showInteractiveLayers.Unsupervised}
-          layerType="Unsupervised"
+          controls="Unsupervised"
           label="Not supervised"
           color='#D84797'
           onToggleActive={toggleLayer}
         />
+        <MapLegendSwitch
+          active={additionalFilter.maintained.true}  
+          controls="maintained-true"
+          label="На балансі"
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.maintained.false}
+          controls="maintained-false"
+          label="Не утримується"
+          onToggleActive={toggleLayerProperty}
+        />
+        {Object.keys(additionalFilter.landType).map( (type) => {
+          return <MapLegendSwitch
+            active={additionalFilter.landType[type as unknown as keyof typeof LANDTYPES]}
+            controls={`landType-${type}`}
+            label={LANDTYPES[type as unknown as keyof typeof LANDTYPES]}
+            onToggleActive={toggleLayerProperty}
+          />
+        })}
+        {/* <MapLegendSwitch
+          active={additionalFilter.landType.forestPark}
+          controls="landType-forestPark"
+          label="Лісопарк"
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.landType.park}
+          controls="landType-park"
+          label="Парк"
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.landType.square}
+          controls="landType-square"
+          label="Сквер"
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.landType.allee}
+          controls="landType-allee"
+          label="Алея"
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.landType.boulevard}
+          controls="landType-boulevard"
+          label="Бульвар"
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.landType.boulevard}
+          controls="landType-boulevard"
+          label="Бульвар"
+          onToggleActive={toggleLayerProperty}
+        />
+        <MapLegendSwitch
+          active={additionalFilter.landType.unknown}
+          controls="landType-unknown"
+          label="не визначено"
+          onToggleActive={toggleLayerProperty}
+        /> */}
+        <MapAreaStats areas={greenAreas} />
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
-      </MapLegend>
-      <MapAreaStats areas={greenAreas}></MapAreaStats>
+      </MapLegend>}
       {areaInfo.data &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
       <ToastContainer />

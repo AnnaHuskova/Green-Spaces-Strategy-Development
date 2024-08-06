@@ -18,10 +18,10 @@ type AreaStats = {
 export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
   const areaStats: AreaStats[] = [];
   const areasSup = areas.filter((areaFeature) => {
-    return areaFeature.properties.status === true;
+    return areaFeature.properties.landStatus === true;
   });
   const areasUnsup = areas.filter((areaFeature) => {
-    return areaFeature.properties.status === false;
+    return areaFeature.properties.landStatus === false;
   });
   let surfaceSupTotal:number = 0;
   for (const areaFeature of areasSup) {

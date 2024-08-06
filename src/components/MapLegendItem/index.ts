@@ -1,2 +1,2 @@
-import { MapLegendItem } from "./MapLegendItem";
-export default MapLegendItem;
+import { MapLegendSwitch } from "./MapLegendSwitch";
+export default MapLegendSwitch;
