@@ -2,6 +2,8 @@ import React from 'react';
 import { Popup, /*PopupEvent*/ } from 'react-map-gl/maplibre';
 import { Button } from '@mui/material';
 import {area as getArea } from "@turf/turf";
+import envVars from "../../js/env";
+import { PathLike } from 'fs';
 
 import { GreenArea } from '../../pages';
 
@@ -26,6 +28,27 @@ interface AreaInfoProps {
   data: GreenArea,
   //onClose: (event: PopupEvent) => void,
   children?: React.ReactNode,
+}
+
+const BACKEND_URL:PathLike = envVars.REACT_APP_BACKEND_URL as string;
+const FORM_ENDPOINT:string = envVars.REACT_APP_FORM_ENDPOINT as string;
+const city = "Dnipro";
+const type = "testform";
+
+async function getPdf() {
+  const res_form:Response = await fetch(`${BACKEND_URL}${FORM_ENDPOINT}?city=${city}&type=${type}`);
+  console.log("Form received");
+      // const res_Dis = await res_districts.json() as fetchResponse;
+      // const res_areas:Response = await fetch(`${BACKEND_URL}${AREAS_ENDPOINT}`);
+      // const res_Areas = await res_areas.json() as fetchResponse;
+      // if(res_Areas.code === 200 && res_Dis.code === 200) {
+      //   setCityData({
+      //     greenAreas: (res_Areas.data as areaData).area,
+      //     districts: (res_Dis.data as districtData).district,
+      //   });       
+      //   return true;
+
+      // }
 }
 
 export function AreaInfo({ latitude, longtitude, data, children }: AreaInfoProps) {
@@ -67,7 +90,7 @@ export function AreaInfo({ latitude, longtitude, data, children }: AreaInfoProps
           fontSize: "inherit",
           textTransform: "none",
           textWrap: "nowrap"
-          }} variant='outlined'>Як зберегти?</Button>
+          }} variant='outlined' onClick={getPdf}>Як зберегти?</Button>
         <Button className='ml-5' sx={{
           px: "1.5rem",
           ml: "1.25rem",
