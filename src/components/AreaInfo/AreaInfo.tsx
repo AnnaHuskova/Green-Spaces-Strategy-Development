@@ -28,6 +28,7 @@ interface AreaInfoProps {
   data: GreenArea,
   //onClose: (event: PopupEvent) => void,
   children?: React.ReactNode,
+  onExtend: React.MouseEventHandler,
 }
 
 const BACKEND_URL:PathLike = envVars.REACT_APP_BACKEND_URL as string;
@@ -41,44 +42,7 @@ interface FormItem {
   file: Buffer,
 }
 
-async function getPdf() {
-  const res_form:Response = await fetch(`${BACKEND_URL}${FORM_ENDPOINT}?city=${city}&type=${type}`);
-  // const form_data:FormItem = (await res_form.json()).data as FormItem;
-  // const file_buffer = form_data.file
-  const form_blob = await res_form.blob();
-  const url = window.URL.createObjectURL(new Blob([form_blob]));
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute(
-    'download',
-    `${type}.jpg`,
-  );
-
-  //   // Append to html link element page
-    document.body.appendChild(link);
-
-  //   // Start download
-    link.click();
-
-  //   // Clean up and remove the link
-  //   //link.parentNode.removeChild(link);
-    document.body.removeChild(link);
-
-  console.log("Form received");
-      // const res_Dis = await res_districts.json() as fetchResponse;
-      // const res_areas:Response = await fetch(`${BACKEND_URL}${AREAS_ENDPOINT}`);
-      // const res_Areas = await res_areas.json() as fetchResponse;
-      // if(res_Areas.code === 200 && res_Dis.code === 200) {
-      //   setCityData({
-      //     greenAreas: (res_Areas.data as areaData).area,
-      //     districts: (res_Dis.data as districtData).district,
-      //   });       
-      //   return true;
-
-      // }
-}
-
-export function AreaInfo({ latitude, longtitude, data, children }: AreaInfoProps) {
+export function AreaInfo({ latitude, longtitude, data, children, onExtend }: AreaInfoProps) {
   const twDataContainerStyle = 'mb-5'; //flex flex-column justify-between
   const twDataLabelStyle = `font-bold`;
 
@@ -117,14 +81,14 @@ export function AreaInfo({ latitude, longtitude, data, children }: AreaInfoProps
           fontSize: "inherit",
           textTransform: "none",
           textWrap: "nowrap"
-          }} variant='outlined' onClick={getPdf}>Як зберегти?</Button>
+          }} variant='outlined'>Як зберегти?</Button>
         <Button className='ml-5' sx={{
           px: "1.5rem",
           ml: "1.25rem",
           fontSize: "inherit",
           textTransform: "none",
           textWrap: "nowrap"
-          }} variant='outlined'>Детальніше</Button>
+          }} variant='outlined' onClick={onExtend}>Детальніше</Button>
       </div>
       {children}
     </div>
