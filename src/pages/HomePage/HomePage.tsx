@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, Marker /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -7,10 +7,12 @@ import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
 import MapLegendSwitch from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
+import AreaInfoExtended from '../../components/AreaInfoExtended';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
 import { featureCollection } from '@turf/turf';
 import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre-gl';
+import marker from "../../assets/images/marker-icon.png";
 
 enum LANDTYPES {
   forestPark = "Лісопарк",
@@ -91,6 +93,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     lat: number, 
     lng: number,
     data: MapGeoJSONFeature | null,
+    extended: boolean,
   };
 
   const showSourceError = (message:string):void => {
@@ -120,6 +123,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     lat: 0,
     lng: 0,
     data: null,
+    extended: false,
   });
   const [showMapLegend, toggleShowMapLegend] = useState(true); //change to false later
 
@@ -225,6 +229,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         lat: event.lngLat.lat,
         lng: event.lngLat.lng,
         data: feature,
+        extended: false,
       });
     }
     else {
@@ -232,8 +237,19 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         lat: 0,
         lng: 0,
         data: null,
+        extended: false,
       });
     }
+  }
+
+  function toggleAreaExtend(event: React.MouseEvent) {
+    const curAreaInfo:AreaInfo = {...areaInfo};
+    setAreaInfo( {
+      lat: curAreaInfo.lat,
+      lng: curAreaInfo.lng,
+      data: curAreaInfo.data,
+      extended: !(curAreaInfo.extended)
+    });
   }
 
   const toggleLayer: React.ChangeEventHandler = (event) => {
@@ -406,8 +422,17 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         <MapAreaStats areas={greenAreas} />
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>}
-      {areaInfo.data &&
-        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
+      {areaInfo.data && areaInfo.extended === false &&
+        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+      }
+      {areaInfo.data && areaInfo.extended === true &&
+        <>
+          <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom">
+            <img src={marker} />
+          </Marker>
+          <AreaInfoExtended latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+        </>    
+      }
       <ToastContainer />
     </GlMap> : "Loading"}
 	</div>
