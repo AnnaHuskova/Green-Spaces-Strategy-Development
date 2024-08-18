@@ -52,5 +52,6 @@ export function AreaFilterRadio({ onClick, selected, children }: AreaFilterRadio
       onClick={onClick}
     />
   })}
+  {children}
   </div> 
 }
