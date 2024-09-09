@@ -177,7 +177,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       }
       filterArray.push(filterCategory);
     }
-    console.log(filterArray)
+    // console.log(filterArray)
     return filterArray;
   }
   const [filterSelected, setFilterSelected] = useState("");
@@ -382,6 +382,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
               <MapLegendSwitch
                 active={showInteractiveLayers.Supervised}
                 controls="Supervised"
+                key="Supervised"
                 label="Supervised"
                 color="areasProtected"
                 onToggleActive={toggleLayer}
@@ -389,6 +390,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
               <MapLegendSwitch
                 active={showInteractiveLayers.Unsupervised}
                 controls="Unsupervised"
+                key="Unsupervised"
                 label="Not supervised"
                 color="areasUnprotected"
                 onToggleActive={toggleLayer}
@@ -396,12 +398,14 @@ function HomePage({greenAreas, districts}: HomePageProps) {
               <MapLegendSwitch
                 active={additionalFilter.maintained.true}  
                 controls="maintained-true"
+                key="maintained-true"
                 label="На балансі"
                 onToggleActive={toggleLayerProperty}
               />
               <MapLegendSwitch
                 active={additionalFilter.maintained.false}
                 controls="maintained-false"
+                key="maintained-false"
                 label="Не утримується"
                 onToggleActive={toggleLayerProperty}
               />
@@ -409,6 +413,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
                 return <MapLegendSwitch
                   active={additionalFilter.landType[type as unknown as keyof typeof LANDTYPES]}
                   controls={`landType-${type}`}
+                  key={`landType-${type}`}
                   label={LANDTYPES[type as unknown as keyof typeof LANDTYPES]}
                   onToggleActive={toggleLayerProperty}
               />

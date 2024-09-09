@@ -54,7 +54,7 @@ export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
   
   return <div className="relative flex flex-row max-w-3xl h-13 mx-auto mt-11 justify-between font-sans" >
     {areaStats.map((areaCategory) => (
-      <div className='basis-48 bg-white bg-opacity-75 px-3 py-1 rounded-xl'>
+      <div className='basis-48 bg-white bg-opacity-75 px-3 py-1 rounded-xl' key={areaCategory.categoryName}>
         <span className='block text-center text-2xl'>
           <span className='font-bold'>{areaCategory.quantity}</span> | {Math.round(areaCategory.surface / 10000)}
           <span className='font-bold text-xs'> га</span>

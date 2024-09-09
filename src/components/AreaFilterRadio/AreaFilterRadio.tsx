@@ -46,6 +46,7 @@ export function AreaFilterRadio({ onClick, selected, children }: AreaFilterRadio
   {areaFilterOptions.map((option) => {
     return <AreaFilterOption
       value={option.value}
+      key={option.value}
       selected={selected}
       hint={option.hint}
       groupName='areaFilters'
