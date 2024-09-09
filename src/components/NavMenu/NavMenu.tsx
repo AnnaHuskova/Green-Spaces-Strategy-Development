@@ -7,22 +7,22 @@ type RouteType = {
 }
 
 const routes: RouteType[] = [
-	{
-		path: '/',
-		displayText: 'Main'
-	},
-	{
-		path: '/about',
-		displayText: 'About'
-	},
-	{
+  {
 		path: '/save',
 		displayText: 'How to protect?'
 	},
 	{
-		path: '/blog',
-		displayText: 'Blog'
-	}
+		path: '/',
+		displayText: 'Map'
+	},
+  {
+		path: '/about',
+		displayText: 'About'
+	},
+	// {
+	// 	path: '/blog',
+	// 	displayText: 'Blog'
+	// }
 ];
 
 const NavMenu = () => {
