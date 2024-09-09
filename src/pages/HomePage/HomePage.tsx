@@ -367,8 +367,8 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
-      {showMapLegend && <MapLegend style="absolute top-28 left-0 min-h-14 min-w-14 bg-white  bg-opacity-75   py-6 px-4 rounded-xl shadow-sm">
-        <div className='flex flex-row'>
+      {showMapLegend && <MapLegend style="absolute top-28 left-0 min-h-14 min-w-14 max-h-[calc(100%-28px)] overflow-y-scroll bg-white bg-opacity-75 py-6 px-4 rounded-xl shadow-sm">
+        <div className='flex flex-row overflow-y-auto'>
           <AreaFilterRadio
             onClick={onFilterClick}
             selected = {filterSelected}
@@ -378,40 +378,42 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           {filterSelected !== "" && 
           <FormGroup aria-label='Green area types' className='ml-5' >
             <FormLabel>Area types</FormLabel>
-            <MapLegendSwitch
-              active={showInteractiveLayers.Supervised}
-              controls="Supervised"
-              label="Supervised"
-              color={(twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"]}
-              onToggleActive={toggleLayer}
-            />
-            <MapLegendSwitch
-              active={showInteractiveLayers.Unsupervised}
-              controls="Unsupervised"
-              label="Not supervised"
-              color={(twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"]}
-              onToggleActive={toggleLayer}
-            />
-            <MapLegendSwitch
-              active={additionalFilter.maintained.true}  
-              controls="maintained-true"
-              label="На балансі"
-              onToggleActive={toggleLayerProperty}
-            />
-            <MapLegendSwitch
-              active={additionalFilter.maintained.false}
-              controls="maintained-false"
-              label="Не утримується"
-              onToggleActive={toggleLayerProperty}
-            />
-            {Object.keys(additionalFilter.landType).map( (type) => {
-              return <MapLegendSwitch
-                active={additionalFilter.landType[type as unknown as keyof typeof LANDTYPES]}
-                controls={`landType-${type}`}
-                label={LANDTYPES[type as unknown as keyof typeof LANDTYPES]}
+            <ul className="list-none">
+              <MapLegendSwitch
+                active={showInteractiveLayers.Supervised}
+                controls="Supervised"
+                label="Supervised"
+                color="areasProtected"
+                onToggleActive={toggleLayer}
+              />
+              <MapLegendSwitch
+                active={showInteractiveLayers.Unsupervised}
+                controls="Unsupervised"
+                label="Not supervised"
+                color="areasUnprotected"
+                onToggleActive={toggleLayer}
+              />
+              <MapLegendSwitch
+                active={additionalFilter.maintained.true}  
+                controls="maintained-true"
+                label="На балансі"
                 onToggleActive={toggleLayerProperty}
               />
-            })}
+              <MapLegendSwitch
+                active={additionalFilter.maintained.false}
+                controls="maintained-false"
+                label="Не утримується"
+                onToggleActive={toggleLayerProperty}
+              />
+              {Object.keys(additionalFilter.landType).map( (type) => {
+                return <MapLegendSwitch
+                  active={additionalFilter.landType[type as unknown as keyof typeof LANDTYPES]}
+                  controls={`landType-${type}`}
+                  label={LANDTYPES[type as unknown as keyof typeof LANDTYPES]}
+                  onToggleActive={toggleLayerProperty}
+              />
+              })}
+            </ul>
             
             <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
           </FormGroup>
