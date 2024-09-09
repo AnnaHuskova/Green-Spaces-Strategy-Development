@@ -17,7 +17,7 @@ export function MapLegendSwitch({ active, onToggleActive, color, controls, label
   //   color: color,
   //   // fontWeight: 700,
   // }
-  const bgColor = color !== undefined? `bg-${color}` : "";
+  const bgColor = color !== undefined? `bg-${color} opacity-50` : "";
   if(bgColor !== "") 
   console.log(bgColor)
   
