@@ -9,15 +9,15 @@ type RouteType = {
 const routes: RouteType[] = [
   {
 		path: '/save',
-		displayText: 'How to protect?'
+		displayText: 'Як захистити?'
 	},
 	{
 		path: '/',
-		displayText: 'Map'
+		displayText: 'Мапа'
 	},
   {
 		path: '/about',
-		displayText: 'About'
+		displayText: 'Про проект'
 	},
 	// {
 	// 	path: '/blog',
