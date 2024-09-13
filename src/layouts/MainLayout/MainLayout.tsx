@@ -1,12 +1,12 @@
 import { Outlet } from 'react-router-dom';
 import { Box, Toolbar } from '@mui/material';
-import { Topbar } from '../../components';
+import { Header } from '../../components';
 import Footer from '../../components/Footer';
 
 function MainLayout() {
 	return (
 		<div > 
-			<Topbar />
+			<Header />
 			<main className='w-full'>
 				{/* <Toolbar /> */}
 				<Outlet />
