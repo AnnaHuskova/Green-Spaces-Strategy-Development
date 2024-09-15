@@ -1,21 +1,57 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapLayerMouseEvent, MapGeoJSONFeature, PopupEvent } from 'react-map-gl/maplibre';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FormGroup, FormLabel } from '@mui/material';
 
-//data imports
-import areasDnipro from '../../assets/geo/All_Green_Areas_Dnipro_withAtributes.json';
-import districtsDnipro from '../../assets/geo/Boroughs.json';
-import { FeatureCollection } from 'geojson';
+import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
-import MapLegendItem from '../../components/MapLegendItem';
+import MapLegendSwitch from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
-import { AreaInfoAttr } from "../../components/MapAreaStats/MapAreaStats";
+import AreaFilterRadio from '../../components/AreaFilterRadio';
+import { featureCollection } from '@turf/turf';
+import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre-gl';
+
+import resolveConfig from "tailwindcss/resolveConfig";
+import tailwindConfigRaw from "../../tailwind.config.js";
+const twConfig = resolveConfig(tailwindConfigRaw); //for access to palette directly from TS
+
+enum LANDTYPES {
+  forestPark = "Лісопарк",
+  park = "Парк",
+  square = "Сквер",
+  allee = "Алея",
+  boulevard = "Бульвар",
+  unknown = "не визначено"
+};
 
 const contStyle = {
 	display: "flex",
 	width: "calc(100%)",
   height: "90%"
+}
+
+interface GreenArea extends Feature {
+  properties: {
+    id: string, //ідентифікатор об'єкта (за даним міськради)
+    name: string, //назва зеленої зони (назва парку, скверу або інший топонім, що має статус обʼєкта благоустрою)
+    description: string, //опис зеленої зони (за рішеннями міськради)
+    landStatus: boolean, //чи є об'єктом благоустрою
+    landType: typeof LANDTYPES, //тип зеленої зони
+    maintained: boolean, //чи утримується з бюджету міста
+    owner?: string, //балансоутримувач (назва комунального підприємства, що опікується обʼєктом)
+    //area: string, //площа об'єкта в м² (в майбутньому площа має обчислюватись за наявної геометрії на льоту)
+    adm4?: string, //адміністративний район, в межах якого зона
+    "Accessibility for target groups"?: boolean,
+    "Functions (mental and physical recuperation)"?: boolean,
+  }
+}
+
+interface HomePageProps {
+  greenAreas: GreenArea[],
+  districts: Feature[],
 }
 
 interface MapStyle {
@@ -41,17 +77,47 @@ const mapStyles: MapStyle[] = [
   },
 ];
 
-function HomePage() {
-  const CURSOR_TYPE = {
-    AUTO: "auto",
-    POINTER: "pointer",
-  };
+const CURSOR_TYPE = {
+  AUTO: "auto",
+  POINTER: "pointer",
+};
+
+interface AddFilter {
+  maintained: {
+    true: boolean,
+    false: boolean,
+  },
+  landType: { [key in keyof typeof LANDTYPES]: boolean
+    // forestPark: boolean,
+    // park: boolean,
+    // square: boolean,
+    // allee: boolean,
+    // boulevard: boolean,
+    // undefined: boolean
+  }
+}
+
+function HomePage({greenAreas, districts}: HomePageProps) {
 
   type AreaInfo = {
     lat: number, 
     lng: number,
     data: MapGeoJSONFeature | null,
   };
+
+  const showSourceError = (message:string):void => {
+    toast.error(`${message}`, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
+  }
 
   const [availableStyles, setAvailableStyles] = useState<MapStyle[]>(mapStyles);
   const [style, setStyle] = useState(0);
@@ -67,16 +133,85 @@ function HomePage() {
     lng: 0,
     data: null,
   });
+  const [showMapLegend, toggleShowMapLegend] = useState(true); //change to false later
+
+  const [additionalFilter, setAdditionalFilter] = useState<AddFilter>({
+    maintained: {
+      true: true,
+      false: true,
+    },
+    landType: {
+      forestPark: true,
+      park: true,
+      square: true,
+      allee: true,
+      boulevard: true,
+      unknown: true
+    }
+  });
+
+  function constructAdditionalFilter() {
+    const filterArray:(boolean|ExpressionSpecification)[] = []
+    for(const filteredGroup in additionalFilter) {
+      const filterCategory:ExpressionFilterSpecification = ["any"]
+      for(const filteredValue in (additionalFilter as Record<string, any>)[filteredGroup]) {
+        if (((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
+          let typedValue; 
+          if(filteredValue === "true" || filteredValue === "false") {
+            typedValue = filteredValue === "true"? true : false;
+          }
+          else {
+            if(filteredGroup === "landType") {
+              typedValue = LANDTYPES[filteredValue as keyof typeof LANDTYPES];
+            }
+            else {
+              typedValue = filteredValue;
+            } 
+          }
+          filterCategory.push(['==', ['get', filteredGroup], typedValue])
+        }
+      }
+      filterArray.push(filterCategory);
+    }
+    console.log(filterArray)
+    return filterArray;
+  }
+  const [filterSelected, setFilterSelected] = useState("");
 
   //fetch default style for first render
   useEffect(() => {
       async function fetchStyle() {
-        const response = await fetch(availableStyles[style].url);
+        let response:Response|undefined = undefined;
+        try {
+          response = await fetch(availableStyles[style].url);
+        }
+        catch(error) {
+          const typedError = error as TypeError;
+          if(typedError.name === "TypeError" && typedError.message.includes("NetworkError")) {
+            showSourceError(`Unable to load background style ${availableStyles[style].name}`);
+          }
+          else {
+            console.log(error);
+          }
+        }
+        finally {
+          if(response === undefined) {
+            if(style +1 < availableStyles.length) {
+              setStyle(style+1); //switch to next map source
+              return;
+            }
+            else {
+              showSourceError("Cannot resolve background source");
+              return;
+            }
+          }
           const jsonData = await response.json();
-        setStyleJson(jsonData);
+          setStyleJson(jsonData);
+        }
+        
       };
 
-      fetchStyle();
+      fetchStyle();    
     }, [style, availableStyles]);
 
   useEffect(() => {
@@ -95,39 +230,58 @@ function HomePage() {
   const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
   const onLeavePointable = useCallback(() => setCursorType(CURSOR_TYPE.AUTO), []);
 
-  function onAreaClick(event: MapLayerMouseEvent):void {
-    if (event.features && event.features.length > 0) {
-      // if (areaInfo.data) { //If popup is open - close it
-      //   setAreaInfo({
-      //     lat: 0, lng: 0, data: null,
-      //   });
-      //   return;
-      // }
-      const feature: MapGeoJSONFeature = event.features[0];
+  function onAreaClick(event: MapMouseEvent):void {
+    const layerEvent = event as MapLayerMouseEvent;
+    if (layerEvent.features && layerEvent.features.length > 0) {
+      const feature: MapGeoJSONFeature = layerEvent.features[0];
       setAreaInfo({
         lat: event.lngLat.lat,
         lng: event.lngLat.lng,
         data: feature,
       });
-      // console.log("clicked interactive layer!")
-      // console.log(feature);
+    }
+    else {
+      setAreaInfo({
+        lat: 0,
+        lng: 0,
+        data: null,
+      });
     }
   }
 
-  function onAreaPopupClose(event: PopupEvent) {
-    setAreaInfo({
-          lat: 0, lng: 0, data: null,
-        });
+  function onFilterClick(event: React.MouseEvent<HTMLInputElement, MouseEvent>):void {
+    const radioClicked = event.currentTarget.value;
+    if(filterSelected === radioClicked) {
+      setFilterSelected("");
+    }
+    else {
+      setFilterSelected(radioClicked);
+    }
+    
+    // console.log("boop")
   }
 
   const toggleLayer: React.ChangeEventHandler = (event) => {
     const layerName: "Supervised"|"Unsupervised" = event.currentTarget.id === "Supervised"? "Supervised" : "Unsupervised";
-    const newLayers = showInteractiveLayers;
+    const newLayers = showInteractiveLayers;  
     newLayers[layerName] = !newLayers[layerName];
     toggleShowInteractiveLayers({ ...newLayers });
   }
 
-	return <div style={contStyle}>
+  const toggleLayerProperty:React.ChangeEventHandler = (event) => {
+    const[filteredGroup, filteredProperty] = event.currentTarget.id.split('-');
+    const currentFilter = {...additionalFilter};
+    try {
+      const currentValue:boolean = ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty];
+      ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty] = !currentValue;
+      setAdditionalFilter(currentFilter);
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
+
+	return <div className="relative w-full h-[80vh]">
     {styleJson ? <GlMap
       initialViewState={{
         longitude: 35.0064,
@@ -148,7 +302,7 @@ function HomePage() {
       mapStyle={styleJson}>
       <Source
         type='geojson'
-        data={districtsDnipro as FeatureCollection}>
+        data={featureCollection(districts)}>
         <Layer
           id='districts-outline'
           type='line'
@@ -161,62 +315,98 @@ function HomePage() {
           
       <Source
         type='geojson'
-        data={areasDnipro as FeatureCollection}>
+        data={featureCollection(greenAreas) as FeatureCollection}>
         {showInteractiveLayers.Supervised && <Layer
           id='areas-supervised'
           key='areas-supervised'
           type='fill'
           paint={{
-            'fill-color': '#3ABEFF',
+            'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"],//'#3ABEFF',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'On budget'], true]}
+          filter={['all', ['==', ['get', 'landStatus'], true], ...constructAdditionalFilter()]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
           key='areas-unsupervised'
           type='fill'
           paint={{
-            'fill-color': '#D84797',
+            'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"],//'#D84797',
             'fill-opacity': 0.5
           }}
-          filter={['==', ['get', 'On budget'], false]}
+          filter={['all', ['==', ['get', 'landStatus'], false], ...constructAdditionalFilter()]}
         />}
       </Source>
           
-      <NavigationControl position='top-left' />
+      <NavigationControl position='top-right' />
       <GeolocateControl
         positionOptions={{ enableHighAccuracy: true }}
         trackUserLocation={true}
-        position='top-left'
+        position='top-right'
       />
-      <FullscreenControl position='top-left' />
+      <FullscreenControl position='top-right' />
       <ScaleControl maxWidth={180} unit="metric" />
       <AttributionControl
         compact={false}
         customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
-      <MapLegend>
-        <MapLegendItem
-          active={showInteractiveLayers.Supervised}
-          layerType="Supervised"
-          label="Supervised"
-          color='#3ABEFF'
-          onToggleActive={toggleLayer}
-        />
-        <MapLegendItem
-          active={showInteractiveLayers.Unsupervised}
-          layerType="Unsupervised"
-          label="Not supervised"
-          color='#D84797'
-          onToggleActive={toggleLayer}
-        />
-        <MapAreaStats areas={(areasDnipro as FeatureCollection).features as AreaInfoAttr[]} />
-        <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
-      </MapLegend>
+      {showMapLegend && <MapLegend style="absolute top-28 left-0 min-h-14 min-w-14 bg-white  bg-opacity-75   py-6 px-4 rounded-xl shadow-sm">
+        <div className='flex flex-row'>
+          <AreaFilterRadio
+            onClick={onFilterClick}
+            selected = {filterSelected}
+          >
+          </AreaFilterRadio>
+
+          {filterSelected !== "" && 
+          <FormGroup aria-label='Green area types' className='ml-5' >
+            <FormLabel>Area types</FormLabel>
+            <MapLegendSwitch
+              active={showInteractiveLayers.Supervised}
+              controls="Supervised"
+              label="Supervised"
+              color={(twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"]}
+              onToggleActive={toggleLayer}
+            />
+            <MapLegendSwitch
+              active={showInteractiveLayers.Unsupervised}
+              controls="Unsupervised"
+              label="Not supervised"
+              color={(twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"]}
+              onToggleActive={toggleLayer}
+            />
+            <MapLegendSwitch
+              active={additionalFilter.maintained.true}  
+              controls="maintained-true"
+              label="На балансі"
+              onToggleActive={toggleLayerProperty}
+            />
+            <MapLegendSwitch
+              active={additionalFilter.maintained.false}
+              controls="maintained-false"
+              label="Не утримується"
+              onToggleActive={toggleLayerProperty}
+            />
+            {Object.keys(additionalFilter.landType).map( (type) => {
+              return <MapLegendSwitch
+                active={additionalFilter.landType[type as unknown as keyof typeof LANDTYPES]}
+                controls={`landType-${type}`}
+                label={LANDTYPES[type as unknown as keyof typeof LANDTYPES]}
+                onToggleActive={toggleLayerProperty}
+              />
+            })}
+            
+            <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
+          </FormGroup>
+          }
+        </div>
+        
+      </MapLegend>}
+      <MapAreaStats areas={greenAreas}></MapAreaStats>
       {areaInfo.data &&
-        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} onClose={onAreaPopupClose} data={areaInfo.data} />}
+        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
+      <ToastContainer />
     </GlMap> : "Loading"}
 	</div>
 };
@@ -226,4 +416,6 @@ export {
 };
 export type {
   MapStyle as MapStyleType,
+  HomePageProps,
+  GreenArea,
 }

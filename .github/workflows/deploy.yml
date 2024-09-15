@@ -29,6 +29,9 @@ jobs:
 
       - name: Build
         env:
+          REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
+          REACT_APP_DISTRICTS_ENDPOINT: ${{ vars.REACT_APP_DISTRICTS_ENDPOINT }}
+          REACT_APP_AREAS_ENDPOINT: ${{ vars.REACT_APP_AREAS_ENDPOINT }}
           CI: false
         run: npm run build
 
@@ -52,6 +55,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
+
+    env:
+      REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
+      REACT_APP_DISTRICTS_ENDPOINT: ${{ vars.REACT_APP_DISTRICTS_ENDPOINT }}
+      REACT_APP_AREAS_ENDPOINT: ${{ vars.REACT_APP_AREAS_ENDPOINT }}
+      
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v5

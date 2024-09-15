@@ -1,24 +1,19 @@
 import { Outlet } from 'react-router-dom';
 import { Box, Toolbar } from '@mui/material';
 import { Topbar } from '../../components';
+import Footer from '../../components/Footer';
 
-const MainLayout = () => {
+function MainLayout() {
 	return (
-		<Box sx={{ display: 'flex' }}>
+		<div > 
 			<Topbar />
-			<Box
-				component="main"
-				sx={{
-					flexGrow: 1,
-					width: '100%',
-					minHeight: '100vh'
-				}}
-			>
-				<Toolbar />
+			<main className='w-full'>
+				{/* <Toolbar /> */}
 				<Outlet />
-			</Box>
-		</Box>
-	);
+			</main>
+      <Footer />
+		</div>
+  );
 };
 
 export { MainLayout };
