@@ -1,8 +1,8 @@
 {
 	"name": "green-spaces-strategy-development",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"private": true,
-	"homepage": "https://annahuskova.github.io/Green-Spaces-Strategy-Development/",
+	"homepage": "https://green-spaces-strategy.org.ua/",
 	"dependencies": {
 		"@emotion/react": "^11.11.1",
 		"@emotion/styled": "^11.11.0",
