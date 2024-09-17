@@ -11,6 +11,7 @@ interface MapAreaStatsProps {
 
 type AreaStats = {
   categoryName: string,
+  categoryNameShort: string,
   quantity: number,
   surface: number,
 }
@@ -34,34 +35,39 @@ export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
 
   areaStats.push({
     categoryName: "всі зелені зони",
+    categoryNameShort: "всі",
     quantity: areas.length,
     surface: Math.round(surfaceSupTotal + surfaceUnsupTotal),
   })
 
   areaStats.push({
     categoryName: "на балансі",
+    categoryNameShort: "на балансі",
     quantity: areasSup.length,
     surface: Math.round(surfaceSupTotal),
   })
 
   areaStats.push({
     categoryName: "не на балансі",
+    categoryNameShort: "не захищені",
     quantity: areasUnsup.length,
     surface: Math.round(surfaceUnsupTotal),
   })
 
   // console.log(icons)
   
-  return <div className="relative flex flex-row max-w-3xl h-13 mx-auto mt-11 justify-between font-sans" >
+  return <div className=" bg-white bg-opacity-75 px-3 py-1 rounded-xl md:bg-opacity-0 md:p-0 relative flex flex-row max-w-60 md:max-w-3xl h-13 mx-auto mt-3 md:mt-11 justify-between font-sans" >
     {areaStats.map((areaCategory) => (
-      <div className='basis-48 bg-white bg-opacity-75 px-3 py-1 rounded-xl'>
+      <div className='inline-block md:block basis-48 bg-white bg-opacity-0 md:bg-opacity-75 md:px-3 md:py-1 md:rounded-xl' key={areaCategory.categoryName}>
         <span className='block text-center text-2xl'>
-          <span className='font-bold'>{areaCategory.quantity}</span> | {Math.round(areaCategory.surface / 10000)}
-          <span className='font-bold text-xs'> га</span>
+          <span className='font-bold'>{areaCategory.quantity}</span>
+          <span className='hidden md:inline'> | {Math.round(areaCategory.surface / 10000)}</span>
+          <span className='hidden md:inline font-bold text-xs'> га</span>
         </span>
-        <div className='flex justify-between items-end px-7'>
-          <label className='text-xs'>{areaCategory.categoryName}</label>
-          <svg viewBox='0 0 7 7' className=' w-3 h-3 fill-[#94A3B8]'>
+        <div className='md:flex justify-between items-end h-3 p-0 md:px-7'>
+          <label className='block md:hidden text-[9px]/[9px] w-fit m-auto'>{areaCategory.categoryNameShort}</label>
+          <label className='hidden md:inline text-xs'>{areaCategory.categoryName}</label>
+          <svg viewBox='0 0 7 7' className='hidden md:block w-3 h-3 fill-[#94A3B8]'>
             <title>Help!</title>
               <use href={icons + "#info"}></use>
             </svg>
