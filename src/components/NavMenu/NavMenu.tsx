@@ -7,10 +7,10 @@ type RouteType = {
 }
 
 const routes: RouteType[] = [
-  {
-		path: '/save',
-		displayText: 'Як захистити?'
-	},
+ //  {
+	// 	path: '/save',
+	// 	displayText: 'Як захистити?'
+	// },
 	{
 		path: '/',
 		displayText: 'Мапа'
