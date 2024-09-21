@@ -7,12 +7,18 @@ on:
   pull_request:
     types:
       - closed
-    branches: 
+    branches:
       - main
   workflow_dispatch:
 
+env:
+  REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
+  REACT_APP_DISTRICTS_ENDPOINT: ${{ vars.REACT_APP_DISTRICTS_ENDPOINT }}
+  REACT_APP_AREAS_ENDPOINT: ${{ vars.REACT_APP_AREAS_ENDPOINT }}
+
 jobs:
   build:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     
     steps:
@@ -23,18 +29,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+      
       - name: Install dependencies
         run: npm ci
-
+      
       - name: Build
         env:
-          REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
-          REACT_APP_DISTRICTS_ENDPOINT: ${{ vars.REACT_APP_DISTRICTS_ENDPOINT }}
-          REACT_APP_AREAS_ENDPOINT: ${{ vars.REACT_APP_AREAS_ENDPOINT }}
           CI: false
         run: npm run build
-
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -42,33 +45,23 @@ jobs:
           path: build
 
   deploy:
-    if: github.event.pull_request.merged == true || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: build
-
     permissions:
       pages: write
       id-token: write
       contents: read
-
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     runs-on: ubuntu-latest
-
-    env:
-      REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
-      REACT_APP_DISTRICTS_ENDPOINT: ${{ vars.REACT_APP_DISTRICTS_ENDPOINT }}
-      REACT_APP_AREAS_ENDPOINT: ${{ vars.REACT_APP_AREAS_ENDPOINT }}
-      
+    
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
+      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifact_name: 'github-pages'
-        
