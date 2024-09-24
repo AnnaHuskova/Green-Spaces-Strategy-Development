@@ -15,34 +15,7 @@ interface AreaInfoExtendedProps {
   onExtend: React.MouseEventHandler,
 }
 
-const BACKEND_URL:PathLike = envVars.REACT_APP_BACKEND_URL as string;
-const FORM_ENDPOINT:string = envVars.REACT_APP_FORM_ENDPOINT as string;
-const city = "Dnipro"; //city
-const type = "Algorithm_GSSD.pdf"; //file name to download
 
-async function getPdf() {
-  const res_form:Response = await fetch(`${BACKEND_URL}${FORM_ENDPOINT}?city=${city}&type=${type}`);
-  // const form_data:FormItem = (await res_form.json()).data as FormItem;
-  // const file_buffer = form_data.file
-  const form_blob = await res_form.blob();
-  const url = window.URL.createObjectURL(new Blob([form_blob]));
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute(
-    'download',
-    `${type}`,
-  );
-
-  //   // Append to html link element page
-    document.body.appendChild(link);
-
-  //   // Start download
-    link.click();
-
-  //   // Clean up and remove the link
-  //   //link.parentNode.removeChild(link);
-    document.body.removeChild(link);
-}
 
 export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaInfoExtendedProps) {
   const twDataContainerStyle = 'mb-3'; //flex flex-column justify-between
@@ -91,7 +64,7 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
           textTransform: "none",
           textWrap: "nowrap",
           display: "block"
-          }} variant='outlined' onClick={getPdf}>Зробити подання &gt;</Button>
+          }} variant='outlined'>Зробити подання &gt;</Button>
       {children}
   </div>;
 }
