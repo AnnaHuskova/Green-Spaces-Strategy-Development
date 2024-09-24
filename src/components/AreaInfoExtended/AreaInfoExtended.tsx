@@ -17,8 +17,8 @@ interface AreaInfoExtendedProps {
 
 const BACKEND_URL:PathLike = envVars.REACT_APP_BACKEND_URL as string;
 const FORM_ENDPOINT:string = envVars.REACT_APP_FORM_ENDPOINT as string;
-const city = "Dnipro";
-const type = "testform";
+const city = "Dnipro"; //city
+const type = "Algorithm_GSSD.pdf"; //file name to download
 
 async function getPdf() {
   const res_form:Response = await fetch(`${BACKEND_URL}${FORM_ENDPOINT}?city=${city}&type=${type}`);
@@ -30,7 +30,7 @@ async function getPdf() {
   link.href = url;
   link.setAttribute(
     'download',
-    `${type}.jpg`,
+    `${type}`,
   );
 
   //   // Append to html link element page
