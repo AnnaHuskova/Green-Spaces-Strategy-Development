@@ -383,7 +383,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
                 active={showInteractiveLayers.Supervised}
                 controls="Supervised"
                 key="Supervised"
-                label="Supervised"
+                label="Є об'єктом благоустрою"
                 color="areasProtected"
                 onToggleActive={toggleLayer}
               />
@@ -391,7 +391,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
                 active={showInteractiveLayers.Unsupervised}
                 controls="Unsupervised"
                 key="Unsupervised"
-                label="Not supervised"
+                label="Не є об'єктом благоустрою"
                 color="areasUnprotected"
                 onToggleActive={toggleLayer}
               />
