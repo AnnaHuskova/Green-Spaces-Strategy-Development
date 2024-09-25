@@ -1,10 +1,11 @@
 import React from 'react';
 import { Button } from '@mui/material';
-import {area as getArea } from "@turf/turf";
+import { area as getArea } from "@turf/turf";
 import envVars from "../../js/env";
 import { PathLike } from 'fs';
 
 import { GreenArea } from '../../pages';
+import { getPdf } from '../AreaInfo/AreaInfo';
 
 interface AreaInfoExtendedProps {
   latitude: number,
@@ -64,7 +65,7 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
           textTransform: "none",
           textWrap: "nowrap",
           display: "block"
-          }} variant='outlined'>Зробити подання &gt;</Button>
+          }} variant='outlined' onClick={getPdf} >Зробити подання &gt;</Button>
       {children}
   </div>;
 }
