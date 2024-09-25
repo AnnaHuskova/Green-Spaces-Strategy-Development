@@ -1,0 +1,22 @@
+name: green-spaces-strategy-development
+
+services:
+  backend:
+    image: ghcr.io/annahuskova/green-spaces-backend:latest
+    container_name: backend_container
+    pull_policy: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../gssd_back_end/.env
+
+  frontend:
+    image: green-spaces-strategy-development
+    build: .
+    container_name: frontend_container
+    ports:
+      - "4000:80"
+    env_file:
+      - .env
+    depends_on:
+      - backend
