@@ -1,7 +1,7 @@
 import React from 'react';
 import { Popup, /*PopupEvent*/ } from 'react-map-gl/maplibre';
 import { Button } from '@mui/material';
-import {area as getArea } from "@turf/turf";
+import { area as getArea } from "@turf/turf";
 import envVars from "../../js/env";
 import { PathLike } from 'fs';
 
@@ -42,7 +42,7 @@ const FORM_ENDPOINT:string = envVars.REACT_APP_FORM_ENDPOINT as string;
 const city = "Dnipro"; //city
 const type = "Algorithm_GSSD.pdf"; //file name to download
 
-async function getPdf() {
+export async function getPdf() {
   const res_form:Response = await fetch(`${BACKEND_URL}${FORM_ENDPOINT}?city=${city}&type=${type}`);
   // const form_data:FormItem = (await res_form.json()).data as FormItem;
   // const file_buffer = form_data.file
