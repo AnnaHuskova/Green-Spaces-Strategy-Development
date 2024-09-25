@@ -45,6 +45,14 @@ jobs:
           path: build
 
   deploy:
+    # Deploy only if the branch is 'main' and either a pull request was merged, 
+    # a push event occurred, or the workflow was manually triggered.
+    if: >-
+      github.ref == 'refs/heads/main' && (
+        (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+        github.event_name == 'push' ||
+        github.event_name == 'workflow_dispatch'
+      )
     needs: build
     permissions:
       pages: write
