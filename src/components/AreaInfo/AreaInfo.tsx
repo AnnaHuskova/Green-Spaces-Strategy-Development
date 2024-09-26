@@ -44,8 +44,6 @@ const type = "Algorithm_GSSD.pdf"; //file name to download
 
 export async function getPdf() {
   const res_form:Response = await fetch(`${BACKEND_URL}${FORM_ENDPOINT}?city=${city}&type=${type}`);
-  // const form_data:FormItem = (await res_form.json()).data as FormItem;
-  // const file_buffer = form_data.file
   const form_blob = await res_form.blob();
   const url = window.URL.createObjectURL(new Blob([form_blob]));
   const link = document.createElement('a');
@@ -55,14 +53,13 @@ export async function getPdf() {
     `${type}`,
   );
 
-  //   // Append to html link element page
+  // Append to html link element page
     document.body.appendChild(link);
 
-  //   // Start download
+  // Start download
     link.click();
 
-  //   // Clean up and remove the link
-  //   //link.parentNode.removeChild(link);
+  // Clean up and remove the link
     document.body.removeChild(link);
 }
 
@@ -91,14 +88,6 @@ export function AreaInfo({ latitude, longtitude, data, children, onExtend }: Are
         <label className={twDataLabelStyle}>Площа:</label>
         <div> {(getArea(data)/10000).toFixed(2)} га</div>  
       </div>
-      {/* <div className={twDataContainerStyle}>
-        <label className={twDataLabelStyle}>Доступність для цільових груп:</label>
-        <div> {Boolean(data.properties['Accessibility for target groups']) ? 'Так' : 'Ні'}</div>  
-      </div>
-      <div className={twDataContainerStyle}>
-        <label className={twDataLabelStyle}>Функції (психологічне та фізичне відновлення):</label>
-        <div> {Boolean(data.properties['Functions (mental and physical recuperation)']) ? 'Так' : 'Ні'}</div>  
-      </div> */}
       <div className='flex flex-row justify-between text-lg text-center'>
         <Button /*className='px-3 py-2'*/ sx={{
           px: "1.5rem",
