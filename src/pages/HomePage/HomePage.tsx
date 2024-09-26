@@ -324,7 +324,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           type='line'
           paint={{
             'line-color': '#05668D',
-            'line-width': 2
+            'line-width': 1
           }}
         />
       </Source>
