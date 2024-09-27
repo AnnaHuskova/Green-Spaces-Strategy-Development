@@ -19,6 +19,9 @@ FROM nginx:1.27.1-alpine3.20-slim
 # Copy files from the build stage
 COPY --from=build /app/build /usr/share/nginx/html
 
+# Copy the NGINX configuration file
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Expose port 80 for the application
 EXPOSE 80
 
