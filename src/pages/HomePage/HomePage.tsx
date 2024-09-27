@@ -324,7 +324,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           type='line'
           paint={{
             'line-color': '#05668D',
-            'line-width': 2
+            'line-width': 1
           }}
         />
       </Source>
@@ -338,9 +338,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           type='fill'
           paint={{
             'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"],//'#3ABEFF',
-            'fill-opacity': 0.5
+            'fill-opacity': 0.7
           }}
-          filter={['all', ['==', ['get', 'landStatus'], true], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'maintained'], true], ...constructAdditionalFilter()]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -348,9 +348,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           type='fill'
           paint={{
             'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"],//'#D84797',
-            'fill-opacity': 0.5
+            'fill-opacity': 0.7
           }}
-          filter={['all', ['==', ['get', 'landStatus'], false], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'maintained'], false], ...constructAdditionalFilter()]}
         />}
       </Source>
 
