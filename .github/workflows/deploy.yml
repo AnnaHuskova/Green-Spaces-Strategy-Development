@@ -15,11 +15,7 @@ env:
   REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
   REACT_APP_DISTRICTS_ENDPOINT: ${{ vars.REACT_APP_DISTRICTS_ENDPOINT }}
   REACT_APP_AREAS_ENDPOINT: ${{ vars.REACT_APP_AREAS_ENDPOINT }}
-
-env:
-  REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
-  REACT_APP_DISTRICTS_ENDPOINT: ${{ vars.REACT_APP_DISTRICTS_ENDPOINT }}
-  REACT_APP_AREAS_ENDPOINT: ${{ vars.REACT_APP_AREAS_ENDPOINT }}
+  REACT_APP_FORM_ENDPOINT: ${{ vars.REACT_APP_FORM_ENDPOINT }}
 
 jobs:
   build:
@@ -38,16 +34,13 @@ jobs:
         with:
           node-version: '20'
       
-      
       - name: Install dependencies
         run: npm ci
-      
       
       - name: Build
         env:
           CI: false
         run: npm run build
-      
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
