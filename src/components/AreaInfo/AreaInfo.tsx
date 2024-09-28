@@ -69,6 +69,7 @@ async function getPdf() {
 export function AreaInfo({ latitude, longtitude, data, children, onExtend }: AreaInfoProps) {
   const twDataContainerStyle = 'mb-5'; //flex flex-column justify-between
   const twDataLabelStyle = `font-bold`;
+  const twDataStyle = `pl-2`
 
   return <Popup
     key = {latitude+longtitude}
@@ -78,18 +79,23 @@ export function AreaInfo({ latitude, longtitude, data, children, onExtend }: Are
     maxWidth="none" 
   >
     <div className='max-w-80'>
-      <header className='font-light text-center mb-2.5'>Дані зони</header>
-      <div className={twDataContainerStyle}>
-        <label className={twDataLabelStyle}>Номер:</label>
-        <div> {data.properties.id}</div> 
-      </div>
+      {/* <h3 className='font-light text-center mb-2.5'>Дані зони</h3> */}
       <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Назва:</label>
-        <div> {data.properties.name || "Не має назви"}</div>  
+        <div className={twDataStyle}> {data.properties.name || "Не має назви"}</div>  
       </div>
       <div className={twDataContainerStyle}>
-        <label className={twDataLabelStyle}>Площа:</label>
-        <div> {(getArea(data)/10000).toFixed(2)} га</div>  
+        <label className={twDataLabelStyle}>Статус:</label>
+
+        <div className={twDataStyle}> {data.properties.landStatus === true? "Є об'єктом благоустрою" : "Не є об'єктом благоустрою"}</div> 
+      </div>  
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Тип:</label>
+        <div className={twDataStyle}> {data.properties.landType as unknown as String} </div>  
+      </div>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Балансоутримувач:</label>
+        <div className={twDataStyle}> {data.properties.owner? data.properties.owner : "невідомо"} </div>  
       </div>
       {/* <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Доступність для цільових груп:</label>
