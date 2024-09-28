@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
+import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, Marker /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FormGroup, FormLabel } from '@mui/material';
@@ -8,12 +8,14 @@ import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
 import MapLegendSwitch from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
+import AreaInfoExtended from '../../components/AreaInfoExtended';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
 import AreaFilterRadio from '../../components/AreaFilterRadio';
 import { featureCollection } from '@turf/turf';
 import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre-gl';
 
+import marker from "../../assets/images/marker-icon.png";
 import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfigRaw from "../../tailwind.config.js";
 const twConfig = resolveConfig(tailwindConfigRaw); //for access to palette directly from TS
@@ -103,6 +105,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     lat: number, 
     lng: number,
     data: MapGeoJSONFeature | null,
+    extended: boolean,
   };
 
   const showSourceError = (message:string):void => {
@@ -132,6 +135,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     lat: 0,
     lng: 0,
     data: null,
+    extended: false,
   });
   const [showMapLegend, toggleShowMapLegend] = useState(true); //change to false later
 
@@ -238,6 +242,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         lat: event.lngLat.lat,
         lng: event.lngLat.lng,
         data: feature,
+        extended: false,
       });
     }
     else {
@@ -245,6 +250,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         lat: 0,
         lng: 0,
         data: null,
+        extended: false,
       });
     }
   }
@@ -259,6 +265,16 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
     
     // console.log("boop")
+  }
+
+  function toggleAreaExtend(event: React.MouseEvent) {
+    const curAreaInfo:AreaInfo = {...areaInfo};
+    setAreaInfo( {
+      lat: curAreaInfo.lat,
+      lng: curAreaInfo.lng,
+      data: curAreaInfo.data,
+      extended: !(curAreaInfo.extended)
+    });
   }
 
   const toggleLayer: React.ChangeEventHandler = (event) => {
@@ -308,7 +324,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           type='line'
           paint={{
             'line-color': '#05668D',
-            'line-width': 2
+            'line-width': 1
           }}
         />
       </Source>
@@ -322,9 +338,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           type='fill'
           paint={{
             'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"],//'#3ABEFF',
-            'fill-opacity': 0.5
+            'fill-opacity': 0.7
           }}
-          filter={['all', ['==', ['get', 'landStatus'], true], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'maintained'], true], ...constructAdditionalFilter()]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -332,9 +348,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           type='fill'
           paint={{
             'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"],//'#D84797',
-            'fill-opacity': 0.5
+            'fill-opacity': 0.7
           }}
-          filter={['all', ['==', ['get', 'landStatus'], false], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'maintained'], false], ...constructAdditionalFilter()]}
         />}
       </Source>
 
@@ -367,7 +383,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
                 active={showInteractiveLayers.Supervised}
                 controls="Supervised"
                 key="Supervised"
-                label="Supervised"
+                label="Є об'єктом благоустрою"
                 color="areasProtected"
                 onToggleActive={toggleLayer}
               />
@@ -375,7 +391,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
                 active={showInteractiveLayers.Unsupervised}
                 controls="Unsupervised"
                 key="Unsupervised"
-                label="Not supervised"
+                label="Не є об'єктом благоустрою"
                 color="areasUnprotected"
                 onToggleActive={toggleLayer}
               />
@@ -411,8 +427,17 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         
       </MapLegend>}
       <MapAreaStats areas={greenAreas}></MapAreaStats>
-      {areaInfo.data &&
-        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} />}
+      {areaInfo.data && areaInfo.extended === false &&
+        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+      }
+      {areaInfo.data && areaInfo.extended === true &&
+        <>
+          <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom">
+            <img src={marker} />
+          </Marker>
+          <AreaInfoExtended latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+        </>    
+      }
       <ToastContainer />
     </GlMap> : "Loading"}
 	</div>
