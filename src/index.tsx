@@ -11,8 +11,8 @@ const root = ReactDOM.createRoot(
 	document.getElementById('root') as HTMLElement
 );
 //If GA token is set in ENV, enable analytics
-if(envVars.GOOGLE_ANALYTICS_TRACKING_ID !== undefined) {
-  ReactGA.initialize(envVars.GOOGLE_ANALYTICS_TRACKING_ID);
+if(envVars.REACT_APP_GA4_ID !== undefined) {
+  ReactGA.initialize(envVars.REACT_APP_GA4_ID);
 }
 
 root.render(
