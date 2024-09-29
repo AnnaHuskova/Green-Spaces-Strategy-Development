@@ -1,7 +1,9 @@
 import { memo } from 'react';
 import { AppBar, Toolbar, Typography, Box } from '@mui/material';
 import { NavMenu } from '../NavMenu';
-const logo = require("./logo-colored.png");
+import assets from '../../assets';
+
+const logo = assets.images.logo;
 
 const Header = memo(() => {
 	return (

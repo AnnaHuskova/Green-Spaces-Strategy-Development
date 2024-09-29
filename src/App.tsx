@@ -1,9 +1,13 @@
 import { Route, Routes, Navigate } from 'react-router-dom';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
+import Favicon from 'react-favicon';
 import envVars from "./js/env";
 import { MainLayout } from './layouts';
 import { HomePage, AboutPage, SavePage, BlogPage } from './pages';
 import { HomePageProps, GreenArea } from './pages';
+
+import assets from './assets';
+import useMetaTag from './hooks/useMetaTag';
 
 import areasDnipro from './assets/green_areas.json';
 import districtsDnipro from './assets/geo/Boroughs.json';
@@ -60,7 +64,18 @@ function App() {
     fetchCityData(city);
   }, [city]);
 
-	return (
+function useMeta() {
+  useMetaTag('description', 'Green Spaces Strategy Development — проєкт націлений на розбдову сталого навколишнього середовища та підвищення якості життя мешканців міста Дніпро.');
+  useMetaTag('keywords', 'Green Spaces Strategy Development, Dnipro, зелені зони, зелені території, зелені насадження, зелені насадження міста Дніпро, зелені зони міста Дніпро, зелені території міста Дніпро, зелені насадження Дніпро, зелені зони Дніпро, зелені території Дніпро');
+
+}
+
+  const favicons = assets.images.logo;
+
+  return (
+    <>
+    { useMeta() }
+    <Favicon url={ favicons } />
 		<Routes>
 			<Route path='/' element={<MainLayout />}>
 				{cityData && <Route index element={<HomePage greenAreas={cityData.greenAreas} districts={cityData.districts} />} />}
@@ -70,6 +85,7 @@ function App() {
 			</Route>
 			<Route path="*" element={<Navigate to='/' replace />} />
 		</Routes>
+    </>
 	);
 }
 
