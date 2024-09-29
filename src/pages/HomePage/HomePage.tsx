@@ -359,12 +359,12 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         position='top-right'
       />
       <FullscreenControl position='top-right' />
-      <ScaleControl maxWidth={180} unit="metric" />
       <AttributionControl
         compact={false}
         customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
+      <ScaleControl maxWidth={180} unit="metric" position='bottom-right'/>
       {showMapLegend && <MapLegend style="fixed bottom-0 md:absolute md:top-28 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-scroll bg-white bg-opacity-75 md:py-6 md:px-4 md:rounded-xl shadow-sm">
         <div className='flex flex-row overflow-y-auto px-6 py-1.5 md:p-0'>
           <AreaFilterRadio
