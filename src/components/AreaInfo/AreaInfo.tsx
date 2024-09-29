@@ -99,14 +99,16 @@ export function AreaInfo({ latitude, longtitude, data, children, onExtend }: Are
           px: "1.5rem",
           fontSize: "inherit",
           textTransform: "none",
-          textWrap: "nowrap"
+          textWrap: "nowrap",
+          id: "instruction",
           }} variant='outlined' onClick={getPdf}>Як зберегти?</Button>
         <Button className='ml-5' sx={{
           px: "1.5rem",
           ml: "1.25rem",
           fontSize: "inherit",
           textTransform: "none",
-          textWrap: "nowrap"
+          textWrap: "nowrap",
+          id: "Area-Info-Extended",
           }} variant='outlined' onClick={onExtend}>Детальніше</Button>
       </div>
       {children}

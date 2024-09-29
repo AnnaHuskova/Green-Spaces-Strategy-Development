@@ -63,7 +63,8 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
         fontSize: "inherit",
         textTransform: "none",
         textWrap: "nowrap",
-        display: "block"
+        display: "block",
+        id: "instruction-from-extended",
         }} variant='outlined' onClick={getPdf} >Зробити подання &gt;
       </Button>
       {children}
