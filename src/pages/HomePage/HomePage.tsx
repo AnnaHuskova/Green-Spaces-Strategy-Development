@@ -14,8 +14,8 @@ import MapAreaStats from '../../components/MapAreaStats';
 import AreaFilterRadio from '../../components/AreaFilterRadio';
 import { featureCollection } from '@turf/turf';
 import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre-gl';
-import marker from "../../assets/images/marker-icon.png";
 
+import marker from "../../assets/images/marker-icon.png";
 import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfigRaw from "../../tailwind.config.js";
 const twConfig = resolveConfig(tailwindConfigRaw); //for access to palette directly from TS
@@ -273,8 +273,6 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     else {
       setFilterSelected(radioClicked);
     }
-    
-    // console.log("boop")
   }
 
   const toggleLayer: React.ChangeEventHandler = (event) => {
@@ -338,9 +336,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           type='fill'
           paint={{
             'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"],//'#3ABEFF',
-            'fill-opacity': 0.5
+            'fill-opacity': 0.7
           }}
-          filter={['all', ['==', ['get', 'landStatus'], true], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'maintained'], true], ...constructAdditionalFilter()]}
         />}
         {showInteractiveLayers.Unsupervised && <Layer
           id='areas-unsupervised'
@@ -348,9 +346,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           type='fill'
           paint={{
             'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"],//'#D84797',
-            'fill-opacity': 0.5
+            'fill-opacity': 0.7
           }}
-          filter={['all', ['==', ['get', 'landStatus'], false], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'maintained'], false], ...constructAdditionalFilter()]}
         />}
       </Source>
 
@@ -426,6 +424,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         </div>
         
       </MapLegend>}
+      <MapAreaStats areas={greenAreas}></MapAreaStats>
       {areaInfo.data && areaInfo.extended === false &&
         <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
       }

@@ -1,16 +1,14 @@
 import React from 'react';
 import { Button } from '@mui/material';
-import {area as getArea } from "@turf/turf";
-import envVars from "../../js/env";
-import { PathLike } from 'fs';
+import { area as getArea } from "@turf/turf";
 
 import { GreenArea } from '../../pages';
+import { getPdf } from '../AreaInfo/AreaInfo';
 
 interface AreaInfoExtendedProps {
   latitude: number,
   longtitude: number,
   data: GreenArea,
-  //onClose: (event: PopupEvent) => void,
   children?: React.ReactNode,
   onExtend: React.MouseEventHandler,
 }
@@ -66,7 +64,7 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
         textTransform: "none",
         textWrap: "nowrap",
         display: "block"
-        }} variant='outlined'>Зробити подання &gt;
+        }} variant='outlined' onClick={getPdf} >Зробити подання &gt;
       </Button>
       {children}
   </div>;
