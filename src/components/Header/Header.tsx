@@ -7,7 +7,7 @@ const Header = memo(() => {
 	return (
 		<header
 			// position="fixed"
-      className='flex flex-row justify-between w-full pl-2 md:ml-3 bg-white shadow-md font-sans text-base font-normal'
+      className='flex flex-row justify-between w-full pl-2 md:pl-5 bg-white shadow-md font-sans text-base font-normal'
 			// sx={{ //bgcolor: '#233044',
       //   display: "flex",
       //   flexDirection: "row",

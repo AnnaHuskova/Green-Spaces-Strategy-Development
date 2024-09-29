@@ -72,10 +72,10 @@ export function AreaInfo({ latitude, longtitude, data, children, onExtend }: Are
     key = {latitude+longtitude}
     latitude={latitude}
     longitude={longtitude}
-    className="p-5 min-w-80 rounded-xl bg-white font-light text-base leading-5"
+    className="font-light text-base leading-5"
     maxWidth="none" 
   >
-    <div className='max-w-80'>
+    <div className='p-5 rounded-xl max-w-80'>
       {/* <h3 className='font-light text-center mb-2.5'>Дані зони</h3> */}
       <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Назва:</label>
