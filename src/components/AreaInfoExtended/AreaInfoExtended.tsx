@@ -1,9 +1,7 @@
 import React from 'react';
-import { Button } from '@mui/material';
 import { area as getArea } from "@turf/turf";
-
 import { GreenArea } from '../../pages';
-import { getPdf } from '../AreaInfo/AreaInfo';
+import { PdfButton } from '../AreaInfo/PdfButton';
 
 interface AreaInfoExtendedProps {
   latitude: number,
@@ -14,7 +12,7 @@ interface AreaInfoExtendedProps {
 }
 
 export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaInfoExtendedProps) {
-  const twDataContainerStyle = 'mb-3'; //flex flex-column justify-between
+  const twDataContainerStyle = 'mb-3';
   const twDataLabelStyle = `font-bold`;
 
   return <div
@@ -51,7 +49,9 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
         <div> {data.properties.owner}</div> 
       </div>
 
-        <Button /*className='px-3 py-2'*/ sx={{
+      <PdfButton 
+        buttonName="Зробити подання >" 
+        sx={{
           marginTop: "28px",
           marginLeft: "auto",
           marginRight: "auto",
@@ -60,7 +60,9 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
           textTransform: "none",
           textWrap: "nowrap",
           display: "block"
-          }} variant='outlined' onClick={getPdf} >Зробити подання &gt;</Button>
+        }} 
+        variant='outlined'
+      />
       {children}
   </div>;
 }
