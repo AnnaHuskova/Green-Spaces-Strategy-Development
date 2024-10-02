@@ -1,6 +1,6 @@
 {
 	"name": "green-spaces-strategy-development",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"private": true,
 	"homepage": "https://green-spaces-strategy.org.ua/",
 	"dependencies": {
