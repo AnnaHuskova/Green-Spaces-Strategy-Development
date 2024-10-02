@@ -40,7 +40,7 @@ const svgToDataURL = (svg: React.FunctionComponent<React.SVGProps<SVGSVGElement>
 const faviconUrl = svgToDataURL(Logo);
 
 const useMeta = () => {
-  useMetaTag('description', 'Green Spaces Strategy Development — проєкт націлений на розбдову сталого навколишнього середовища та підвищення якості життя мешканців міста Дніпро.');
+  useMetaTag('description', 'Green Spaces Strategy Development — проєкт спрямований на збереження та розвиток зелених зон в місті, розбдову сталого навколишнього середовища та підвищення якості життя мешканців міст.');
   useMetaTag('keywords', 'Green Spaces Strategy Development, Dnipro, зелені зони, зелені території, зелені насадження, зелені насадження міста Дніпро, зелені зони міста Дніпро, зелені території міста Дніпро, зелені насадження Дніпро, зелені зони Дніпро, зелені території Дніпро');
 };
 
