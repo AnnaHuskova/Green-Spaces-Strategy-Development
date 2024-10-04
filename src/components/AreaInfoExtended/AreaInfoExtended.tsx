@@ -1,9 +1,7 @@
 import React from 'react';
-import { Button } from '@mui/material';
 import { area as getArea } from "@turf/turf";
-
 import { GreenArea } from '../../pages';
-import { getPdf } from '../AreaInfo/AreaInfo';
+import { PdfButton } from '../AreaInfo/PdfButton';
 
 interface AreaInfoExtendedProps {
   latitude: number,
@@ -14,8 +12,8 @@ interface AreaInfoExtendedProps {
 }
 
 export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaInfoExtendedProps) {
-  const twDataContainerStyle = 'mb-3'; //flex flex-column justify-between
-  const twDataLabelStyle = `block font-bold mb-1`;
+  const twDataContainerStyle = 'mb-3';
+  const twDataLabelStyle = `font-bold`;
 
   return <div
     key = {latitude+longtitude}
@@ -55,18 +53,20 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
         <div>-</div> 
       </div>
 
-      <Button /*className='px-3 py-2'*/ sx={{
-        marginTop: "28px",
-        marginLeft: "auto",
-        marginRight: "auto",
-        px: "1.5rem",
-        fontSize: "inherit",
-        textTransform: "none",
-        textWrap: "nowrap",
-        display: "block",
-        id: "instruction-from-extended",
-        }} variant='outlined' onClick={getPdf} >Зробити подання &gt;
-      </Button>
+      <PdfButton 
+        buttonName="Зробити подання >" 
+        sx={{
+          marginTop: "28px",
+          marginLeft: "auto",
+          marginRight: "auto",
+          px: "1.5rem",
+          fontSize: "inherit",
+          textTransform: "none",
+          textWrap: "nowrap",
+          display: "block"
+        }} 
+        variant='outlined'
+      />
       {children}
   </div>;
 }

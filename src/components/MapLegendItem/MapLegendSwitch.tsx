@@ -1,7 +1,4 @@
 import React from 'react';
-import { FormControlLabel, ListItem, Switch } from '@mui/material';
-
-// type ColorHex = `#${string}`;
 
 interface MapLegendItemProps {
   active: boolean,
@@ -13,20 +10,18 @@ interface MapLegendItemProps {
 }
 
 export function MapLegendSwitch({ active, onToggleActive, color, controls, label }: MapLegendItemProps) {
-  // const labelStyle: React.CSSProperties = {
-  //   color: color,
-  //   // fontWeight: 700,
-  // }
-  const bgColor = color !== undefined? `bg-${color} opacity-50` : "";
-  if(bgColor !== "") 
-  console.log(bgColor)
+  const colors: Record<string, string> = {
+    "areasProtected": "peer-checked:bg-areasProtected hover:peer-checked:bg-areasProtected",
+    "areasUnprotected": "peer-checked:bg-areasUnprotected hover:peer-checked:bg-areasUnprotected",
+    "default": "peer-checked:bg-accent hover:peer-checked:bg-accent",
+  }
+  const activeColor = color? colors[color] : colors.default;
   
-  return <li>
-    <FormControlLabel value={controls} label={label} labelPlacement="end" /*style={labelStyle}*/ control={
-      <>
-        <Switch checked={active} name={`${controls}Switch`} id={controls} onChange={onToggleActive} />
-        <div className={`inline w-4 h-4 mr-2 ${bgColor}`}/>
-      </>
-    }/>
+  return <li> 
+    <label aria-label={label} className="relative inline-flex items-center cursor-pointer">
+      <input type="checkbox" id={controls} className="sr-only peer" onChange={onToggleActive} checked={active}/>
+      <div className={`w-9 h-5 bg-form-unchecked hover:bg-form-hover peer-focus:outline-0 peer-focus:ring-transparent rounded-full peer transition-all ease-in-out duration-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-form-unchecked after:border after:rounded-full after:h-4 after:w-4 after:transition-all ${activeColor}`}></div>
+      <span className="ms-1.5 text-sm">{label}</span> 
+    </label>
   </li>;
 }

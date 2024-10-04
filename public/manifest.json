@@ -3,9 +3,9 @@
 	"name": "Green Spaces Strategy Development",
 	"icons": [
 		{
-			"src": "favicon.png",
-			"sizes": "32x32 24x24 16x16",
-			"type": "image/png"
+			"src": "../src/assets/images/favicon.svg",
+			"sizes": "512x512 192x192 64x64 32x32 24x24 16x16",
+			"type": "image/svg+xml"
 		}
 	],
 	"start_url": ".",

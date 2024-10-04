@@ -13,6 +13,8 @@ module.exports = {
       "areasAll": "#02F0FF",
       'white': '#FFFFFF',
       'black': '#000000',
+      'form-unchecked': "#94A3B8",
+      'form-hover': "#81FF8663",
     },
     fontFamily: {
       sans: ["Play", "Roboto", 'sans-serif'],
