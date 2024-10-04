@@ -426,7 +426,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       </MapLegend>}
       <MapAreaStats areas={greenAreas}></MapAreaStats>
       {areaInfo.data && areaInfo.extended === false &&
-        <AreaInfo latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+        <AreaInfo latitude={areaInfo.lat} longitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
       }
       {areaInfo.data && areaInfo.extended === true &&
         <>
