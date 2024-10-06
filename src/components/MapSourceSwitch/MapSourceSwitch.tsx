@@ -19,7 +19,7 @@ export function MapSourceSwitch({ sources, selectedSource, onSetSource }: MapSou
   }
   
   return <div>
-    <InputLabel id="mapsource-helper-label">Map background source</InputLabel>
+    <InputLabel id="mapsource-helper-label">Змінити стиль мапи</InputLabel>
     <Select
       labelId="mapsource-helper-label"
       id="mapsource-menu"

@@ -2,11 +2,9 @@ import React, {useEffect, useState, useCallback} from 'react';
 import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, Marker /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FormGroup, FormLabel } from '@mui/material';
 
 import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
-import MapLegendSwitch from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import AreaInfoExtended from '../../components/AreaInfoExtended';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
@@ -28,12 +26,6 @@ enum LANDTYPES {
   boulevard = "Бульвар",
   unknown = "не визначено"
 };
-
-const contStyle = {
-	display: "flex",
-	width: "calc(100%)",
-  height: "90%"
-}
 
 interface GreenArea extends Feature {
   properties: {
@@ -84,18 +76,16 @@ const CURSOR_TYPE = {
   POINTER: "pointer",
 };
 
-interface AddFilter {
-  maintained: {
-    true: boolean,
-    false: boolean,
+interface ZoneFilter {
+  landStatus: {
+    supervised: boolean,
+    unsupervised: boolean,
+  },
+  maintenance: {
+    maintained: boolean,
+    unmaintained: boolean,
   },
   landType: { [key in keyof typeof LANDTYPES]: boolean
-    // forestPark: boolean,
-    // park: boolean,
-    // square: boolean,
-    // allee: boolean,
-    // boulevard: boolean,
-    // undefined: boolean
   }
 }
 
@@ -127,10 +117,6 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
   const [styleJson, setStyleJson] = useState(null);
   const [interactiveLayerIds, setInteractiveLayerIds] = useState<string[]>(['nonexist']);
-  const [showInteractiveLayers, toggleShowInteractiveLayers] = useState({
-    Supervised: true,
-    Unsupervised: true,
-  });
   const [areaInfo, setAreaInfo] = useState<AreaInfo>({
     lat: 0,
     lng: 0,
@@ -139,10 +125,14 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   });
   const [showMapLegend, toggleShowMapLegend] = useState(true); //change to false later
 
-  const [additionalFilter, setAdditionalFilter] = useState<AddFilter>({
-    maintained: {
-      true: true,
-      false: true,
+  const [zoneFilter, setZoneFilter] = useState<ZoneFilter>({
+    maintenance: { //budget
+      maintained: true,
+      unmaintained: true,
+    },
+    landStatus: { //recognized as a park
+      supervised: true,
+      unsupervised: true,
     },
     landType: {
       forestPark: true,
@@ -154,25 +144,35 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   });
 
-  function constructAdditionalFilter() {
-    const filterArray:(boolean|ExpressionSpecification)[] = []
-    for(const filteredGroup in additionalFilter) {
+  function constructAdditionalFilter(mainFilter:string) {
+    const filterArray:(boolean|ExpressionSpecification)[] = [];
+    for(const filterGroup in zoneFilter) {
+      if(filterGroup === mainFilter) {
+        continue;
+      }
       const filterCategory:ExpressionFilterSpecification = ["any"]
-      for(const filteredValue in (additionalFilter as Record<string, any>)[filteredGroup]) {
-        if (((additionalFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
-          let typedValue; 
-          if(filteredValue === "true" || filteredValue === "false") {
-            typedValue = filteredValue === "true"? true : false;
-          }
-          else {
-            if(filteredGroup === "landType") {
+      for(const filteredValue in (zoneFilter as Record<string, any>)[filterGroup]) {
+        let typedValue;
+        if (((zoneFilter as Record<string, any>)[filterGroup] as Record<string, boolean>)[filteredValue] === true) {
+          switch (filterGroup) {
+            case "landType": {
               typedValue = LANDTYPES[filteredValue as keyof typeof LANDTYPES];
+              break;
             }
-            else {
+            case "landStatus": {
+              if(filteredValue === "supervised") {
+                typedValue = true;
+              }
+              else {
+                typedValue = false;
+              }
+              break;
+            }
+            default: {
               typedValue = filteredValue;
-            } 
+            }
           }
-          filterCategory.push(['==', ['get', filteredGroup], typedValue])
+          filterCategory.push(['==', ['get', filterGroup], typedValue])
         }
       }
       filterArray.push(filterCategory);
@@ -220,15 +220,15 @@ function HomePage({greenAreas, districts}: HomePageProps) {
 
   useEffect(() => {
     const activeLayers: string[] = [];
-    if (showInteractiveLayers.Supervised) {
-      activeLayers.push('areas-supervised');
+    if (zoneFilter.maintenance.maintained) {
+      activeLayers.push('areas-maintained');
     }
-    if (showInteractiveLayers.Unsupervised) {
-      activeLayers.push('areas-unsupervised');
+    if (zoneFilter.maintenance.unmaintained) {
+      activeLayers.push('areas-unmaintained');
     }
 
     setInteractiveLayerIds(activeLayers);
-  }, [showInteractiveLayers]
+  }, [zoneFilter]
   );
 
   const onEnterPointable = useCallback(() => setCursorType(CURSOR_TYPE.POINTER), []);
@@ -255,18 +255,6 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   }
 
-  function onFilterClick(event: React.MouseEvent<HTMLInputElement, MouseEvent>):void {
-    const radioClicked = event.currentTarget.value;
-    if(filterSelected === radioClicked) {
-      setFilterSelected("");
-    }
-    else {
-      setFilterSelected(radioClicked);
-    }
-    
-    // console.log("boop")
-  }
-
   function toggleAreaExtend(event: React.MouseEvent) {
     const curAreaInfo:AreaInfo = {...areaInfo};
     setAreaInfo( {
@@ -277,20 +265,23 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     });
   }
 
-  const toggleLayer: React.ChangeEventHandler = (event) => {
-    const layerName: "Supervised"|"Unsupervised" = event.currentTarget.id === "Supervised"? "Supervised" : "Unsupervised";
-    const newLayers = showInteractiveLayers;  
-    newLayers[layerName] = !newLayers[layerName];
-    toggleShowInteractiveLayers({ ...newLayers });
+  function onFilterClick(event: React.MouseEvent<HTMLInputElement, MouseEvent>):void {
+    const radioClicked = event.currentTarget.value;
+    if(filterSelected === radioClicked) {
+      setFilterSelected("");
+    }
+    else {
+      setFilterSelected(radioClicked);
+    }
   }
 
   const toggleLayerProperty:React.ChangeEventHandler = (event) => {
     const[filteredGroup, filteredProperty] = event.currentTarget.id.split('-');
-    const currentFilter = {...additionalFilter};
+    const currentFilter = {...zoneFilter};
     try {
       const currentValue:boolean = ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty];
       ((currentFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredProperty] = !currentValue;
-      setAdditionalFilter(currentFilter);
+      setZoneFilter(currentFilter);
     }
     catch(error) {
       console.error(error);
@@ -332,25 +323,25 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       <Source
         type='geojson'
         data={featureCollection(greenAreas) as FeatureCollection}>
-        {showInteractiveLayers.Supervised && <Layer
-          id='areas-supervised'
-          key='areas-supervised'
+        {zoneFilter.maintenance.maintained && <Layer
+          id='areas-maintained'
+          key='areas-maintained'
           type='fill'
           paint={{
             'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasProtected"],//'#3ABEFF',
             'fill-opacity': 0.7
           }}
-          filter={['all', ['==', ['get', 'maintained'], true], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'maintained'], true], ...constructAdditionalFilter("maintenance")]}
         />}
-        {showInteractiveLayers.Unsupervised && <Layer
-          id='areas-unsupervised'
-          key='areas-unsupervised'
+        {zoneFilter.maintenance.unmaintained && <Layer
+          id='areas-unmaintained'
+          key='areas-unmaintained'
           type='fill'
           paint={{
             'fill-color': (twConfig.theme.colors as unknown as Record<string, string>)["areasUnprotected"],//'#D84797',
             'fill-opacity': 0.7
           }}
-          filter={['all', ['==', ['get', 'maintained'], false], ...constructAdditionalFilter()]}
+          filter={['all', ['==', ['get', 'maintained'], false], ...constructAdditionalFilter("maintenance")]}
         />}
       </Source>
 
@@ -361,70 +352,28 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         position='top-right'
       />
       <FullscreenControl position='top-right' />
-      <ScaleControl maxWidth={180} unit="metric" />
       <AttributionControl
         compact={false}
         customAttribution={availableStyles[style].customAttribution /*'Фонова мапа: © <a href="https://openstreetmap.org.ua/#tile-server" target=_blank>🇺🇦 Українська спільнота OpenStreetMap</a>'*/}
         position="bottom-right"
       />
-      {showMapLegend && <MapLegend style="fixed bottom-0 md:absolute md:top-28 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-scroll bg-white bg-opacity-75 md:py-6 md:px-4 md:rounded-xl shadow-sm">
-        <div className='flex flex-row overflow-y-auto px-6 py-1.5 md:p-0'>
+      <ScaleControl maxWidth={180} unit="metric" position='bottom-right'/>
+      {showMapLegend && <MapLegend className={"fixed max-md:bottom-0 md:absolute md:top-28 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-scroll bg-white bg-opacity-75 md:py-6 md:px-4 md:rounded-xl shadow-sm"}>
+        <div className='flex flex-row overflow-y-auto px-6 py-1.5 md:p-0 font-sans'>
           <AreaFilterRadio
             onClick={onFilterClick}
             selected = {filterSelected}
+            currentFilterState={zoneFilter}
+            onToggle={toggleLayerProperty}
           >
           </AreaFilterRadio>
-
-          {filterSelected !== "" && 
-          <FormGroup aria-label='Green area types' className='ml-5' >
-            <FormLabel>Area types</FormLabel>
-            <ul className="list-none">
-              <MapLegendSwitch
-                active={showInteractiveLayers.Supervised}
-                controls="Supervised"
-                key="Supervised"
-                label="Є об'єктом благоустрою"
-                color="areasProtected"
-                onToggleActive={toggleLayer}
-              />
-              <MapLegendSwitch
-                active={showInteractiveLayers.Unsupervised}
-                controls="Unsupervised"
-                key="Unsupervised"
-                label="Не є об'єктом благоустрою"
-                color="areasUnprotected"
-                onToggleActive={toggleLayer}
-              />
-              <MapLegendSwitch
-                active={additionalFilter.maintained.true}  
-                controls="maintained-true"
-                key="maintained-true"
-                label="На балансі"
-                onToggleActive={toggleLayerProperty}
-              />
-              <MapLegendSwitch
-                active={additionalFilter.maintained.false}
-                controls="maintained-false"
-                key="maintained-false"
-                label="Не утримується"
-                onToggleActive={toggleLayerProperty}
-              />
-              {Object.keys(additionalFilter.landType).map( (type) => {
-                return <MapLegendSwitch
-                  active={additionalFilter.landType[type as unknown as keyof typeof LANDTYPES]}
-                  controls={`landType-${type}`}
-                  key={`landType-${type}`}
-                  label={LANDTYPES[type as unknown as keyof typeof LANDTYPES]}
-                  onToggleActive={toggleLayerProperty}
-              />
-              })}
-            </ul>
-            
-            <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
-          </FormGroup>
-          }
+          
         </div>
+        {/* <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} /> */}
         
+      </MapLegend>}
+      {<MapLegend className={"fixed max-md:bottom-0 md:absolute md:bottom-0 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-scroll bg-white bg-opacity-75 md:py-1 md:px-4 md:rounded-xl shadow-sm"}>
+        <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>}
       <MapAreaStats areas={greenAreas}></MapAreaStats>
       {areaInfo.data && areaInfo.extended === false &&
@@ -433,7 +382,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       {areaInfo.data && areaInfo.extended === true &&
         <>
           <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom">
-            <img src={marker} />
+            <img src={marker} alt='Selected zone here' />
           </Marker>
           <AreaInfoExtended latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
         </>    
@@ -445,9 +394,11 @@ function HomePage({greenAreas, districts}: HomePageProps) {
 
 export {
   HomePage,
+  LANDTYPES
 };
 export type {
   MapStyle as MapStyleType,
   HomePageProps,
   GreenArea,
+  ZoneFilter,
 }

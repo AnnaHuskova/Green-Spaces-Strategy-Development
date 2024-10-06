@@ -19,7 +19,7 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
     key = {latitude+longtitude}
     className="absolute top-40 right-20 w-[440px] h-[calc(100%-160px)] p-7 rounded-xl bg-white bg-opacity-70 font-light text-base leading-5 overflow-y-auto"
   >
-      <header className='font-light text-center mb-2.5 hidden'>Дані зони</header>
+      {/* <h3 className='font-light text-center mb-2.5 hidden'>Дані зони</h3> */}
       <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Повна назва:</label>
         <div> {data.properties.name || "Не має назви"}</div>  
@@ -30,23 +30,27 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
       </div>
       <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Тип:</label>
-        <div> {data.properties.landType as unknown as string}</div> 
+        <div> {data.properties.landType as unknown as String}</div> 
       </div>      
-      <div className={twDataContainerStyle}>
+      <div className={`${twDataContainerStyle} mb-11`}>
         <label className={twDataLabelStyle}>Площа:</label>
         <div> {(getArea(data)/10000).toFixed(2)} га</div>  
       </div>
-      <div className={twDataContainerStyle}>
+      <div className={`${twDataContainerStyle} mb-8`}>
         <label className={twDataLabelStyle}>Рішення:</label>
         <div> {data.properties.description}</div> 
       </div> 
-      <div className={twDataContainerStyle}>
+      <div className={`${twDataContainerStyle} mb-5`}>
         <label className={twDataLabelStyle}>Адміністративний район:</label>
         <div> {data.properties.adm4}</div> 
       </div>
       <div className={twDataContainerStyle}>
         <label className={twDataLabelStyle}>Балансоутримувач:</label>
         <div> {data.properties.owner}</div> 
+      </div>
+      <div className={twDataContainerStyle}>
+        <label className={twDataLabelStyle}>Підпорядковано:</label>
+        <div>-</div> 
       </div>
 
       <PdfButton 
