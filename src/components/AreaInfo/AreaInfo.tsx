@@ -30,7 +30,7 @@ export function AreaInfo({ latitude, longitude, data, children, onExtend }: Area
       key={`${latitude}-${longitude}`}
       latitude={latitude}
       longitude={longitude}
-      className="p-5 min-w-80 rounded-xl bg-white font-light text-base leading-5"
+      className="min-w-80 font-light text-base leading-5"
       maxWidth="none"
     >
       <div className='max-w-80'>
