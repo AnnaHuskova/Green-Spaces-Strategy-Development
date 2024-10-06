@@ -6,7 +6,7 @@ interface MapLegendProps {
 }
 
 export function MapLegend({className, children}: MapLegendProps) {
-  return <div aria-label='Green area types' className={className}>
+  return <div className={className}>
       {children}
     </div>;
 }
