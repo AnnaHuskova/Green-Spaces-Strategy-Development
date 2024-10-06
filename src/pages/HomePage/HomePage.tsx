@@ -2,11 +2,9 @@ import React, {useEffect, useState, useCallback} from 'react';
 import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, Marker /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// import { FormGroup, FormLabel } from '@mui/material';
 
 import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
-// import MapLegendSwitch from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import AreaInfoExtended from '../../components/AreaInfoExtended';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
@@ -28,12 +26,6 @@ enum LANDTYPES {
   boulevard = "Бульвар",
   unknown = "не визначено"
 };
-
-const contStyle = {
-	display: "flex",
-	width: "calc(100%)",
-  height: "90%"
-}
 
 interface GreenArea extends Feature {
   properties: {
@@ -94,12 +86,6 @@ interface ZoneFilter {
     unmaintained: boolean,
   },
   landType: { [key in keyof typeof LANDTYPES]: boolean
-    // forestPark: boolean,
-    // park: boolean,
-    // square: boolean,
-    // allee: boolean,
-    // boulevard: boolean,
-    // undefined: boolean
   }
 }
 
@@ -372,7 +358,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         position="bottom-right"
       />
       <ScaleControl maxWidth={180} unit="metric" position='bottom-right'/>
-      {showMapLegend && <MapLegend style="fixed max-md:bottom-0 md:absolute md:top-28 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-scroll bg-white bg-opacity-75 md:py-6 md:px-4 md:rounded-xl shadow-sm">
+      {showMapLegend && <MapLegend className={"fixed max-md:bottom-0 md:absolute md:top-28 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-scroll bg-white bg-opacity-75 md:py-6 md:px-4 md:rounded-xl shadow-sm"}>
         <div className='flex flex-row overflow-y-auto px-6 py-1.5 md:p-0 font-sans'>
           <AreaFilterRadio
             onClick={onFilterClick}
@@ -393,7 +379,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       {areaInfo.data && areaInfo.extended === true &&
         <>
           <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom">
-            <img src={marker} />
+            <img src={marker} alt='Selected zone here' />
           </Marker>
           <AreaInfoExtended latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
         </>    
@@ -405,7 +391,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
 
 export {
   HomePage,
-  LANDTYPES,
+  LANDTYPES
 };
 export type {
   MapStyle as MapStyleType,

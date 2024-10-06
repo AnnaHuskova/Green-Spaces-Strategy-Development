@@ -2,20 +2,27 @@ import React from 'react';
 import icons from "../../assets/images/icons.svg";
 // import { FormGroup, FormLabel } from '@mui/material';
 import MapLegendSwitch from '../MapLegendItem';
-import {ZoneFilter, LANDTYPES} from "../../pages/HomePage";
+import {ZoneFilter} from "../../pages/HomePage";
+
+enum LANDTYPES {
+  forestPark = "Лісопарк",
+  park = "Парк",
+  square = "Сквер",
+  allee = "Алея",
+  boulevard = "Бульвар",
+  unknown = "не визначено"
+};
 
 const areaFilterOptions = {
   landStatus: {
-    // value: "landStatus",
-    hint: "статус",
+    hint: "Статус",
     filterCategories: {
       supervised: "Є об'єктом благоустрою",
       unsupervised: "Не є об'єктом благоустрою",
     }
   },
   maintenance: {
-    // value: "maintenance",
-    hint: "утримується",
+    hint: "Утримується",
     filterCategories: {
       maintained: "На балансі",
       unmaintained: "Не утримується",
@@ -23,7 +30,7 @@ const areaFilterOptions = {
   },
   landType: {
     // value: "landType",
-    hint: "тип",
+    hint: "За типом",
     filterCategories: LANDTYPES,
   }
 }
@@ -42,7 +49,7 @@ interface AreaFilterOptionProps {
 
 function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, currentFilterState, onToggle}: AreaFilterOptionProps) {
   const classSelected = selected === filteredGroup? "fill-accent" : "fill-none";
-  return <div>
+  return <div className='flex'>
     <label aria-label={hint} className="md:block">
       <input type="radio" name={groupName} id={`${groupName}_${filteredGroup}`} value={filteredGroup} onClick={onClick} className="appearance-none inline-block"/>
       <svg viewBox='0 0 30 30' className={`block md:inline-block m-auto w-6 h-6 md:w-8 md:h-8 stroke-navlinkActive stroke-[0.75] hover:fill-accent hover:opacity-60 ${classSelected}`}>
@@ -55,36 +62,18 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
     {selected !== "" && 
       <div aria-label='Green area filtering' className='ml-5' >
         <h3>{hint}</h3>
-          {/* 
-          <MapLegendSwitch
-            active={currentFilterState.maintenance.maintained}  
-            controls="maintenance-maintained"
-            key="maintenance-maintained"
-            label="На балансі"
-            color="areasProtected"
-            onToggleActive={onToggle}
-          />
-          <MapLegendSwitch
-            active={currentFilterState.maintenance.unmaintained}
-            controls="maintenance-unmaintained"
-            key="maintenance-unmaintained"
-            label="Не утримується"
-            color="areasUnprotected"
-            onToggleActive={onToggle}
-          />
-          */}
           {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
-            // let color = "";
-            // if(filteredGroup === "maintenance") {
-            //   color = filterCategory==="maintained"? "areasProtected" : "areasUnprotected";
-            // }
+            let color = "";
+            if(filteredGroup === "maintenance") {
+              color = filterCategory==="maintained"? "areasProtected" : "areasUnprotected";
+            }
 
             return <MapLegendSwitch
               active={(currentFilterState as Record<string, any>)[filteredGroup][filterCategory]}
               controls={`${filteredGroup}-${filterCategory}`}
               key={`${filteredGroup}-${filterCategory}`}
               label={(areaFilterOptions as Record<string, any>)[filteredGroup].filterCategories[filterCategory]}
-              // color={color!==""? color : undefined}
+              color={color!==""? color : undefined}
               onToggleActive={onToggle}
           />
           })}

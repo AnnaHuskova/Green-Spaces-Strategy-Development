@@ -1,12 +1,12 @@
 import React from 'react';
 
 interface MapLegendProps {
-  style: string,
+  className: string,
   children?: React.ReactNode,
 }
 
-export function MapLegend({style, children}: MapLegendProps) {
-  return <div aria-label='Green area types' className={style}>
+export function MapLegend({className, children}: MapLegendProps) {
+  return <div aria-label='Green area types' className={className}>
       {children}
     </div>;
 }
