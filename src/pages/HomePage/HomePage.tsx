@@ -144,11 +144,11 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   const [showMapLegend, toggleShowMapLegend] = useState(true); //change to false later
 
   const [zoneFilter, setZoneFilter] = useState<AddFilter>({
-    maintenance: {
+    maintenance: { //budget
       maintained: true,
       unmaintained: true,
     },
-    landStatus: {
+    landStatus: { //recognized as a park
       supervised: true,
       unsupervised: true,
     },
@@ -163,25 +163,32 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   });
 
   function constructAdditionalFilter(mainFilter:string) {
-    const filterArray:(boolean|ExpressionSpecification)[] = []
+    const filterArray:(boolean|ExpressionSpecification)[] = [];
     for(const filteredGroup in zoneFilter) {
       if(filteredGroup === mainFilter) {
         continue;
       }
       const filterCategory:ExpressionFilterSpecification = ["any"]
       for(const filteredValue in (zoneFilter as Record<string, any>)[filteredGroup]) {
+        let typedValue;
         if (((zoneFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
-          let typedValue; 
-          if(filteredValue === "true" || filteredValue === "false") {
-            typedValue = filteredValue === "true"? true : false;
-          }
-          else {
-            if(filteredGroup === "landType") {
+          switch (filteredGroup) {
+            case "landType": {
               typedValue = LANDTYPES[filteredValue as keyof typeof LANDTYPES];
+              break;
             }
-            else {
+            case "landStatus": {
+              if(filteredValue === "supervised") {
+                typedValue = true;
+              }
+              else {
+                typedValue = false;
+              }
+              break;
+            }
+            default: {
               typedValue = filteredValue;
-            } 
+            }
           }
           filterCategory.push(['==', ['get', filteredGroup], typedValue])
         }
@@ -394,7 +401,6 @@ function HomePage({greenAreas, districts}: HomePageProps) {
                 controls="landStatus-supervised"
                 key="landStatus-supervised"
                 label="Є об'єктом благоустрою"
-                color="areasProtected"
                 onToggleActive={toggleLayerProperty}
               />
               <MapLegendSwitch
@@ -402,7 +408,6 @@ function HomePage({greenAreas, districts}: HomePageProps) {
                 controls="landStatus-unsupervised"
                 key="landStatus-unsupervised"
                 label="Не є об'єктом благоустрою"
-                color="areasUnprotected"
                 onToggleActive={toggleLayerProperty}
               />
               <MapLegendSwitch
@@ -410,6 +415,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
                 controls="maintenance-maintained"
                 key="maintenance-maintained"
                 label="На балансі"
+                color="areasProtected"
                 onToggleActive={toggleLayerProperty}
               />
               <MapLegendSwitch
@@ -417,6 +423,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
                 controls="maintenance-unmaintained"
                 key="maintenance-unmaintained"
                 label="Не утримується"
+                color="areasUnprotected"
                 onToggleActive={toggleLayerProperty}
               />
               {Object.keys(zoneFilter.landType).map( (type) => {
