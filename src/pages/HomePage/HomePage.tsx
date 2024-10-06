@@ -2,11 +2,11 @@ import React, {useEffect, useState, useCallback} from 'react';
 import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, Marker /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FormGroup, FormLabel } from '@mui/material';
+// import { FormGroup, FormLabel } from '@mui/material';
 
 import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
-import MapLegendSwitch from '../../components/MapLegendItem';
+// import MapLegendSwitch from '../../components/MapLegendItem';
 import AreaInfo from '../../components/AreaInfo';
 import AreaInfoExtended from '../../components/AreaInfoExtended';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
@@ -84,15 +84,15 @@ const CURSOR_TYPE = {
   POINTER: "pointer",
 };
 
-interface AddFilter {
+interface ZoneFilter {
+  landStatus: {
+    supervised: boolean,
+    unsupervised: boolean,
+  },
   maintenance: {
     maintained: boolean,
     unmaintained: boolean,
   },
-  landStatus: {
-    supervised: boolean,
-    unsupervised: boolean,
-  }
   landType: { [key in keyof typeof LANDTYPES]: boolean
     // forestPark: boolean,
     // park: boolean,
@@ -131,10 +131,6 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
   const [styleJson, setStyleJson] = useState(null);
   const [interactiveLayerIds, setInteractiveLayerIds] = useState<string[]>(['nonexist']);
-  // const [showInteractiveLayers, toggleShowInteractiveLayers] = useState({
-  //   Supervised: true,
-  //   Unsupervised: true,
-  // });
   const [areaInfo, setAreaInfo] = useState<AreaInfo>({
     lat: 0,
     lng: 0,
@@ -143,7 +139,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   });
   const [showMapLegend, toggleShowMapLegend] = useState(true); //change to false later
 
-  const [zoneFilter, setZoneFilter] = useState<AddFilter>({
+  const [zoneFilter, setZoneFilter] = useState<ZoneFilter>({
     maintenance: { //budget
       maintained: true,
       unmaintained: true,
@@ -164,15 +160,15 @@ function HomePage({greenAreas, districts}: HomePageProps) {
 
   function constructAdditionalFilter(mainFilter:string) {
     const filterArray:(boolean|ExpressionSpecification)[] = [];
-    for(const filteredGroup in zoneFilter) {
-      if(filteredGroup === mainFilter) {
+    for(const filterGroup in zoneFilter) {
+      if(filterGroup === mainFilter) {
         continue;
       }
       const filterCategory:ExpressionFilterSpecification = ["any"]
-      for(const filteredValue in (zoneFilter as Record<string, any>)[filteredGroup]) {
+      for(const filteredValue in (zoneFilter as Record<string, any>)[filterGroup]) {
         let typedValue;
-        if (((zoneFilter as Record<string, any>)[filteredGroup] as Record<string, boolean>)[filteredValue] === true) {
-          switch (filteredGroup) {
+        if (((zoneFilter as Record<string, any>)[filterGroup] as Record<string, boolean>)[filteredValue] === true) {
+          switch (filterGroup) {
             case "landType": {
               typedValue = LANDTYPES[filteredValue as keyof typeof LANDTYPES];
               break;
@@ -190,7 +186,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
               typedValue = filteredValue;
             }
           }
-          filterCategory.push(['==', ['get', filteredGroup], typedValue])
+          filterCategory.push(['==', ['get', filterGroup], typedValue])
         }
       }
       filterArray.push(filterCategory);
@@ -293,14 +289,6 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   }
 
-  // const toggleLayer: React.ChangeEventHandler = (event) => {
-  //   const layerName: "maintained"|"unmaintained" = event.currentTarget.id === "maintained"? "maintained" : "unmaintained";
-  //   const newFilter = {...zoneFilter};  
-  //   newFilter.maintenance[layerName] = !newFilter.maintenance[layerName];
-  //   setZoneFilter(newFilter)
-  //   //toggleShowInteractiveLayers({ ...newLayers });
-  // }
-
   const toggleLayerProperty:React.ChangeEventHandler = (event) => {
     const[filteredGroup, filteredProperty] = event.currentTarget.id.split('-');
     const currentFilter = {...zoneFilter};
@@ -389,58 +377,13 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           <AreaFilterRadio
             onClick={onFilterClick}
             selected = {filterSelected}
+            currentFilterState={zoneFilter}
+            onToggle={toggleLayerProperty}
           >
           </AreaFilterRadio>
-
-          {filterSelected !== "" && 
-          <FormGroup aria-label='Green area types' className='ml-5' >
-            <FormLabel>Area types</FormLabel>
-            <ul className="list-none">
-              <MapLegendSwitch
-                active={zoneFilter.landStatus.supervised}
-                controls="landStatus-supervised"
-                key="landStatus-supervised"
-                label="Є об'єктом благоустрою"
-                onToggleActive={toggleLayerProperty}
-              />
-              <MapLegendSwitch
-                active={zoneFilter.landStatus.unsupervised}
-                controls="landStatus-unsupervised"
-                key="landStatus-unsupervised"
-                label="Не є об'єктом благоустрою"
-                onToggleActive={toggleLayerProperty}
-              />
-              <MapLegendSwitch
-                active={zoneFilter.maintenance.maintained}  
-                controls="maintenance-maintained"
-                key="maintenance-maintained"
-                label="На балансі"
-                color="areasProtected"
-                onToggleActive={toggleLayerProperty}
-              />
-              <MapLegendSwitch
-                active={zoneFilter.maintenance.unmaintained}
-                controls="maintenance-unmaintained"
-                key="maintenance-unmaintained"
-                label="Не утримується"
-                color="areasUnprotected"
-                onToggleActive={toggleLayerProperty}
-              />
-              {Object.keys(zoneFilter.landType).map( (type) => {
-                return <MapLegendSwitch
-                  active={zoneFilter.landType[type as unknown as keyof typeof LANDTYPES]}
-                  controls={`landType-${type}`}
-                  key={`landType-${type}`}
-                  label={LANDTYPES[type as unknown as keyof typeof LANDTYPES]}
-                  onToggleActive={toggleLayerProperty}
-              />
-              })}
-            </ul>
-            
-            <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
-          </FormGroup>
-          }
+          
         </div>
+        <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
         
       </MapLegend>}
       <MapAreaStats areas={greenAreas}></MapAreaStats>
@@ -462,9 +405,11 @@ function HomePage({greenAreas, districts}: HomePageProps) {
 
 export {
   HomePage,
+  LANDTYPES,
 };
 export type {
   MapStyle as MapStyleType,
   HomePageProps,
   GreenArea,
+  ZoneFilter,
 }

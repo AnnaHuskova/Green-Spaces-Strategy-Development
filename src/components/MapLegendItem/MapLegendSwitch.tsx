@@ -17,11 +17,9 @@ export function MapLegendSwitch({ active, onToggleActive, color, controls, label
   }
   const activeColor = color? colors[color] : colors.default;
   
-  return <li> 
-    <label aria-label={label} className="relative inline-flex items-center cursor-pointer">
+  return <label aria-label={label} className="relative flex items-center cursor-pointer mb-2">
       <input type="checkbox" id={controls} className="sr-only peer" onChange={onToggleActive} checked={active}/>
       <div className={`w-9 h-5 bg-form-unchecked hover:bg-form-hover peer-focus:outline-0 peer-focus:ring-transparent rounded-full peer transition-all ease-in-out duration-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-form-unchecked after:border after:rounded-full after:h-4 after:w-4 after:transition-all ${activeColor}`}></div>
       <span className="ms-1.5 text-sm">{label}</span> 
-    </label>
-  </li>;
+    </label>;
 }
