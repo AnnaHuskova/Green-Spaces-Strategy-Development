@@ -15,7 +15,7 @@ interface AreaInfoProps {
 }
 
 export function AreaInfo({ latitude, longitude, data, children, onExtend }: AreaInfoProps) {
-  const { id, name } = data.properties;
+  const { id, name, landStatus, landType, owner } = data.properties;
   const areaInHectares = (getArea(data) / 10000).toFixed(2);
   
   const twDataContainerStyle = 'mb-5';
@@ -34,18 +34,22 @@ export function AreaInfo({ latitude, longitude, data, children, onExtend }: Area
       maxWidth="none"
     >
       <div className='max-w-80'>
-        <header className='font-light text-center mb-2.5'>Дані зони</header>
-        <div className={twDataContainerStyle}>
-          <label className={twDataLabelStyle}>Номер:</label>
-          <div>{id}</div>
-        </div>
+        <h3 className='hidden font-light text-center mb-2.5'>Дані зони</h3>
         <div className={twDataContainerStyle}>
           <label className={twDataLabelStyle}>Назва:</label>
           <div>{name || "Не має назви"}</div>
         </div>
         <div className={twDataContainerStyle}>
-          <label className={twDataLabelStyle}>Площа:</label>
-          <div>{areaInHectares} га</div>
+          <label className={twDataLabelStyle}>Статус:</label>
+          <div>{landStatus? "Є об'єктом благоустрою" : "Не є об'єктом благоустрою"}</div>
+        </div>
+        <div className={twDataContainerStyle}>
+          <label className={twDataLabelStyle}>Тип:</label>
+          <div>{landType.toString()}</div>
+        </div>
+        <div className={twDataContainerStyle}>
+          <label className={twDataLabelStyle}>Балансоутримувач:</label>
+          <div>{owner? owner : "-"}</div>
         </div>
         <div className='flex flex-row justify-between text-lg text-center'>
           <PdfButton 
