@@ -15,8 +15,8 @@ interface AreaInfoProps {
 }
 
 export function AreaInfo({ latitude, longitude, data, children, onExtend }: AreaInfoProps) {
-  const { id, name, landStatus, landType, owner } = data.properties;
-  const areaInHectares = (getArea(data) / 10000).toFixed(2);
+  const { name, landStatus, landType, owner } = data.properties;
+  // const areaInHectares = (getArea(data) / 10000).toFixed(2);
   
   const twDataContainerStyle = 'mb-5';
   const twDataLabelStyle = 'font-bold';
