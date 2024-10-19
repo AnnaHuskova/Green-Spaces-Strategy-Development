@@ -369,7 +369,6 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           </AreaFilterRadio>
           
         </div>
-        {/* <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} /> */}
         
       </MapLegend>}
       {<MapLegend className={"fixed hidden md:block max-md:bottom-0 md:absolute md:bottom-0 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 md:py-1 md:px-4 md:rounded-xl shadow-sm"}>

@@ -49,6 +49,8 @@ interface AreaFilterOptionProps {
 
 function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, currentFilterState, onToggle}: AreaFilterOptionProps) {
   const classSelected = selected === filteredGroup? "fill-accent" : "fill-none";
+
+
   return <div className='flex'>
     <label aria-label={hint} className="md:block">
       <input type="radio" name={groupName} id={`${groupName}_${filteredGroup}`} value={filteredGroup} onClick={onClick} className="appearance-none inline-block"/>
@@ -59,8 +61,32 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
       <span className='md:hidden'>{hint}</span>
     </label>
 
-    {selected !== "" && 
+    {/* For mobile - show only active group */}
+    {selected === filteredGroup && 
       <div aria-label='Green area filtering' className='ml-5' >
+        <h3>{hint}</h3>
+          {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
+            let color = "";
+            if(filteredGroup === "maintenance") {
+              color = filterCategory==="maintained"? "areasProtected" : "areasUnprotected";
+            }
+
+            return <MapLegendSwitch
+              active={(currentFilterState as Record<string, any>)[filteredGroup][filterCategory]}
+              controls={`${filteredGroup}-${filterCategory}`}
+              key={`${filteredGroup}-${filterCategory}`}
+              label={(areaFilterOptions as Record<string, any>)[filteredGroup].filterCategories[filterCategory]}
+              color={color!==""? color : undefined}
+              onToggleActive={onToggle}
+          />
+          })}
+        
+      </div>
+      }
+
+      {/* For desktop - show all filters no matter which one is selected */}
+      {selected !== filteredGroup && selected !== "" && 
+      <div aria-label='Green area filtering' className='ml-5 hidden md:block' >
         <h3>{hint}</h3>
           {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
             let color = "";
