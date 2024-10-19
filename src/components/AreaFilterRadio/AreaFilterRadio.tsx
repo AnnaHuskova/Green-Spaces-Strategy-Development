@@ -51,9 +51,9 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
   const classSelected = selected === filteredGroup? "fill-accent" : "fill-none";
 
 
-  return <div className='flex'>
+  return <div className='relative flex'>
     <label aria-label={hint} className="md:block">
-      <input type="radio" name={groupName} id={`${groupName}_${filteredGroup}`} value={filteredGroup} onClick={onClick} className="appearance-none inline-block"/>
+      <input type="radio" name={groupName} id={`${groupName}_${filteredGroup}`} value={filteredGroup} onClick={onClick} className="hidden appearance-none md:inline-block"/>
       <svg viewBox='0 0 30 30' className={`block md:inline-block m-auto w-6 h-6 md:w-8 md:h-8 stroke-navlinkActive stroke-[0.75] hover:fill-accent hover:opacity-60 ${classSelected}`}>
         {hint && <title>{hint}</title>}
         <use href={icons + `#${filteredGroup}`}></use>
@@ -63,7 +63,8 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
 
     {/* For mobile - show only active group */}
     {selected === filteredGroup && 
-      <div aria-label='Green area filtering' className='ml-5' >
+      <div aria-label='Green area filtering' className=' left-0 bottom-[calc(100%)] bg-white bg-opacity-75 md:bg-opacity-0 md:static ml-5' > 
+      {/* TODO: absolute for mobile! ^^^ */}
         <h3>{hint}</h3>
           {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
             let color = "";
