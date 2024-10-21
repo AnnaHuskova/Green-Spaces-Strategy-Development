@@ -63,7 +63,7 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
 
     {/* For mobile - show only active group */}
     {selected === filteredGroup && 
-      <div aria-label='Green area filtering' className=' left-0 bottom-[calc(100%)] bg-white bg-opacity-75 md:bg-opacity-0 md:static ml-5' > 
+      <div aria-label='Green area filtering' className='fixed left-0 bottom-14 w-full bg-white bg-opacity-75 md:bg-opacity-0 md:static md:w-auto pl-5 overflow-visible z-10' > 
       {/* TODO: absolute for mobile! ^^^ */}
         <h3>{hint}</h3>
           {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
@@ -121,7 +121,7 @@ interface AreaFilterRadioProps {
 }
 
 export function AreaFilterRadio({ onClick, selected, currentFilterState, onToggle, children }: AreaFilterRadioProps) {
-  return <div className='flex flex-row justify-between w-full h-13 md:w-auto md:h-auto md:block md:space-y-8'>
+  return <div className='flex flex-row justify-between w-full h-full md:w-auto md:h-auto md:block md:space-y-8'>
   {Object.keys(areaFilterOptions).map((groupName) => {
     const filteredGroup = (areaFilterOptions as Record<string, any>)[groupName];
     return <AreaFilterOption
