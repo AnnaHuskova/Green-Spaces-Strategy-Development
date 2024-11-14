@@ -377,7 +377,12 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       </MapLegend>}
       <MapAreaStats areas={greenAreas}></MapAreaStats>
       {areaInfo.data && areaInfo.extended === false &&
-        <AreaInfo latitude={areaInfo.lat} longitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+        <>
+          <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom" className={"sm:hidden"}>
+            <img src={marker} alt='Selected zone marker' />
+          </Marker>
+          <AreaInfo latitude={areaInfo.lat} longitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+        </>
       }
       {areaInfo.data && areaInfo.extended === true &&
         <>
