@@ -255,6 +255,15 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   }
 
+  function closeAreaInfo() {
+    setAreaInfo({
+      lat: 0,
+      lng: 0,
+      data: null,
+      extended: false,
+    });
+  }
+
   function toggleAreaExtend(event: React.MouseEvent) {
     const curAreaInfo:AreaInfo = {...areaInfo};
     setAreaInfo( {
@@ -386,10 +395,12 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       }
       {areaInfo.data && areaInfo.extended === true &&
         <>
-          <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom">
+          <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom" className='max-sm:hidden'>
             <img src={marker} alt='Selected zone here' />
           </Marker>
-          <AreaInfoExtended latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+          <AreaInfoExtended latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend}>
+            <button type="button" className="absolute top-5 right-5 text-black ring-2 ring-black hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent font-medium rounded-full h-5 w-5 text-sm text-center me-2 mb-2" onClick={closeAreaInfo}>X</button>
+          </AreaInfoExtended>
         </>    
       }
       <ToastContainer />
