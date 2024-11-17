@@ -377,8 +377,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             currentFilterState={zoneFilter}
             onToggle={toggleLayerProperty}
           >
+            {filterSelected!=="" && <ButtonExpand onClick={()=>{setFilterSelected("")}} style='sm:hidden z-20'/>}
           </AreaFilterRadio>
-          
+          {filterSelected!=="" && <ButtonExpand direction='left' onClick={()=>{setFilterSelected("")}} style='hidden sm:block z-20'/>}
         </div>
         
       </MapLegend>}

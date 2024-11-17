@@ -45,11 +45,11 @@ interface AreaFilterOptionProps {
   onClick: React.MouseEventHandler<HTMLInputElement>,
   currentFilterState: ZoneFilter,
   onToggle: React.ChangeEventHandler,
+  children?: React.ReactNode,
 }
 
-function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, currentFilterState, onToggle}: AreaFilterOptionProps) {
+function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, currentFilterState, onToggle, children}: AreaFilterOptionProps) {
   const classSelected = selected === filteredGroup? "fill-accent" : "fill-none";
-
 
   return <div className='relative flex'>
     <label aria-label={hint} className="md:block">
@@ -63,7 +63,7 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
 
     {/* For mobile - show only active group */}
     {selected === filteredGroup && 
-      <div aria-label='Green area filtering' className='fixed left-0 bottom-14 w-full bg-white bg-opacity-75 md:bg-opacity-0 md:static md:w-auto pl-5 overflow-visible z-10' > 
+      <div aria-label='Green area filtering' className='fixed left-0 bottom-14 w-full bg-white bg-opacity-80 md:bg-opacity-0 md:static md:w-auto pl-5 overflow-visible z-10' > 
       {/* TODO: absolute for mobile! ^^^ */}
         <h3>{hint}</h3>
           {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
@@ -81,7 +81,7 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
               onToggleActive={onToggle}
           />
           })}
-        
+        {children}
       </div>
       }
 
@@ -133,8 +133,9 @@ export function AreaFilterRadio({ onClick, selected, currentFilterState, onToggl
       onClick={onClick}
       currentFilterState={currentFilterState}
       onToggle={onToggle}
-    />
+    >
+      {children}
+    </AreaFilterOption>
   })}
-  {children}
   </div> 
 }
