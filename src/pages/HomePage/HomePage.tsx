@@ -16,6 +16,7 @@ import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre
 import marker from "../../assets/images/marker-icon.png";
 import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfigRaw from "../../tailwind.config.js";
+import ButtonExpand from '../../components/ButtonExpand';
 const twConfig = resolveConfig(tailwindConfigRaw); //for access to palette directly from TS
 
 enum LANDTYPES {
@@ -399,7 +400,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             <img src={marker} alt='Selected zone here' />
           </Marker>
           <AreaInfoExtended latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend}>
-            <button type="button" className="absolute top-5 right-5 text-black ring-2 ring-black hover:bg-accent focus:outline-none focus:ring-2 focus:ring-accent font-medium rounded-full h-5 w-5 text-sm text-center me-2 mb-2" onClick={closeAreaInfo}>X</button>
+            <ButtonExpand onClick={closeAreaInfo}/>
           </AreaInfoExtended>
         </>    
       }

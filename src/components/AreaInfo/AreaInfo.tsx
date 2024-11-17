@@ -83,7 +83,7 @@ export function AreaInfo({ latitude, longitude, data, children, onExtend }: Area
       </Popup>
 
       <div
-        className="absolute bottom-0 left-0 w-full sm:hidden font-light text-base leading-5 rounded-xl bg-white"
+        className="absolute bottom-0 left-0 z-10 w-full sm:hidden font-light text-base leading-5 rounded-xl bg-white"
       >
         <div className='w-auto px-6 pt-3 pb-6'>
           <h3 className='hidden font-light text-center mb-2.5'>Дані зони</h3>

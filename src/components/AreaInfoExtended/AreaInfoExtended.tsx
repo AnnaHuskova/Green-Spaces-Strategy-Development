@@ -17,7 +17,7 @@ export function AreaInfoExtended({ latitude, longtitude, data, children }: AreaI
 
   return <div
     key = {latitude+longtitude}
-    className="absolute z-10 top-0 right-0 w-full h-full sm:top-40 sm:right-20 sm:w-[440px] sm:h-[calc(100%-160px)] p-7 rounded-xl bg-white bg-opacity-80 font-light text-base leading-5 overflow-y-auto"
+    className="absolute z-10 top-0 right-0 w-full h-full sm:top-40 sm:right-20 sm:w-[440px] sm:h-[calc(100%-160px)] p-7 rounded-xl bg-white bg-opacity-90 font-light text-base leading-5 overflow-y-auto"
   >
       {/* <h3 className='font-light text-center mb-2.5 hidden'>Дані зони</h3> */}
       <div className={twDataContainerStyle}>
