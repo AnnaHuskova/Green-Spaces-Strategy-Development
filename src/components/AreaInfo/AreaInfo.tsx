@@ -26,59 +26,112 @@ export function AreaInfo({ latitude, longitude, data, children, onExtend }: Area
     onExtend(event);
   };
   return (
-    <Popup
-      key={`${latitude}-${longitude}`}
-      latitude={latitude}
-      longitude={longitude}
-      className="min-w-80 font-light text-base leading-5"
-      maxWidth="none"
-    >
-      <div className='max-w-80'>
-        <h3 className='hidden font-light text-center mb-2.5'>Дані зони</h3>
-        <div className={twDataContainerStyle}>
-          <label className={twDataLabelStyle}>Назва:</label>
-          <div>{name || "Не має назви"}</div>
+    <>
+      <Popup
+        key={`${latitude}-${longitude}`}
+        latitude={latitude}
+        longitude={longitude}
+        className="max-sm:hidden max-sm:w-auto sm:min-w-80 font-light text-base leading-5"
+        maxWidth="none"
+      >
+        <div className='max-w-80'>
+          <h3 className='hidden font-light text-center mb-2.5'>Дані зони</h3>
+          <div className={twDataContainerStyle}>
+            <label className={twDataLabelStyle}>Назва:</label>
+            <div className="pl-1">{name || "Не має назви"}</div>
+          </div>
+          <div className={twDataContainerStyle}>
+            <label className={twDataLabelStyle}>Статус:</label>
+            <div className="pl-1">{landStatus? "Є об'єктом благоустрою" : "Не є об'єктом благоустрою"}</div>
+          </div>
+          <div className={twDataContainerStyle}>
+            <label className={twDataLabelStyle}>Тип:</label>
+            <div className="pl-1">{landType.toString()}</div>
+          </div>
+          <div className={twDataContainerStyle}>
+            <label className={twDataLabelStyle}>Балансоутримувач:</label>
+            <div className="pl-1">{owner? owner : "-"}</div>
+          </div>
+          <div className='flex flex-row justify-between text-lg text-center'>
+            <PdfButton 
+              buttonName="Як зберегти?" 
+              sx={{
+                px: "1.5rem",
+                fontSize: "inherit",
+                textTransform: "none",
+                whiteSpace: "nowrap"
+              }}
+              variant='outlined'
+            />
+            <Button
+              className='ml-5'
+              sx={{
+                px: "1.5rem",
+                ml: "1.25rem",
+                fontSize: "inherit",
+                textTransform: "none",
+                whiteSpace: "nowrap"
+              }}
+              variant='outlined'
+              onClick={handleOnExtendClick}
+            >
+              Детальніше
+            </Button>
+          </div>
+          {children}
         </div>
-        <div className={twDataContainerStyle}>
-          <label className={twDataLabelStyle}>Статус:</label>
-          <div>{landStatus? "Є об'єктом благоустрою" : "Не є об'єктом благоустрою"}</div>
+      </Popup>
+
+      <div
+        className="absolute bottom-0 left-0 z-10 w-full sm:hidden font-light text-base leading-5 rounded-xl bg-white"
+      >
+        <div className='w-auto px-6 pt-3 pb-6'>
+          <h3 className='hidden font-light text-center mb-2.5'>Дані зони</h3>
+          <div className={"mb-1.5"}>
+            <label className={twDataLabelStyle}>Назва:</label>
+            <div className="pl-1">{name || "Не має назви"}</div>
+          </div>
+          <div className={"mb-1.5"}>
+            <label className={twDataLabelStyle}>Статус:</label>
+            <div className="pl-1">{landStatus? "Є об'єктом благоустрою" : "Не є об'єктом благоустрою"}</div>
+          </div>
+          <div className={"mb-1.5"}>
+            <label className={twDataLabelStyle}>Тип:</label>
+            <div className="pl-1">{landType.toString()}</div>
+          </div>
+          <div className={"mb-1.5"}>
+            <label className={twDataLabelStyle}>Балансоутримувач:</label>
+            <div className="pl-1">{owner? owner : "-"}</div>
+          </div>
+          <div className='flex flex-row justify-between text-lg text-center'>
+            <PdfButton 
+              buttonName="Як зберегти?" 
+              sx={{
+                px: "1.5rem",
+                fontSize: "inherit",
+                textTransform: "none",
+                whiteSpace: "nowrap"
+              }}
+              variant='outlined'
+            />
+            <Button
+              className='ml-5'
+              sx={{
+                px: "1.5rem",
+                ml: "1.25rem",
+                fontSize: "inherit",
+                textTransform: "none",
+                whiteSpace: "nowrap"
+              }}
+              variant='outlined'
+              onClick={handleOnExtendClick}
+            >
+              Детальніше
+            </Button>
+          </div>
+          {children}
         </div>
-        <div className={twDataContainerStyle}>
-          <label className={twDataLabelStyle}>Тип:</label>
-          <div>{landType.toString()}</div>
-        </div>
-        <div className={twDataContainerStyle}>
-          <label className={twDataLabelStyle}>Балансоутримувач:</label>
-          <div>{owner? owner : "-"}</div>
-        </div>
-        <div className='flex flex-row justify-between text-lg text-center'>
-          <PdfButton 
-            buttonName="Як зберегти?" 
-            sx={{
-              px: "1.5rem",
-              fontSize: "inherit",
-              textTransform: "none",
-              whiteSpace: "nowrap"
-            }}
-            variant='outlined'
-          />
-          <Button
-            className='ml-5'
-            sx={{
-              px: "1.5rem",
-              ml: "1.25rem",
-              fontSize: "inherit",
-              textTransform: "none",
-              whiteSpace: "nowrap"
-            }}
-            variant='outlined'
-            onClick={handleOnExtendClick}
-          >
-            Детальніше
-          </Button>
-        </div>
-        {children}
       </div>
-    </Popup>
+    </>
   );
 }

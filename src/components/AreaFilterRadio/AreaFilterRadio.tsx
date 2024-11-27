@@ -45,13 +45,15 @@ interface AreaFilterOptionProps {
   onClick: React.MouseEventHandler<HTMLInputElement>,
   currentFilterState: ZoneFilter,
   onToggle: React.ChangeEventHandler,
+  children?: React.ReactNode,
 }
 
-function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, currentFilterState, onToggle}: AreaFilterOptionProps) {
+function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, currentFilterState, onToggle, children}: AreaFilterOptionProps) {
   const classSelected = selected === filteredGroup? "fill-accent" : "fill-none";
-  return <div className='flex'>
+
+  return <div className='relative flex'>
     <label aria-label={hint} className="md:block">
-      <input type="radio" name={groupName} id={`${groupName}_${filteredGroup}`} value={filteredGroup} onClick={onClick} className="appearance-none inline-block"/>
+      <input type="radio" name={groupName} id={`${groupName}_${filteredGroup}`} value={filteredGroup} onClick={onClick} className="hidden appearance-none md:inline-block"/>
       <svg viewBox='0 0 30 30' className={`block md:inline-block m-auto w-6 h-6 md:w-8 md:h-8 stroke-navlinkActive stroke-[0.75] hover:fill-accent hover:opacity-60 ${classSelected}`}>
         {hint && <title>{hint}</title>}
         <use href={icons + `#${filteredGroup}`}></use>
@@ -59,8 +61,33 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
       <span className='md:hidden'>{hint}</span>
     </label>
 
-    {selected !== "" && 
-      <div aria-label='Green area filtering' className='ml-5' >
+    {/* For mobile - show only active group */}
+    {selected === filteredGroup && 
+      <div aria-label='Green area filtering' className='fixed left-0 bottom-14 w-full bg-white bg-opacity-80 md:bg-opacity-0 md:static md:w-auto pl-5 overflow-visible z-10' > 
+      {/* TODO: absolute for mobile! ^^^ */}
+        <h3>{hint}</h3>
+          {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
+            let color = "";
+            if(filteredGroup === "maintenance") {
+              color = filterCategory==="maintained"? "areasProtected" : "areasUnprotected";
+            }
+
+            return <MapLegendSwitch
+              active={(currentFilterState as Record<string, any>)[filteredGroup][filterCategory]}
+              controls={`${filteredGroup}-${filterCategory}`}
+              key={`${filteredGroup}-${filterCategory}`}
+              label={(areaFilterOptions as Record<string, any>)[filteredGroup].filterCategories[filterCategory]}
+              color={color!==""? color : undefined}
+              onToggleActive={onToggle}
+          />
+          })}
+        {children}
+      </div>
+      }
+
+      {/* For desktop - show all filters no matter which one is selected */}
+      {selected !== filteredGroup && selected !== "" && 
+      <div aria-label='Green area filtering' className='ml-5 hidden md:block' >
         <h3>{hint}</h3>
           {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
             let color = "";
@@ -94,7 +121,7 @@ interface AreaFilterRadioProps {
 }
 
 export function AreaFilterRadio({ onClick, selected, currentFilterState, onToggle, children }: AreaFilterRadioProps) {
-  return <div className='flex flex-row justify-between w-full h-13 md:w-auto md:h-auto md:block md:space-y-8'>
+  return <div className='flex flex-row justify-between w-full h-full md:w-auto md:h-auto md:block md:space-y-8'>
   {Object.keys(areaFilterOptions).map((groupName) => {
     const filteredGroup = (areaFilterOptions as Record<string, any>)[groupName];
     return <AreaFilterOption
@@ -106,8 +133,9 @@ export function AreaFilterRadio({ onClick, selected, currentFilterState, onToggl
       onClick={onClick}
       currentFilterState={currentFilterState}
       onToggle={onToggle}
-    />
+    >
+      {children}
+    </AreaFilterOption>
   })}
-  {children}
   </div> 
 }

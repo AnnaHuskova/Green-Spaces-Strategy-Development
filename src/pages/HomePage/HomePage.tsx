@@ -16,6 +16,7 @@ import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre
 import marker from "../../assets/images/marker-icon.png";
 import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfigRaw from "../../tailwind.config.js";
+import ButtonExpand from '../../components/ButtonExpand';
 const twConfig = resolveConfig(tailwindConfigRaw); //for access to palette directly from TS
 
 enum LANDTYPES {
@@ -255,6 +256,15 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   }
 
+  function closeAreaInfo() {
+    setAreaInfo({
+      lat: 0,
+      lng: 0,
+      data: null,
+      extended: false,
+    });
+  }
+
   function toggleAreaExtend(event: React.MouseEvent) {
     const curAreaInfo:AreaInfo = {...areaInfo};
     setAreaInfo( {
@@ -288,7 +298,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   }
 
-	return <div className="md:relative w-full h-[calc(100vh-48px-52px)] md:h-[calc(100vh-56px-112px)]">
+	return <div className="md:relative w-full h-[calc(100vh-48px-54px)] md:h-[calc(100vh-56px-112px)] overflow-visible">
     {styleJson ? <GlMap
       initialViewState={{
         longitude: 35.0064,
@@ -307,6 +317,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       ]}
       attributionControl={false}
       mapStyle={styleJson}>
+
       <Source
         type='geojson'
         data={featureCollection(districts)}>
@@ -358,7 +369,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         position="bottom-right"
       />
       <ScaleControl maxWidth={180} unit="metric" position='bottom-right'/>
-      {showMapLegend && <MapLegend className={"fixed max-md:bottom-0 md:absolute md:top-28 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 md:py-6 md:px-4 md:rounded-xl shadow-sm"}>
+      {showMapLegend && <MapLegend className={"fixed left-0 max-md:bottom-0 md:absolute md:top-28 w-full md:w-auto h-14 md:h-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 py-0 md:py-6 md:px-4 md:rounded-xl shadow-sm z-10"}>
         <div className='flex flex-row overflow-y-auto px-6 py-1.5 md:p-0 font-sans'>
           <AreaFilterRadio
             onClick={onFilterClick}
@@ -366,25 +377,32 @@ function HomePage({greenAreas, districts}: HomePageProps) {
             currentFilterState={zoneFilter}
             onToggle={toggleLayerProperty}
           >
+            {filterSelected!=="" && <ButtonExpand onClick={()=>{setFilterSelected("")}} style='sm:hidden z-20'/>}
           </AreaFilterRadio>
-          
+          {filterSelected!=="" && <ButtonExpand direction='left' onClick={()=>{setFilterSelected("")}} style='hidden sm:block z-20'/>}
         </div>
-        {/* <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} /> */}
         
       </MapLegend>}
-      {<MapLegend className={"fixed max-md:bottom-0 md:absolute md:bottom-0 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 md:py-1 md:px-4 md:rounded-xl shadow-sm"}>
+      {<MapLegend className={"fixed hidden md:block max-md:bottom-0 md:absolute md:bottom-0 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 md:py-1 md:px-4 md:rounded-xl shadow-sm"}>
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>}
       <MapAreaStats areas={greenAreas}></MapAreaStats>
       {areaInfo.data && areaInfo.extended === false &&
-        <AreaInfo latitude={areaInfo.lat} longitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+        <>
+          <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom" className={"sm:hidden"}>
+            <img src={marker} alt='Selected zone marker' />
+          </Marker>
+          <AreaInfo latitude={areaInfo.lat} longitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+        </>
       }
       {areaInfo.data && areaInfo.extended === true &&
         <>
-          <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom">
+          <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom" className='max-sm:hidden'>
             <img src={marker} alt='Selected zone here' />
           </Marker>
-          <AreaInfoExtended latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+          <AreaInfoExtended latitude={areaInfo.lat} longtitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend}>
+            <ButtonExpand onClick={closeAreaInfo}/>
+          </AreaInfoExtended>
         </>    
       }
       <ToastContainer />
