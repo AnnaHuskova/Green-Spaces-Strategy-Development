@@ -298,7 +298,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   }
 
-	return <div className="md:relative w-full h-[calc(100vh-48px-54px)] md:h-[calc(100vh-56px-112px)] overflow-visible">
+	return <div className="lg:relative w-full h-[calc(100vh-48px-54px)] lg:h-[calc(100vh-56px-112px)] overflow-visible">
     {styleJson ? <GlMap
       initialViewState={{
         longitude: 35.0064,
@@ -369,21 +369,21 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         position="bottom-right"
       />
       <ScaleControl maxWidth={180} unit="metric" position='bottom-right'/>
-      {showMapLegend && <MapLegend className={"fixed left-0 max-md:bottom-0 md:absolute md:top-28 w-full md:w-auto h-14 md:h-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 py-0 md:py-6 md:px-4 md:rounded-xl shadow-sm z-10"}>
-        <div className='flex flex-row overflow-y-auto px-6 py-1.5 md:p-0 font-sans'>
+      {showMapLegend && <MapLegend className={"fixed left-0 max-lg:bottom-0 lg:absolute lg:top-28 w-full lg:w-auto h-14 lg:h-auto lg:min-h-14 min-w-14 lg:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 py-0 lg:py-6 lg:px-4 lg:rounded-xl shadow-sm z-10"}>
+        <div className='flex flex-row overflow-y-auto px-6 py-1.5 lg:p-0 font-sans'>
           <AreaFilterRadio
             onClick={onFilterClick}
             selected = {filterSelected}
             currentFilterState={zoneFilter}
             onToggle={toggleLayerProperty}
           >
-            {filterSelected!=="" && <ButtonExpand onClick={()=>{setFilterSelected("")}} style='sm:hidden z-20'/>}
+            {filterSelected!=="" && <ButtonExpand onClick={()=>{setFilterSelected("")}} style='lg:hidden z-20'/>}
           </AreaFilterRadio>
-          {filterSelected!=="" && <ButtonExpand direction='left' onClick={()=>{setFilterSelected("")}} style='hidden sm:block z-20'/>}
+          {filterSelected!=="" && <ButtonExpand direction='left' onClick={()=>{setFilterSelected("")}} style='hidden lg:block z-20'/>}
         </div>
         
       </MapLegend>}
-      {<MapLegend className={"fixed hidden md:block max-md:bottom-0 md:absolute md:bottom-0 left-0 w-full md:w-auto md:min-h-14 min-w-14 md:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 md:py-1 md:px-4 md:rounded-xl shadow-sm"}>
+      {<MapLegend className={"fixed hidden lg:block max-lg:bottom-0 lg:absolute lg:bottom-0 left-0 w-full lg:w-auto lg:min-h-14 min-w-14 lg:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 lg:py-1 lg:px-4 lg:rounded-xl shadow-sm"}>
         <MapSourceSwitch sources={availableStyles} selectedSource={style} onSetSource={setStyle} />
       </MapLegend>}
       <MapAreaStats areas={greenAreas}></MapAreaStats>

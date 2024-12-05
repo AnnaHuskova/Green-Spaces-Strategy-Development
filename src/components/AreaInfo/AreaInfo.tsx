@@ -78,7 +78,6 @@ export function AreaInfo({ latitude, longitude, data, children, onExtend }: Area
               Детальніше
             </Button>
           </div>
-          {children}
         </div>
       </Popup>
 

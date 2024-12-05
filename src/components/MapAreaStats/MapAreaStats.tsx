@@ -56,18 +56,18 @@ export function MapAreaStats({ areas, children }: MapAreaStatsProps) {
 
   // console.log(icons)
   
-  return <div className="relative flex bg-white bg-opacity-75 px-3 py-1 rounded-xl md:bg-opacity-0 md:p-0 flex-row max-w-60 md:max-w-3xl h-13 mx-auto mt-3 md:mt-11 justify-between font-sans pointer-events-none" >
+  return <div className="relative flex bg-white bg-opacity-75 px-3 py-1 rounded-xl lg:bg-opacity-0 lg:p-0 flex-row max-w-60 lg:max-w-3xl h-13 mx-auto mt-3 lg:mt-11 justify-between font-sans pointer-events-none" >
     {areaStats.map((areaCategory) => (
-      <div className='inline-block md:block basis-48 bg-white bg-opacity-0 md:bg-opacity-75 md:px-3 md:py-1 md:rounded-xl pointer-events-auto' key={areaCategory.categoryName}>
+      <div className='inline-block lg:block basis-48 bg-white bg-opacity-0 lg:bg-opacity-75 lg:px-3 lg:py-1 lg:rounded-xl pointer-events-auto' key={areaCategory.categoryName}>
         <span className='block text-center text-2xl'>
           <span className='font-bold'>{areaCategory.quantity}</span>
-          <span className='hidden md:inline'> | {Math.round(areaCategory.surface / 10000)}</span>
-          <span className='hidden md:inline font-bold text-xs'> га</span>
+          <span className='hidden lg:inline'> | {Math.round(areaCategory.surface / 10000)}</span>
+          <span className='hidden lg:inline font-bold text-xs'> га</span>
         </span>
-        <div className='md:flex justify-between items-end h-3 p-0 md:px-7'>
-          <label className='block md:hidden text-[9px]/[9px] w-fit m-auto'>{areaCategory.categoryNameShort}</label>
-          <label className='hidden md:inline text-xs'>{areaCategory.categoryName}</label>
-          <svg viewBox='0 0 7 7' className='hidden md:block w-3 h-3 fill-[#94A3B8]'>
+        <div className='lg:flex justify-between items-end h-3 p-0 lg:px-7'>
+          <label className='block lg:hidden text-[9px]/[9px] w-fit m-auto'>{areaCategory.categoryNameShort}</label>
+          <label className='hidden lg:inline text-xs'>{areaCategory.categoryName}</label>
+          <svg viewBox='0 0 7 7' className='hidden lg:block w-3 h-3 fill-[#94A3B8]'>
             <title>Help!</title>
               <use href={icons + "#info"}></use>
             </svg>
