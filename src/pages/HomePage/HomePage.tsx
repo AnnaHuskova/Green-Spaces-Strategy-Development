@@ -392,7 +392,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
           <Marker latitude={areaInfo.lat} longitude={areaInfo.lng} anchor="bottom" className={"sm:hidden"}>
             <img src={marker} alt='Selected zone marker' />
           </Marker>
-          <AreaInfo latitude={areaInfo.lat} longitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend} />
+          <AreaInfo latitude={areaInfo.lat} longitude={areaInfo.lng} data={areaInfo.data as Feature as GreenArea} onExtend={toggleAreaExtend}>
+            <ButtonExpand onClick={closeAreaInfo}/>
+          </AreaInfo>
         </>
       }
       {areaInfo.data && areaInfo.extended === true &&
