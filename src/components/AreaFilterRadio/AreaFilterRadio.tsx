@@ -52,18 +52,18 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
   const classSelected = selected === filteredGroup? "fill-accent" : "fill-none";
 
   return <div className='relative flex'>
-    <label aria-label={hint} className="md:block">
-      <input type="radio" name={groupName} id={`${groupName}_${filteredGroup}`} value={filteredGroup} onClick={onClick} className="hidden appearance-none md:inline-block"/>
-      <svg viewBox='0 0 30 30' className={`block md:inline-block m-auto w-6 h-6 md:w-8 md:h-8 stroke-navlinkActive stroke-[0.75] hover:fill-accent hover:opacity-60 ${classSelected}`}>
+    <label aria-label={hint} className="lg:block">
+      <input type="radio" name={groupName} id={`${groupName}_${filteredGroup}`} value={filteredGroup} onClick={onClick} className="hidden appearance-none lg:inline-block"/>
+      <svg viewBox='0 0 30 30' className={`block lg:inline-block m-auto w-6 h-6 lg:w-8 lg:h-8 stroke-navlinkActive stroke-[0.75] hover:fill-accent hover:opacity-60 ${classSelected}`}>
         {hint && <title>{hint}</title>}
         <use href={icons + `#${filteredGroup}`}></use>
       </svg>
-      <span className='md:hidden'>{hint}</span>
+      <span className='lg:hidden'>{hint}</span>
     </label>
 
     {/* For mobile - show only active group */}
     {selected === filteredGroup && 
-      <div aria-label='Green area filtering' className='fixed left-0 bottom-14 w-full bg-white bg-opacity-80 md:bg-opacity-0 md:static md:w-auto pl-5 overflow-visible z-10' > 
+      <div aria-label='Green area filtering' className='fixed left-0 bottom-14 w-full bg-white bg-opacity-80 lg:bg-opacity-0 lg:static lg:w-auto pl-5 overflow-visible z-10' > 
       {/* TODO: absolute for mobile! ^^^ */}
         <h3>{hint}</h3>
           {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
@@ -87,7 +87,7 @@ function AreaFilterOption({filteredGroup, hint, selected, groupName, onClick, cu
 
       {/* For desktop - show all filters no matter which one is selected */}
       {selected !== filteredGroup && selected !== "" && 
-      <div aria-label='Green area filtering' className='ml-5 hidden md:block' >
+      <div aria-label='Green area filtering' className='ml-5 hidden lg:block' >
         <h3>{hint}</h3>
           {Object.keys((currentFilterState as Record<string, any>)[filteredGroup]).map( (filterCategory:string) => {
             let color = "";
@@ -121,7 +121,7 @@ interface AreaFilterRadioProps {
 }
 
 export function AreaFilterRadio({ onClick, selected, currentFilterState, onToggle, children }: AreaFilterRadioProps) {
-  return <div className='flex flex-row justify-between w-full h-full md:w-auto md:h-auto md:block md:space-y-8'>
+  return <div className='flex flex-row justify-between w-full h-full lg:w-auto lg:h-auto lg:block lg:space-y-8'>
   {Object.keys(areaFilterOptions).map((groupName) => {
     const filteredGroup = (areaFilterOptions as Record<string, any>)[groupName];
     return <AreaFilterOption

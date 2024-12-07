@@ -28,7 +28,7 @@ const routes: RouteType[] = [
 const NavMenu = () => {
 	return (
 		// <List sx={{ display: 'flex' }}>
-    <nav className='hidden md:flex text-navlink flex-row'>
+    <nav className='hidden lg:flex text-navlink flex-row'>
 			{routes.map(route => {
         const activeStyles = "relative text-navlinkActive after:content-[''] after:absolute after:left-0 after:top-[calc(100%-4px)] after:block after:w-full after:h-1 after:bg-accent";
 				return <NavLink end to={route.path} key={route.path} className={({ isActive }) => {return (`block h-full pt-4 mx-13 text-center`+" "+ (isActive? activeStyles: ""))}}
