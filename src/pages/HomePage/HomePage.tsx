@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useMemo, useCallback} from 'react';
 import GlMap, { Source, Layer, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl, AttributionControl, MapMouseEvent, MapLayerMouseEvent, MapGeoJSONFeature, Marker /*PopupEvent, Popup as MaplibrePopup*/ } from 'react-map-gl/maplibre';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,7 +10,7 @@ import AreaInfoExtended from '../../components/AreaInfoExtended';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
 import MapAreaStats from '../../components/MapAreaStats';
 import AreaFilterRadio from '../../components/AreaFilterRadio';
-import { featureCollection } from '@turf/turf';
+import { featureCollection, buffer } from '@turf/turf';
 import { ExpressionFilterSpecification, ExpressionSpecification } from 'maplibre-gl';
 
 import marker from "../../assets/images/marker-icon.png";
@@ -28,13 +28,19 @@ enum LANDTYPES {
   unknown = "не визначено"
 };
 
+function getLandTypeKey(value: LANDTYPES): keyof typeof LANDTYPES {
+  return Object.keys(LANDTYPES).find(
+    key => LANDTYPES[key as keyof typeof LANDTYPES] === value
+  ) as keyof typeof LANDTYPES;
+};
+
 interface GreenArea extends Feature {
   properties: {
     id: string, //ідентифікатор об'єкта (за даним міськради)
     name: string, //назва зеленої зони (назва парку, скверу або інший топонім, що має статус обʼєкта благоустрою)
     description: string, //опис зеленої зони (за рішеннями міськради)
     landStatus: boolean, //чи є об'єктом благоустрою
-    landType: typeof LANDTYPES, //тип зеленої зони
+    landType: LANDTYPES, //тип зеленої зони
     maintained: boolean, //чи утримується з бюджету міста
     owner?: string, //балансоутримувач (назва комунального підприємства, що опікується обʼєктом)
     //area: string, //площа об'єкта в м² (в майбутньому площа має обчислюватись за наявної геометрії на льоту)
@@ -77,6 +83,7 @@ const CURSOR_TYPE = {
   POINTER: "pointer",
 };
 
+
 interface ZoneFilter {
   landStatus: {
     supervised: boolean,
@@ -90,6 +97,30 @@ interface ZoneFilter {
   }
 }
 
+//buffer area for each land type, used for area statistics
+const BUFFER_RADII: Record<string, number> = {
+  [LANDTYPES.park]: 1000,
+  [LANDTYPES.square]: 500,
+  [LANDTYPES.forestPark]: 1000,
+  [LANDTYPES.allee]: 500,
+  [LANDTYPES.boulevard]: 500,
+  [LANDTYPES.unknown]: 500,
+};
+
+function getFilteredGreenAreas(greenAreas: GreenArea[], zoneFilter: ZoneFilter): GreenArea[] {
+  return greenAreas.filter(area => {
+    // landType
+    if (!zoneFilter.landType[getLandTypeKey(area.properties.landType)]) return false;
+    // landStatus
+    if (area.properties.landStatus && !zoneFilter.landStatus.supervised) return false;
+    if (!area.properties.landStatus && !zoneFilter.landStatus.unsupervised) return false;
+    // maintenance
+    if (area.properties.maintained && !zoneFilter.maintenance.maintained) return false;
+    if (!area.properties.maintained && !zoneFilter.maintenance.unmaintained) return false;
+    return true;
+  });
+};
+
 function HomePage({greenAreas, districts}: HomePageProps) {
 
   type AreaInfo = {
@@ -98,7 +129,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     data: MapGeoJSONFeature | null,
     extended: boolean,
   };
-
+  
   const showSourceError = (message:string):void => {
     toast.error(`${message}`, {
       position: "top-center",
@@ -112,7 +143,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       transition: Bounce,
     });
   }
-
+  
   const [availableStyles, setAvailableStyles] = useState<MapStyle[]>(mapStyles);
   const [style, setStyle] = useState(0);
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
@@ -145,6 +176,25 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   });
 
+  const [showBuffers, setShowBuffers] = useState(true); //
+
+  const filteredGreenAreas = useMemo(
+    () => getFilteredGreenAreas(greenAreas, zoneFilter),
+    [greenAreas, zoneFilter]
+  );
+
+ const bufferFeatures = useMemo(() => {
+    if (!filteredGreenAreas) return featureCollection([]);
+    return featureCollection(
+      filteredGreenAreas
+        .filter(area => area.geometry)
+        .map(area => {
+          const radius = BUFFER_RADII[area.properties.landType] || 500;
+          return buffer(area, radius, { units: 'meters' });
+        })
+    );
+  }, [filteredGreenAreas]);
+  
   function constructAdditionalFilter(mainFilter:string) {
     const filterArray:(boolean|ExpressionSpecification)[] = [];
     for(const filterGroup in zoneFilter) {
@@ -298,7 +348,17 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   }
 
+  
+
 	return <div className="lg:relative w-full h-[calc(100vh-48px-54px)] lg:h-[calc(100vh-56px-112px)] overflow-visible">
+   
+    <div style={{position: 'absolute', zIndex: 20, left: 12, top: 80, background: '#fff', padding: '6px 12px', borderRadius: '8px'}}>
+      <label>
+        <input type="checkbox" checked={showBuffers} onChange={() => setShowBuffers(!showBuffers)} />
+        Показати буфери доступності
+      </label>
+    </div>
+
     {styleJson ? <GlMap
       initialViewState={{
         longitude: 35.0064,
@@ -317,6 +377,21 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       ]}
       attributionControl={false}
       mapStyle={styleJson}>
+
+      <Source
+        id="green-area-buffers"
+        type="geojson"
+        data={showBuffers ? bufferFeatures : featureCollection([])}
+      >
+        <Layer
+          id="buffer-layer"
+          type="fill"
+          paint={{
+            'fill-color': 'rgba(238, 0, 255, 0.52)',
+            'fill-opacity': 0.16  ,
+          }}
+        />
+      </Source>
 
       <Source
         type='geojson'
