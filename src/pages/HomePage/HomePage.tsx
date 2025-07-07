@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { Feature, FeatureCollection } from 'geojson';
 import MapLegend from "../../components/MapLegend";
+import { BufferToggle } from "../../components/MapLegendItem";
 import AreaInfo from '../../components/AreaInfo';
 import AreaInfoExtended from '../../components/AreaInfoExtended';
 import MapSourceSwitch from '../../components/MapSourceSwitch';
@@ -61,8 +62,9 @@ interface MapStyle {
   customAttribution?: string,
 };
 
-//first style is the default one
-const mapStyles: MapStyle[] = [
+// Map styles configuration
+//first style is the default one 
+const mapStyles: MapStyle[] = [ 
   {
     name: "OSM-UA Positron",
     url: new URL(`https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json`),
@@ -78,7 +80,8 @@ const mapStyles: MapStyle[] = [
   },
 ];
 
-const CURSOR_TYPE = {
+// Cursor types for map interaction
+const CURSOR_TYPE = { 
   AUTO: "auto",
   POINTER: "pointer",
 };
@@ -176,7 +179,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
     }
   });
 
-  const [showBuffers, setShowBuffers] = useState(true); //
+  const [showBuffers, setShowBuffers] = useState(true); // show buffers
 
   const filteredGreenAreas = useMemo(
     () => getFilteredGreenAreas(greenAreas, zoneFilter),
@@ -349,15 +352,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   }
 
   
-
 	return <div className="lg:relative w-full h-[calc(100vh-48px-54px)] lg:h-[calc(100vh-56px-112px)] overflow-visible">
-   
-    <div style={{position: 'absolute', zIndex: 20, left: 12, top: 80, background: '#fff', padding: '6px 12px', borderRadius: '8px'}}>
-      <label>
-        <input type="checkbox" checked={showBuffers} onChange={() => setShowBuffers(!showBuffers)} />
-        Показати буфери доступності
-      </label>
-    </div>
 
     {styleJson ? <GlMap
       initialViewState={{
@@ -445,16 +440,33 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       />
       <ScaleControl maxWidth={180} unit="metric" position='bottom-right'/>
       {showMapLegend && <MapLegend className={"fixed left-0 max-lg:bottom-0 lg:absolute lg:top-28 w-full lg:w-auto h-14 lg:h-auto lg:min-h-14 min-w-14 lg:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 py-0 lg:py-6 lg:px-4 lg:rounded-xl shadow-sm z-10"}>
-        <div className='flex flex-row overflow-y-auto px-6 py-1.5 lg:p-0 font-sans'>
+        <div className='flex flex-col overflow-y-auto px-6 py-1.5 lg:p-0 font-sans'>
           <AreaFilterRadio
             onClick={onFilterClick}
             selected = {filterSelected}
             currentFilterState={zoneFilter}
             onToggle={toggleLayerProperty}
           >
+        
             {filterSelected!=="" && <ButtonExpand onClick={()=>{setFilterSelected("")}} style='lg:hidden z-20'/>}
+              
           </AreaFilterRadio>
           {filterSelected!=="" && <ButtonExpand direction='left' onClick={()=>{setFilterSelected("")}} style='hidden lg:block z-20'/>}
+
+            {filterSelected !== "" && (
+              <div className="flex flex-col space-y-1 px-4 py-2">
+                <div className="flex items-center space-x-2">
+                  <img
+                    src="iconBuffer.svg"
+                    alt="buffer icon"
+                    className="h-12 w-12"
+                  />
+                  <h3 className="text-sm font-medium">Аналітика</h3>
+                </div>
+                <BufferToggle showBuffers={showBuffers} setShowBuffers={setShowBuffers} />
+              </div>
+            )}
+
         </div>
         
       </MapLegend>}
@@ -484,7 +496,9 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       }
       <ToastContainer />
     </GlMap> : "Loading"}
+
 	</div>
+  
 };
 
 export {
