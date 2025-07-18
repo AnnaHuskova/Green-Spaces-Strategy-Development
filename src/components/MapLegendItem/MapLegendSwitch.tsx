@@ -23,3 +23,4 @@ export function MapLegendSwitch({ active, onToggleActive, color, controls, label
       <span className="ms-1.5 text-sm">{label}</span> 
     </label>;
 }
+

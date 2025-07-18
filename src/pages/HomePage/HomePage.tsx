@@ -457,7 +457,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
               <div className="flex flex-col space-y-1 px-4 py-2">
                 <div className="flex items-center space-x-2">
                   <img
-                    src="iconBuffer.svg"
+                    src="analitics.svg"
                     alt="buffer icon"
                     className="h-12 w-12"
                   />
