@@ -29,7 +29,8 @@ const ParticipantCard: React.FC<Participant> = ({
   fbLink,
   personalWeb,
   LinkedinLink,
-  youTubeLink
+  youTubeLink,
+  
 }) => {
 
   const getPhotoSrc = (url?: string) => {
@@ -42,7 +43,7 @@ const ParticipantCard: React.FC<Participant> = ({
 
 
   return (
-    <div className="border-1 border-cyan-300 rounded-3xl p-3 flex flex-col items-center w-full md:w-90 bg-white shadow-md">
+    <div className="border-1 border-cyan-300 rounded-3xl p-3 flex flex-col items-center w-full md:w-108 bg-white shadow-md">
       <img
         src={getPhotoSrc(photoUrl)}
         alt={name || "No name"}
