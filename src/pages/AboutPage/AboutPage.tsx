@@ -2,13 +2,8 @@ import React from 'react';
 import AboutLeftNav from '../../components/AboutProgect/AboutLeftNav';
 import AboutRight from '../../components/AboutProgect/AboutRight';
 import AboutMainContent from '../../components/AboutProgect/AboutMainContent';
-import ParticipantsSection from '../../components/AboutProgect/ParticipantsSection';
+import UpArrow from '../../assets/icons/up-arrow.svg';
 import { Feature } from 'geojson';
-
-// interface AboutPageProps {
-//   participants?: Participant[];
-// }
-
 export interface AboutPageProps {
   participants: Feature[];
 }
@@ -16,17 +11,18 @@ export interface AboutPageProps {
 const AboutPage: React.FC<AboutPageProps> = ({ participants = [] }) => {
   return (
     <div className="flex flex-row h-full w-full">
-      <section className="w-1/5 p-4">
-        <AboutLeftNav />
+      <section className="hidden md:block md:w-1/5 p-4">
+        <div className="sticky top-4"><AboutLeftNav /></div>
+
       </section>
     
-      <main className="w-3/5 p-4">
+      <main className="w-full md:w-3/5 p-4">
         <section 
             id="description" 
-            className="mt-10 mb-8 text-lg leading-relaxed space-y-4"
+            className="mt-10 mb-8 text-lg leading-relaxed space-y-4 font-sans"
           >
             <h1 className="text-2xl font">
-              <b>Вітаємо</b> 👋 на платформі проєкту 
+              <b>Вітаємо</b>👋 на платформі проєкту 
               <b className="ml-1">Green Spaces Strategy Development</b>
             </h1>
             <p className="text-gray-700">
@@ -45,9 +41,17 @@ const AboutPage: React.FC<AboutPageProps> = ({ participants = [] }) => {
         </section>
       </main>
 
-      <section className="w-1/5 p-4">
+      <section className="hidden md:block md:w-1/5 p-4">
         <AboutRight/>
       </section>
+
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="block sm:hidden fixed bottom-6 right-6 bg-lime-300 p-3 rounded-md shadow-lg"
+      >
+        <img src={UpArrow} alt="Up" className="w-6 h-6" />
+      </button>
+
     </div>
   );
 };
