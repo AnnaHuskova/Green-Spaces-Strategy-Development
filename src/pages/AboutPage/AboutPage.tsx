@@ -3,6 +3,7 @@ import AboutLeftNav from '../../components/AboutProgect/AboutLeftNav';
 import AboutRight from '../../components/AboutProgect/AboutRight';
 import AboutMainContent from '../../components/AboutProgect/AboutMainContent';
 import UpArrow from '../../assets/icons/up-arrow.svg';
+import { ReactComponent as UpArrowIcon } from '../../assets/icons/up-arrow.svg';
 import { Feature } from 'geojson';
 export interface AboutPageProps {
   participants: Feature[];
@@ -47,9 +48,9 @@ const AboutPage: React.FC<AboutPageProps> = ({ participants = [] }) => {
 
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="block sm:hidden fixed bottom-6 right-6 bg-lime-300 p-3 rounded-md shadow-lg"
+        className="block sm:hidden fixed bottom-6 right-6 bg-lime-300 p-3 rounded-full shadow-lg"
       >
-        <img src={UpArrow} alt="Up" className="w-6 h-6" />
+        <UpArrowIcon className="w-6 h-6 text-lime-500" />
       </button>
 
     </div>
