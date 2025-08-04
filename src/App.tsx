@@ -4,7 +4,7 @@ import Favicon from 'react-favicon';
 import envVars from "./js/env";
 import { MainLayout } from './layouts';
 import { HomePage, AboutPage, SavePage, BlogPage } from './pages';
-import { HomePageProps, GreenArea } from './pages';
+import { HomePageProps, GreenArea, AboutPageProps } from './pages';
 import useMetaTag from './hooks/useMetaTag';
 import { ReactComponent as Logo } from './assets/images/favicon.svg';
 import ReactDOMServer from 'react-dom/server';
@@ -14,6 +14,7 @@ import { PathLike } from 'fs';
 const BACKEND_URL: PathLike = envVars.REACT_APP_BACKEND_URL as string;
 const DISTRICTS_ENDPOINT: string = envVars.REACT_APP_DISTRICTS_ENDPOINT as string;
 const AREAS_ENDPOINT: string = envVars.REACT_APP_AREAS_ENDPOINT as string;
+const PARTICIPANTS_ENDPOINT: string = envVars.REACT_APP_PARTICIPANTS_ENDPOINT as string;
 
 interface AreaData {
   area: GreenArea[]
@@ -23,9 +24,13 @@ interface DistrictData {
   district: Feature[],
 }
 
+interface ParticipantsData {
+  participants: Feature[];
+}
+
 interface FetchResponse {
   code: number,
-  data?: AreaData | DistrictData,
+  data?: AreaData | DistrictData | ParticipantsData,
   message?: string,
   status: string,
 }
@@ -41,12 +46,14 @@ const faviconUrl = svgToDataURL(Logo);
 
 const useMeta = () => {
   useMetaTag('description', 'Green Spaces Strategy Development — проєкт спрямований на збереження та розвиток зелених зон в місті, розбдову сталого навколишнього середовища та підвищення якості життя мешканців міст.');
-  useMetaTag('keywords', 'Green Spaces Strategy Development, Dnipro, зелені зони, зелені території, зелені насадження, зелені насадження міста Дніпро, зелені зони міста Дніпро, зелені території міста Дніпро, зелені насадження Дніпро, зелені зони Дніпро, зелені території Дніпро, парки Дніпра, стратегія розвитку зелених зон');
+  useMetaTag('keywords', 'Green Spaces Strategy Development, Dnipro, зелені зони, зелені території, зелені насадження, зелені насадження міста Дніпро, зелені зони міста Дніпро, зелені території міста Дніпро, зелені насадження Дніпро, зелені зони Дніпро, зелені території Дніпро, парки Дніпра, стратегія розвитку парків, стратегія розвитку Дніпро, стратегія розвитку, стратегія розвитку зелених зон');
 };
 
 function App() {
   const [city, setCity] = useState<string>("Dnipro");
   const [cityData, setCityData] = useState<HomePageProps | undefined>(undefined);
+  const [participantsData, setParticipantsData] = useState<AboutPageProps | undefined>(undefined);
+
 
   useEffect(() => {
     const fetchCityData = async (city: string): Promise<boolean> => {
@@ -69,7 +76,28 @@ function App() {
       return false;
     };
 
-    fetchCityData(city);
+   const fetchParticipants = async (): Promise<boolean> => {
+      try {
+        const res = await fetch(`${BACKEND_URL}${PARTICIPANTS_ENDPOINT}`);
+        const json = await res.json() as FetchResponse;
+        console.log('Participants response:', json);
+
+        if (json.code === 200 && json.data) {
+          // Преобразуем в AboutPageProps
+          setParticipantsData({
+            participants: (json.data as ParticipantsData).participants
+          });
+          return true;
+        }
+      } catch (e) {
+        console.error('Error loading participants:', e);
+      }
+      return false;
+    };
+    
+  fetchCityData(city);
+  fetchParticipants();
+
   }, [city]);
 
   useMeta();
@@ -80,7 +108,10 @@ function App() {
       <Routes>
         <Route path='/' element={<MainLayout />}>
           {cityData && <Route index element={<HomePage greenAreas={cityData.greenAreas} districts={cityData.districts} />} />}
-          <Route path='/about' element={<AboutPage />} />
+         <Route
+            path='/about'
+            element={<AboutPage participants={participantsData?.participants ?? []} />}
+          />
           <Route path='/save' element={<SavePage />} />
           <Route path='/blog' element={<BlogPage />} />
         </Route>

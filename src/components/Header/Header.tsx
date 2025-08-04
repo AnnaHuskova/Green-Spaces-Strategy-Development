@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { NavMenu } from '../NavMenu';
 import { ReactComponent as Logo } from '../../assets/images/logo-colored.svg';
 
+
 const Header = memo(() => {
     return (
         <header
