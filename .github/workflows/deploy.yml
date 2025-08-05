@@ -43,7 +43,10 @@ jobs:
         env:
           CI: false
         run: npm run build
-      
+        
+      - name: Add 404.html for React Router
+        run: cp build/index.html build/404.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
