@@ -17,6 +17,9 @@ import marker from "../../assets/images/marker-icon.png";
 import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfigRaw from "../../tailwind.config.js";
 import ButtonExpand from '../../components/ButtonExpand';
+import BirdsInfo from "../../components/BirdsInfo/BirdsInfo";
+
+
 const twConfig = resolveConfig(tailwindConfigRaw); //for access to palette directly from TS
 
 enum LANDTYPES {
@@ -112,7 +115,8 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       transition: Bounce,
     });
   }
-
+  
+  const [showBirdsPanel, setShowBirdsPanel] = useState(false);
   const [availableStyles, setAvailableStyles] = useState<MapStyle[]>(mapStyles);
   const [style, setStyle] = useState(0);
   const [cursorType, setCursorType] = useState(CURSOR_TYPE.AUTO);
@@ -299,6 +303,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
   }
 
 	return <div className="lg:relative w-full h-[calc(100vh-48px-54px)] lg:h-[calc(100vh-56px-112px)] overflow-visible">
+    
     {styleJson ? <GlMap
       initialViewState={{
         longitude: 35.0064,
@@ -369,6 +374,16 @@ function HomePage({greenAreas, districts}: HomePageProps) {
         position="bottom-right"
       />
       <ScaleControl maxWidth={180} unit="metric" position='bottom-right'/>
+      
+      {/* BIRDS BUTTON & PANEL */}
+      {/* {!showBirdsPanel && (
+        <BirdsButton onClick={() => setShowBirdsPanel(true)} />
+      )}
+
+      {showBirdsPanel && (
+        <BirdsPanel onClose={() => setShowBirdsPanel(false)} />
+      )} */}
+
       {showMapLegend && <MapLegend className={"fixed left-0 max-lg:bottom-0 lg:absolute lg:top-28 w-full lg:w-auto h-14 lg:h-auto lg:min-h-14 min-w-14 lg:max-h-[calc(100%-28px)] overflow-y-auto bg-white bg-opacity-75 py-0 lg:py-6 lg:px-4 lg:rounded-xl shadow-sm z-10"}>
         <div className='flex flex-row overflow-y-auto px-6 py-1.5 lg:p-0 font-sans'>
           <AreaFilterRadio
@@ -409,6 +424,7 @@ function HomePage({greenAreas, districts}: HomePageProps) {
       }
       <ToastContainer />
     </GlMap> : "Loading"}
+    <BirdsInfo />
 	</div>
 };
 
