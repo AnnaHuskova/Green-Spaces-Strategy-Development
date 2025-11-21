@@ -28,12 +28,10 @@ module.exports = {
       borderRadius: {
         '4xl': '2rem',
       },
-
-      
       keyframes: {
         auraBreath: {
           '0%':   { boxShadow: '0 0 7px #00FF29, 0 0 12px #00FF29' },
-          '50%':  { boxShadow: '0 0 20px #00FF29, 0 0 30пше px #00FF29' },
+          '50%':  { boxShadow: '0 0 18px #00FF29, 0 0 25px #00FF29' },
           '100%': { boxShadow: '0 0 7px #00FF29, 0 0 12px #00FF29' },
         },
       },
