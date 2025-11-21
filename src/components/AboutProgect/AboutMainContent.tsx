@@ -23,46 +23,67 @@ const AboutMainContent: React.FC<AboutMainContentProps> = ({ participants }) => 
   );
 
   return (
-    <div className="flex flex-col gap-10 w-full">
-    
-      <section id="contributors">
-        <h2 className="text-2xl font-bold mb-9 font-sans">🧙 ДЖЕДАЇ міських зелених зон</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {jediParticipants.map((feature: any, idx) => (
-            <ParticipantCard key={`jedi-${idx}`} {...feature.properties} />
-          ))}
-        </div>
-      </section>
-
-      
+    <div className="flex flex-col gap-20 w-full mt-20">
+  
       <section id="team">
-        <h2 className="text-2xl font-bold mb-9 font-sans">🌱 КОМАНДА проєкту</h2>
+        <h2 className="text-2xl font-bold mb-9 font-sans border-b pb-1">🚀 КОМАНДА проєкту</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {teamParticipants.map((feature: any, idx) => (
             <ParticipantCard key={`team-${idx}`} {...feature.properties}/>
           ))}
         </div>
       </section>
+      <section id="contributors">
+        <h2 className="text-2xl font-bold mb-9 font-sans border-b pb-1">🧙 ДЖЕДАЇ міських зелених зон</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          {jediParticipants.map((feature: any, idx) => (
+            <ParticipantCard key={`jedi-${idx}`} {...feature.properties} />
+          ))}
+
+        </div>
+        {/* CTA блок */}
+<div className="w-full flex justify-center mt-16 px-4">
+  <div className="
+      flex flex-col md:flex-row 
+      items-center md:items-center 
+      gap-6 md:gap-10
+      text-center md:text-right
+    ">
+
+    {/* ТЕКСТ */}
+    <p className="text-xl font-semibold font-sans leading-tight">
+      Якщо Вас турбує<br className="hidden md:block" />
+      зебереження зелених просторів<br className="hidden md:block" />
+      міста — заповніть 👉
+    </p>
+
+    {/* КНОПКА */}
+    <a
+      href="https://forms.gle/braoFkT7vNWCkYVbA"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="
+        px-10 py-4 
+        bg-white 
+        text-black 
+        rounded-2xl 
+        text-xl font-bold 
+        whitespace-nowrap
+
+        animate-auraBreath    /* ← ПУЛЬСИРУЮЩЕЕ СВЕЧЕНИЕ ВОКРУГ */
+
+        hover:bg-accent       /* ← ЗЕЛЁНАЯ ПРИ HOVER */
+        transition-all
+      "
+    >
+      Профіль “Джедая”
+    </a>
+  </div>
+</div>
+      </section>
+
     </div>
   );
-
-  // return (
-  //   <div className="flex flex-wrap gap-6 justify-center w-full px-4 md:px-8 lg:px-16">
-  //     {participants.map((p: Feature, i: number) => {
-  //       // Перевірка properties
-  //       const props = p.properties as Record<string, any> | null;
-
-  //       if (!props) return null;
-
-  //       return (
-  //         <ParticipantCard
-  //           key={i}
-  //           {...props} //  Передаємо поля у картку
-  //         />
-  //       );
-  //     })}
-  //   </div>
-  // );
 };
 
 export default AboutMainContent;

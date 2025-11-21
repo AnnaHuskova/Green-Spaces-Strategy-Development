@@ -19,7 +19,6 @@ module.exports = {
     fontFamily: {
       sans: ["Play", "Roboto", 'sans-serif'],
       sansModal: ["Poppins", "Roboto", 'sans-serif'],
-    //   serif: ['Merriweather', 'serif'],
     },
     extend: {
       spacing: {
@@ -28,9 +27,20 @@ module.exports = {
       },
       borderRadius: {
         '4xl': '2rem',
+      },
+
+      
+      keyframes: {
+        auraBreath: {
+          '0%':   { boxShadow: '0 0 7px #00FF29, 0 0 12px #00FF29' },
+          '50%':  { boxShadow: '0 0 20px #00FF29, 0 0 30px #00FF29' },
+          '100%': { boxShadow: '0 0 7px #00FF29, 0 0 12px #00FF29' },
+        },
+      },
+      animation: {
+        auraBreath: 'auraBreath 5.0s ease-in-out infinite',
       }
     }
   },
   plugins: [],
 }
-
