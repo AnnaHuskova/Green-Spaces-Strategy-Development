@@ -4,6 +4,8 @@ import AboutRight from '../../components/AboutProgect/AboutRight';
 import AboutMainContent from '../../components/AboutProgect/AboutMainContent';
 import UpArrow from '../../assets/icons/up-arrow.svg';
 import { ReactComponent as UpArrowIcon } from '../../assets/icons/up-arrow.svg';
+import PartnersSection from '../../components/AboutProgect/PartnersSection';
+import ContactsSection from '../../components/AboutProgect/ContactsSection';
 import { Feature } from 'geojson';
 export interface AboutPageProps {
   participants: Feature[];
@@ -20,7 +22,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ participants = [] }) => {
       <main className="w-full md:w-3/5 p-4">
         <section 
             id="description" 
-            className="mt-10 mb-8 text-lg leading-relaxed space-y-4 font-sans"
+            className="mt-20 mb-10 text-xl leading-relaxed space-y-4 font-sans"
           >
             <h1 className="text-2xl font">
               <b>Вітаємо</b>👋 на платформі проєкту 
@@ -37,9 +39,16 @@ const AboutPage: React.FC<AboutPageProps> = ({ participants = [] }) => {
             </p>
         </section>
 
+        {/* Команда|Учасники */}
         <section className='md:mt-10'>
         <AboutMainContent participants={participants} />
         </section>
+
+        {/* Партнери */}
+        <PartnersSection />
+
+        {/* Контакти */}
+        <ContactsSection />
       </main>
 
       <section className="hidden md:block md:w-1/5 p-4">
